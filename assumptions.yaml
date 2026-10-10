@@ -1,0 +1,20 @@
+# Every value in this file is ASSUMED (a human decision), never measured.
+# Edit the placeholders before running the cfo bridge and verdict.
+thresholds:
+  kill_success_rate: 0.5
+  kill_margin: 0.2
+  kill_runway_months: 6
+  build_success_rate: 0.8
+  build_margin: 0.6
+  build_runway_months: 12
+  build_retry_tax: 0.35
+business:
+  price_per_run: 1.00
+  infra_per_run: 0.02
+  customers_month_1: 10
+  customers_month_12: 200
+  runs_per_customer_per_month: 20
+  fixed_costs_per_month: 500
+  starting_cash: 10000
+  # Enter by hand from the exported cfo.ai plan. Leave null until you have it.
+  runway_months: null
