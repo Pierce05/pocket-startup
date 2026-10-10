@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "neatlogs-py": {
+      "source": "neatlogs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/neatlogs-py/SKILL.md",
+      "computedHash": "fde0bbf89cd4ee8f6cdcb37ca874746c182dcb072b2e9225339803495ddf2bf8"
+    }
+  }
+}
