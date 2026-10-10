@@ -1,0 +1,16 @@
+approved: STAGE 1a only. (1) Replace requirements.txt with a UTF-8 file based on reference/pocket-startup/requirements.txt, using neatlogs[google-genai]>=1.4 and adding pytest-asyncio. If neatlogs>=1.4 is not installable in this environment, tell me instead of lowering the version. (2) Add pytest.ini with asyncio_mode=auto, pythonpath=., testpaths=tests. (3) Add config.py with explicit utf-8 file reads, reading GEMINI_API_KEY, GEMINI_MODEL and NEATLOGS_API_KEY from the environment via python-dotenv, never printing them. (4) Add agent/__init__.py, tests/__init__.py and tests/conftest.py. Do not install packages yourself; give me the pip commands. Do not run any git command. Stop after listing the files created, the verify commands, and a suggested commit message.
+
+---
+
+Finish STAGE 1a verification only.
+
+The current repository has `tests/conftest.py`, `tests/__init__.py`, and `agent/__init__.py`, but `python -m pytest --collect-only` reports 0 tests collected.
+
+1. Inspect `config.py`, `tests/conftest.py`, `pytest.ini`, and `assumptions.yaml`.
+2. Add focused unit tests for configuration loading, required environment-variable validation, and the `tmp_evidence` fixture, based on the actual existing behavior.
+3. Do not read or print `.env` or any secrets.
+4. Do not implement the Gemini agent, Neatlogs tracing, or later stages yet.
+5. Run `python -m pytest -q` and report the exact results.
+6. Do not run Git commands or commit anything.
+
+Stop after reporting changed files and test results.
