@@ -1,0 +1,40 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4JWR2R7HZ8TFZM3SRHKEWA6",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "agent/autopsy.py",
+    "agent/checks.py",
+    "agent/llm.py",
+    "agent/loop.py",
+    "agent/mock_llm.py",
+    "agent/prompts.py",
+    "agent/rails.py",
+    "agent/sandbox.py",
+    "agent/templates.py",
+    "agent/tracing.py",
+    "tests/conftest.py",
+    "tests/fixtures/bad_tip.html",
+    "tests/fixtures/good_tip.html",
+    "tests/test_checks.py",
+    "tests/test_llm.py",
+    "tests/test_loop.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 260,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 109918,
+    "output_tokens": 0,
+    "api_call_count": 1
+  }
+}

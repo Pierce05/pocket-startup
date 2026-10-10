@@ -1,0 +1,44 @@
+Proceed with STAGE 1b only for Pocket Startup.
+
+Read `AGENTS.md`, `GEMINI.md`, `docs/PRD.md`, `docs/GUIDE.md`, `assumptions.yaml`, and the existing Stage 1a implementation first.
+
+Use the existing `reference/` directory as reference material. Inspect relevant files individually and adapt useful code; do not bulk-copy the ZIP or overwrite working Stage 1a files.
+
+Implement the smallest working core:
+1. A Gemini API wrapper using `google-genai` and `GEMINI_MODEL` from configuration.
+2. A bounded generation loop with a strict attempt limit, timeout, budget guard, and kill switch.
+3. Clear separation between generated app output, execution, and validation.
+4. Automated checks that determine success independently of the model's claims.
+5. Unit tests for success, model failure, retry limits, timeout/budget rails, and kill-switch behavior.
+6. Keep failed attempts and evidence; label mock runs clearly and exclude them from real-run metrics.
+
+Constraints:
+- Do not read, print, log, or hard-code `.env` secrets.
+- Do not invent Gemini or Neatlogs APIs.
+- Do not claim tracing works until a real trace is visible in the Neatlogs dashboard.
+- Do not change model pricing or invent cost estimates. If pricing is not verified, mark it ASSUMED and keep it separate from measured usage.
+- Do not implement the pixel-office UI, A/B experiments, verdict engine, or cfo.ai bridge in this stage.
+- Do not run Git commands or commit anything.
+
+Before editing, briefly list the files you plan to create or change. Then implement Stage 1b, run the relevant tests, and report every changed file, exact test results, and remaining blockers. Stop for approval before Stage 1c.
+
+---
+
+Review the completed Stage 1b implementation before proceeding to Stage 1c.
+
+Do not edit files, run Git commands, commit, or start Stage 1c.
+
+Inspect the actual implementation and report evidence for these checks:
+
+1. **Stage 1a preservation:** confirm the original configuration and six config tests remain intact.
+2. **Rails:** verify that the attempt limit, budget cap, wall-clock timeout, and kill switch are enforced at every relevant point, including before model calls and retries.
+3. **Sandbox:** inspect whether generated HTML can escape the intended restrictions. In particular, verify network blocking, file access, browser persistence restrictions, and the 15-second timeout. Clearly distinguish implemented protections from limitations.
+4. **Independent validation:** confirm that Playwright—not the LLM—decides pass/fail, and that the good fixture passes while the bad fixture fails for the intended reason.
+5. **Evidence preservation:** verify that `result.json` is written on every exit path and that failed attempts are retained without contaminating real-run metrics with mock runs.
+6. **Gemini wrapper:** inspect the actual retry/backoff logic, token accounting, error handling, and concurrency limit. Check that estimated costs are explicitly marked unverified rather than presented as measured costs.
+7. **Neatlogs:** verify that the integration matches the installed version 1.4.26 and identify what still needs a live smoke test.
+8. **Reference implementation:** identify any missing requirements from `docs/PRD.md`, `docs/GUIDE.md`, and the project instructions that Stage 1b was supposed to implement.
+
+Run the relevant tests only if needed to substantiate findings. Do not weaken tests to make them pass.
+
+Return a concise report with file paths and specific evidence, any critical/high-risk findings, and a clear recommendation: approve Stage 1c or fix Stage 1b first. Do not modify anything.
