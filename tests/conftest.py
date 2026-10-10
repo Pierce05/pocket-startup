@@ -29,3 +29,15 @@ def _browser_available() -> bool:
 
 BROWSER = _browser_available()
 needs_browser = pytest.mark.skipif(not BROWSER, reason="Chromium not installed (run: playwright install chromium)")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def clean_neatlogs_shutdown():
+    yield
+    try:
+        import neatlogs
+        neatlogs.flush()
+        neatlogs.shutdown()
+    except Exception:
+        pass
+

@@ -1,0 +1,20 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Tip Splitter</title></head>
+<body>
+<h1>Tip Splitter</h1>
+<input id="bill" type="text" placeholder="Bill">
+<input id="people" type="text" placeholder="People">
+<input id="tip" type="text" placeholder="Tip %">
+<button id="calc">Calculate</button>
+<div id="result"></div>
+<div id="error" style="color:red"></div>
+<script>
+document.getElementById('calc').addEventListener('click', function(){
+  var bill = parseFloat(document.getElementById('bill').value);
+  var people = parseFloat(document.getElementById('people').value);
+  var tip = parseFloat(document.getElementById('tip').value);
+  // BUG (on purpose): divides by the people count with no validation
+  document.getElementById('result').textContent = ((bill * (1 + tip / 100)) / people).toFixed(2);
+});
+</script>
+</body></html>
