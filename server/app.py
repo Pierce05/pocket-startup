@@ -355,6 +355,67 @@ def get_verdict(founder: str = "a", cohort: str = "held_out"):
     return verdict.compute(arm, assumptions, founder_profile)
 
 
+@app.post("/api/founder/verdict")
+@app.post("/api/verdict")
+def evaluate_custom_founder_verdict(req: dict[str, Any]):
+    """Evaluate deterministic verdict with a custom founder profile from intake form."""
+    cohort = str(req.get("cohort") or "held_out")
+    base_name = str(req.get("founder_base") or "a")
+    fp = verdict.resolve_founder_path(base_name)
+    founder_profile = verdict.load_founder_profile(fp)
+
+    # Override any supplied fields
+    for k in (
+        "target_user",
+        "payer",
+        "goal",
+        "first_customer_channel",
+        "demand_evidence",
+        "budget_inr",
+        "weekly_hours",
+        "skills",
+        "price_per_run_inr",
+    ):
+        if k in req and req[k] is not None and req[k] != "":
+            founder_profile[k] = req[k]
+
+    # Type coercions
+    if "budget_inr" in founder_profile:
+        try:
+            founder_profile["budget_inr"] = float(founder_profile["budget_inr"])
+        except (ValueError, TypeError):
+            raise HTTPException(400, "budget_inr must be a number")
+    if "weekly_hours" in founder_profile:
+        try:
+            founder_profile["weekly_hours"] = float(founder_profile["weekly_hours"])
+        except (ValueError, TypeError):
+            raise HTTPException(400, "weekly_hours must be a number")
+    if "price_per_run_inr" in founder_profile:
+        try:
+            founder_profile["price_per_run_inr"] = float(founder_profile["price_per_run_inr"])
+        except (ValueError, TypeError):
+            raise HTTPException(400, "price_per_run_inr must be a number")
+    if isinstance(founder_profile.get("skills"), str):
+        founder_profile["skills"] = [s.strip() for s in founder_profile["skills"].split(",") if s.strip()]
+
+    try:
+        verdict.validate_founder(founder_profile)
+    except ValueError as err:
+        raise HTTPException(400, str(err))
+
+    assumptions = config.load_assumptions()
+    mp = Path(config.METRICS_PATH)
+    metrics = json.loads(mp.read_text(encoding="utf-8")) if mp.exists() else {}
+    exp = metrics.get("experiment", {})
+    arm = exp.get(cohort, {}).get("improved")
+    if not arm and exp:
+        arm = exp.get("held_out", {}).get("improved") or exp.get("combined", {}).get("improved") or {}
+    if not arm:
+        arm = metrics.get("live", {})
+
+    return verdict.compute(arm, assumptions, founder_profile)
+
+
 @app.get("/api/ledger")
 def get_ledger():
     """Read or generate evidence ledger."""

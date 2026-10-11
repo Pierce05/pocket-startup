@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pocket Startup</title>
+  <link rel="stylesheet" href="/ui/style.css">
+</head>
+<body>
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <div class="brand">POCKET <span>STARTUP</span></div>
+
+    <div class="idea-input-wrap">
+      <input id="idea-input" class="idea-input" type="text"
+             aria-label="Startup idea"
+             placeholder="Type a startup idea, e.g. a tip splitter for friends"
+             value="A tip splitter for friends sharing a restaurant bill">
+    </div>
+
+    <div class="seg-group" role="group" aria-label="Builder mode">
+      <button id="mode-baseline" class="seg-btn" aria-pressed="true" title="Baseline builder prompt (V1)">Baseline</button>
+      <button id="mode-improved" class="seg-btn" aria-pressed="false" title="Improved builder prompt (V2)">Improved</button>
+    </div>
+
+    <div class="budget-wrap">
+      <label for="budget-input">Budget $</label>
+      <input id="budget-input" class="budget-input" type="number" min="0.001" step="0.01" value="0.50">
+    </div>
+
+    <label class="mock-wrap" title="Run with offline MockLLM (labeled MOCK, excluded from metrics)">
+      <input id="mock-toggle" type="checkbox">
+      <span>MOCK</span>
+    </label>
+
+    <button id="run-btn" class="btn btn-primary">Run</button>
+    <button id="kill-btn" class="btn btn-danger" disabled>Kill</button>
+
+    <div class="replay-wrap">
+      <select id="replay-select" class="select-ctrl" aria-label="Replay run">
+        <option value="">Select a saved run to replay...</option>
+      </select>
+      <select id="replay-speed" class="select-ctrl" aria-label="Replay speed">
+        <option value="1">1x</option>
+        <option value="2">2x</option>
+        <option value="4">4x</option>
+      </select>
+      <button id="replay-btn" class="btn btn-sm">Replay</button>
+    </div>
+  </header>
+
+  <!-- Banner for MOCK / Replay / Rail alerts -->
+  <div id="banner" class="banner" role="status"></div>
+
+  <!-- Main Split View -->
+  <main class="main-view">
+    <!-- Left Column: Pixel Office Stage & Sandboxed App Preview -->
+    <section class="left-col">
+      <div class="office-frame">
+        <div class="office-header">
+          <div class="office-dots">
+            <i></i><i></i><i></i>
+          </div>
+          <span class="office-title">PIXEL OFFICE // AUTONOMOUS AGENT LOOP</span>
+        </div>
+
+        <canvas id="office" width="500" height="280" aria-label="Pixel office visualizer"></canvas>
+
+        <div class="stage-controls">
+          <div class="status-indicator">
+            STATUS: <b id="status-text">ready</b>
+          </div>
+          <div class="stage-actions">
+            <button id="approve-btn" class="btn btn-sm btn-success" disabled>Approve build</button>
+            <a id="open-app-link" class="btn btn-sm" href="#" target="_blank" rel="noopener" hidden>Open App ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sandboxed App Iframe (No allow-same-origin for security) -->
+      <div id="built-app-card" class="app-preview-card" hidden>
+        <div class="app-preview-head">
+          <span>GENERATED APP PREVIEW</span>
+          <span class="chip meas">Sandboxed (no-same-origin)</span>
+        </div>
+        <div class="app-iframe-wrap">
+          <iframe id="built-app-iframe" sandbox="allow-scripts" title="Generated single-file app"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Tabbed Panels -->
+    <aside class="right-col">
+      <nav class="tab-bar" role="tablist" aria-label="Inspector tabs">
+        <button id="t-log" class="tab-btn" role="tab" aria-selected="true" aria-controls="p-log">Log</button>
+        <button id="t-cost" class="tab-btn" role="tab" aria-selected="false" aria-controls="p-cost">Cost Radar</button>
+        <button id="t-verdict" class="tab-btn" role="tab" aria-selected="false" aria-controls="p-verdict">Verdict</button>
+        <button id="t-founder" class="tab-btn" role="tab" aria-selected="false" aria-controls="p-founder">Founder</button>
+        <button id="t-plan" class="tab-btn" role="tab" aria-selected="false" aria-controls="p-plan">Plan</button>
+      </nav>
+
+      <!-- Panel: Log -->
+      <div id="p-log" class="tab-panel log-stream" role="tabpanel" aria-labelledby="t-log">
+        <div class="log-entry">
+          <span class="time">0.0s</span>
+          <span>Ready. Type an idea and press Run to watch the pixel office build, attack, diagnose and verify in real time.</span>
+        </div>
+      </div>
+
+      <!-- Panel: Cost Radar -->
+      <div id="p-cost" class="tab-panel" role="tabpanel" aria-labelledby="t-cost" hidden>
+        <p>Loading Cost Radar...</p>
+      </div>
+
+      <!-- Panel: Verdict -->
+      <div id="p-verdict" class="tab-panel" role="tabpanel" aria-labelledby="t-verdict" hidden>
+        <p>Loading Verdict...</p>
+      </div>
+
+      <!-- Panel: Founder Intake -->
+      <div id="p-founder" class="tab-panel" role="tabpanel" aria-labelledby="t-founder" hidden>
+        <h3>Founder Profile Intake</h3>
+        <p style="font-size: 13px; color: var(--ink2);">Customize your business constraints and test whether your idea achieves viability.</p>
+        <form id="founder-form" class="intake-form">
+          <div class="form-row">
+            <label class="form-label" for="f-target-user">Target User</label>
+            <input id="f-target-user" class="form-input" type="text" required>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="f-payer">Payer</label>
+            <input id="f-payer" class="form-input" type="text" required>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="f-goal">Goal</label>
+            <input id="f-goal" class="form-input" type="text" required>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="f-channel">First Channel</label>
+            <input id="f-channel" class="form-input" type="text" required>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="f-demand">Demand Evidence</label>
+            <select id="f-demand" class="form-input select-ctrl">
+              <option value="interviews">interviews (validated problem interviews)</option>
+              <option value="waitlist">waitlist (landing page signups)</option>
+              <option value="paid_pilot">paid_pilot (pre-paid customer contracts)</option>
+              <option value="none">none (unvalidated / no discovery)</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="f-budget">Budget (INR)</label>
+            <input id="f-budget" class="form-input" type="number" min="1000" step="1000" required>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="f-hours">Weekly Hours</label>
+            <input id="f-hours" class="form-input" type="number" min="1" max="168" required>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="f-skills">Skills</label>
+            <input id="f-skills" class="form-input" type="text" placeholder="b2b sales, python">
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="f-price">Price / Run (INR)</label>
+            <input id="f-price" class="form-input" type="number" min="1" step="1" required>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="f-cohort">Metric Cohort</label>
+            <select id="f-cohort" class="form-input select-ctrl">
+              <option value="held_out">held_out (unseen test ideas)</option>
+              <option value="tuning">tuning (prompt tuning ideas)</option>
+              <option value="combined">combined (all evaluated ideas)</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Recompute Verdict</button>
+        </form>
+
+        <div id="founder-verdict-result"></div>
+      </div>
+
+      <!-- Panel: Plan -->
+      <div id="p-plan" class="tab-panel" role="tabpanel" aria-labelledby="t-plan" hidden>
+        <p>Loading Plan...</p>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Bottom Ticker -->
+  <footer class="bottom-ticker" aria-live="polite">
+    <div class="ticker-item">
+      <span>Cost:</span>
+      <b id="k-cost" class="cost">$0.000000</b>
+    </div>
+    <div class="ticker-item">
+      <span>Tokens:</span>
+      <b id="k-tokens">0</b>
+    </div>
+    <div class="ticker-item">
+      <span>Attempt:</span>
+      <b id="k-attempt">0 of 4</b>
+    </div>
+    <div class="ticker-item">
+      <span>Trust Rails:</span>
+      <b id="k-rails">all clear</b>
+    </div>
+  </footer>
+
+  <script src="/ui/office.js"></script>
+  <script src="/ui/app.js"></script>
+</body>
+</html>

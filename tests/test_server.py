@@ -70,6 +70,12 @@ def setup_tmp_environment(tmp_path, monkeypatch):
         if src.exists():
             shutil.copyfile(src, tmp_path / name)
 
+    real_ui_dir = config.ROOT / "ui"
+    if real_ui_dir.exists():
+        for f in real_ui_dir.glob("*"):
+            if f.is_file():
+                shutil.copyfile(f, ui_dir / f.name)
+
     # Monkeypatch config paths to tmp_path
     monkeypatch.setattr(config, "ROOT", tmp_path)
     monkeypatch.setattr(config, "EVIDENCE", evidence_dir)
@@ -349,6 +355,35 @@ def test_verdict_endpoint_no_llm(client):
     assert any("demand evidence is none" in r.lower() for r in data_b["reasons"])
 
 
+def test_post_founder_verdict_custom_profile(client):
+    # Valid custom profile with demand_evidence interviews
+    res = client.post("/api/founder/verdict", json={
+        "target_user": "Freelancers",
+        "demand_evidence": "interviews",
+        "budget_inr": 400000,
+        "price_per_run_inr": 60.0,
+        "cohort": "held_out",
+    })
+    assert res.status_code == 200
+    data = res.json()
+    assert data["verdict"] == "BUILD"
+    assert "layer_verdicts" in data
+
+    # Custom profile with demand_evidence none caps verdict at PIVOT
+    res_pivot = client.post("/api/verdict", json={
+        "demand_evidence": "none",
+        "cohort": "held_out",
+    })
+    assert res_pivot.status_code == 200
+    assert res_pivot.json()["verdict"] == "PIVOT"
+
+    # Invalid demand evidence returns 400
+    res_bad = client.post("/api/founder/verdict", json={
+        "demand_evidence": "unverified_survey",
+    })
+    assert res_bad.status_code == 400
+
+
 # 12. GET /api/ledger
 def test_ledger_endpoint(client):
     res = client.get("/api/ledger")
@@ -485,3 +520,27 @@ def test_path_traversal_protection(client, tmp_path):
         r3 = client.post(f"/api/replay/{run_id}")
         assert r3.status_code in (400, 403, 404)
         assert "SUPER_SECRET_KEY" not in r3.text
+
+
+# 17. UI Static Serving
+def test_ui_index_and_static_serving(client):
+    r_index = client.get("/")
+    assert r_index.status_code == 200
+    assert "POCKET" in r_index.text
+    assert "office" in r_index.text
+    assert "Cost Radar" in r_index.text
+    assert "Verdict" in r_index.text
+    assert "Founder" in r_index.text
+    assert "Plan" in r_index.text
+
+    r_css = client.get("/ui/style.css")
+    assert r_css.status_code == 200
+    assert "--paper: #F6F1E7" in r_css.text
+
+    r_office = client.get("/ui/office.js")
+    assert r_office.status_code == 200
+    assert "PixelOffice" in r_office.text
+
+    r_app = client.get("/ui/app.js")
+    assert r_app.status_code == 200
+    assert "handleServerEvent" in r_app.text
