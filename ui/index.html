@@ -48,6 +48,7 @@
       <button id="replay-btn" class="btn btn-sm">Replay</button>
       <button id="demo-btn" class="btn btn-sm" title="Replay baseline run 20261011-043610-3f24 with autopsy">Demo</button>
       <button id="compare-btn" class="btn btn-sm" title="Compare baseline vs improved runs back-to-back">Compare</button>
+      <button id="tiny-budget-btn" class="btn btn-sm btn-warn" title="Run with tiny budget ($0.00001) to verify budget rail firing">Tiny budget demo</button>
     </div>
   </header>
 
@@ -75,6 +76,7 @@
           <div class="stage-actions">
             <button id="approve-btn" class="btn btn-sm btn-success" disabled>Approve build</button>
             <a id="open-app-link" class="btn btn-sm" href="#" target="_blank" rel="noopener" hidden>Open App ↗</a>
+            <a id="report-link" class="btn btn-sm" href="#" target="_blank" rel="noopener" hidden>Founder Report ↗</a>
           </div>
         </div>
       </div>
@@ -97,10 +99,12 @@
         <button id="t-log" class="tab-btn" role="tab" aria-selected="true" aria-controls="p-log">Log</button>
         <button id="t-cost" class="tab-btn" role="tab" aria-selected="false" aria-controls="p-cost">Cost Radar</button>
         <button id="t-verdict" class="tab-btn" role="tab" aria-selected="false" aria-controls="p-verdict">Verdict</button>
+        <button id="t-trust" class="tab-btn" role="tab" aria-selected="false" aria-controls="p-trust">Trust</button>
         <button id="t-founder" class="tab-btn" role="tab" aria-selected="false" aria-controls="p-founder">Founder</button>
         <button id="t-plan" class="tab-btn" role="tab" aria-selected="false" aria-controls="p-plan">Plan</button>
         <button id="t-evidence" class="tab-btn" role="tab" aria-selected="false" aria-controls="p-evidence">Evidence</button>
       </nav>
+
 
       <!-- Panel: Log -->
       <div id="p-log" class="tab-panel log-stream" role="tabpanel" aria-labelledby="t-log">
@@ -119,6 +123,12 @@
       <div id="p-verdict" class="tab-panel" role="tabpanel" aria-labelledby="t-verdict" hidden>
         <p>Loading Verdict...</p>
       </div>
+
+      <!-- Panel: Trust -->
+      <div id="p-trust" class="tab-panel" role="tabpanel" aria-labelledby="t-trust" hidden>
+        <p>Loading Trust Report...</p>
+      </div>
+
 
       <!-- Panel: Founder Intake -->
       <div id="p-founder" class="tab-panel" role="tabpanel" aria-labelledby="t-founder" hidden>

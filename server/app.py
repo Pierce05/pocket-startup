@@ -67,13 +67,35 @@ def validate_run_id(run_id: str) -> str:
 
 
 def _read_result(run_id: str) -> dict[str, Any] | None:
-    p = Path(config.RUNS) / run_id / "result.json"
+    run_dir = Path(config.RUNS) / run_id
+    p = run_dir / "result.json"
     if not p.exists():
         return None
     try:
-        return json.loads(p.read_text(encoding="utf-8"))
+        rec = json.loads(p.read_text(encoding="utf-8"))
+        meta_file = run_dir / "meta.json"
+        if meta_file.exists():
+            try:
+                meta = json.loads(meta_file.read_text(encoding="utf-8"))
+                for k in ("budget_usd", "max_attempts", "timeout_s"):
+                    if k in meta and k not in rec:
+                        rec[k] = meta[k]
+            except Exception:
+                pass
+        approval_file = run_dir / "approval.json"
+        if approval_file.exists():
+            try:
+                appr = json.loads(approval_file.read_text(encoding="utf-8"))
+                if appr.get("approved"):
+                    rec["approved"] = True
+                    rec["approved_at"] = appr.get("timestamp") or appr.get("approved_at")
+                    rec["status"] = "approved"
+            except Exception:
+                pass
+        return rec
     except Exception:
         return None
+
 
 
 def _sha(path: Path | str) -> str | None:
@@ -180,6 +202,13 @@ async def start_run(req: RunRequest):
     budget = req.budget_usd if req.budget_usd is not None else config.DEFAULT_BUDGET_USD
     rails = Rails(budget, config.DEFAULT_MAX_ATTEMPTS, config.DEFAULT_TIMEOUT_S)
     stream.rails = rails
+    run_d = Path(config.RUNS) / run_id
+    run_d.mkdir(parents=True, exist_ok=True)
+    (run_d / "meta.json").write_text(json.dumps({
+        "budget_usd": budget,
+        "max_attempts": config.DEFAULT_MAX_ATTEMPTS,
+        "timeout_s": config.DEFAULT_TIMEOUT_S,
+    }), encoding="utf-8")
     loop_ref = asyncio.get_running_loop()
 
     def emit(etype, data):
@@ -285,21 +314,36 @@ def get_run(run_id: str):
 
 @app.post("/api/runs/{run_id}/approve")
 async def approve(run_id: str):
-    """Approve a run after it passed all checks."""
+    """Approve a run after it passed all checks.
+
+    Records approved: true with an ISO timestamp in a NEW file (approval.json)
+    under that run's folder, never rewriting result.json.
+    """
     valid_id = validate_run_id(run_id)
     rec = _read_result(valid_id)
     if not rec:
         raise HTTPException(404, "run not finished or unknown")
     if not rec.get("success"):
         raise HTTPException(409, "only a run that passed all checks can be approved")
+
+    iso_ts = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    approval_data = {
+        "run_id": valid_id,
+        "approved": True,
+        "timestamp": iso_ts,
+    }
+    approval_p = Path(config.RUNS) / valid_id / "approval.json"
+    approval_p.write_text(json.dumps(approval_data, indent=2), encoding="utf-8")
+
     rec["approved"] = True
+    rec["approved_at"] = iso_ts
     rec["status"] = "approved"
-    p = Path(config.RUNS) / valid_id / "result.json"
-    p.write_text(json.dumps(rec, indent=2), encoding="utf-8")
+
     s = hub.get(valid_id)
     if s:
-        await s.publish("approved", {"run_id": valid_id})
+        await s.publish("approved", {"run_id": valid_id, "approved": True, "timestamp": iso_ts})
     return rec
+
 
 
 @app.post("/api/runs/{run_id}/kill")
@@ -751,22 +795,64 @@ def trust(run_id: str):
     rec = _read_result(valid_id)
     if not rec:
         raise HTTPException(404, "unknown run")
-    fired = {r.get("rail") for r in rec.get("rails_fired", []) if isinstance(r, dict)}
-    def row(name, desc, key=None):
-        return {"rail": name, "description": desc, "fired": (key in fired) if key else False}
+
+    from report.export import _compute_rails
+    rails_computed = _compute_rails(rec)
+
+    budget_cap = rec.get("budget_usd")
+    if budget_cap is None:
+        for rf in rec.get("rails_fired", []):
+            if isinstance(rf, dict) and "detail" in rf:
+                m_cap = re.search(r"of \$([0-9.]+) cap", rf["detail"])
+                if m_cap:
+                    try:
+                        budget_cap = float(m_cap.group(1))
+                        break
+                    except ValueError:
+                        pass
+    if budget_cap is None:
+        budget_cap = config.DEFAULT_BUDGET_USD
+    cost_usd = rec.get("cost_usd") if rec.get("cost_usd") is not None else 0.0
+    max_attempts = rec.get("max_attempts") or config.DEFAULT_MAX_ATTEMPTS
+    attempts = rec.get("attempts", 0)
+
     return {
         "run_id": valid_id,
-        "rails": [
-            row("Budget cap", f"hard USD cap per run (default ${config.DEFAULT_BUDGET_USD})", "budget"),
-            row("Attempt cap", f"at most {config.DEFAULT_MAX_ATTEMPTS} build attempts", "attempt_cap"),
-            row("Wall-clock timeout", f"{config.DEFAULT_TIMEOUT_S}s per run", "timeout"),
-            row("Kill switch", "operator can stop a live run", "kill_switch"),
-            row("Sandbox", "network blocked, 15s check timeout, generated code only runs in headless Chromium"),
-            row("Human approval", "build stays unapproved until a person clicks Approve"),
-        ],
+        "rails": rails_computed,
+        "budget_used": cost_usd,
+        "budget_cap": budget_cap,
+        "attempts_used": attempts,
+        "attempts_cap": max_attempts,
         "approved": bool(rec.get("approved")),
-        "fired": rec.get("rails_fired", []),
+        "approved_at": rec.get("approved_at"),
+        "success": bool(rec.get("success")),
+        "mock": bool(rec.get("mock")),
+        "idea": rec.get("idea"),
+        "latency_s": rec.get("latency_s"),
+        "rails_fired": rec.get("rails_fired", []),
     }
+
+
+@app.get("/api/report/{run_id}")
+def founder_report(run_id: str, founder: str = Query("a")):
+    """Generate single self-contained offline Founder Report HTML."""
+    valid_id = validate_run_id(run_id)
+    if founder not in ("a", "b", "base"):
+        founder = "a"
+    try:
+        from report.export import build_report
+        html_content = build_report(valid_id, founder=founder)
+        return HTMLResponse(
+            html_content,
+            headers={
+                "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; script-src 'none'; frame-src 'self' data:;",
+            },
+        )
+    except FileNotFoundError:
+        raise HTTPException(404, f"run {valid_id} not found")
+    except Exception as exc:
+        raise HTTPException(500, f"failed to build founder report: {exc}")
+
 
 
 # -------------------------------------------------------------------------

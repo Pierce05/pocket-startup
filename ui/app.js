@@ -62,6 +62,7 @@
     const name = tabEl.id.replace('t-', '');
     if (name === 'cost') renderCostRadar();
     else if (name === 'verdict') renderVerdict();
+    else if (name === 'trust') renderTrust();
     else if (name === 'founder') loadFounderDefaults();
     else if (name === 'plan') renderPlan();
     else if (name === 'evidence') renderEvidence();
@@ -235,6 +236,11 @@
     $('run-btn').disabled = false;
     $('kill-btn').disabled = true;
 
+    if (d.run_id) {
+      $('report-link').href = `/api/report/${encodeURIComponent(d.run_id)}`;
+      $('report-link').hidden = false;
+    }
+
     if (d.success) {
       $('status-text').textContent = 'finished (passed)';
       if (d.run_id) {
@@ -243,6 +249,9 @@
         $('built-app-card').hidden = false;
         $('open-app-link').hidden = false;
         $('open-app-link').href = appUrl;
+      }
+      if (!S.replay && !d.approved) {
+        $('approve-btn').disabled = false;
       }
     } else {
       let rail = S.lastRailFired;
@@ -255,13 +264,18 @@
       $('approve-btn').disabled = true;
     }
 
+    const activeTab = document.querySelector('[role=tab][aria-selected="true"]');
+    if (activeTab && activeTab.id === 't-trust') {
+      renderTrust();
+    }
+
     refreshReplayList();
   }
 
-  function startSseListener(runId, isReplay, customLabel = null, onEnd = null) {
+  function startSseListener(runId, isReplay, customLabel = null, onEnd = null, underlyingRunId = null) {
     if (S.es) S.es.close();
 
-    S.runId = runId;
+    S.runId = underlyingRunId || runId;
     S.replay = isReplay;
     S.running = true;
     resetRunUi();
@@ -270,6 +284,11 @@
     $('run-btn').disabled = true;
     $('kill-btn').disabled = isReplay;
     $('status-text').textContent = customLabel ? `replaying: ${customLabel}` : (isReplay ? 'replaying' : 'running');
+
+    if (S.runId && !S.runId.startsWith('replay-')) {
+      $('report-link').href = `/api/report/${encodeURIComponent(S.runId)}`;
+      $('report-link').hidden = false;
+    }
 
     const es = new EventSource(`/api/runs/${encodeURIComponent(runId)}/events`);
     S.es = es;
@@ -301,6 +320,19 @@
         $('approve-btn').disabled = true;
       } else if (S.lastRec && S.lastRec.success) {
         $('status-text').textContent = S.lastRec.approved ? 'approved' : 'awaiting approval';
+        if (!S.replay && !S.lastRec.approved) {
+          $('approve-btn').disabled = false;
+        }
+      }
+
+      if (S.runId && !S.runId.startsWith('replay-')) {
+        $('report-link').href = `/api/report/${encodeURIComponent(S.runId)}`;
+        $('report-link').hidden = false;
+      }
+
+      const activeTab = document.querySelector('[role=tab][aria-selected="true"]');
+      if (activeTab && activeTab.id === 't-trust') {
+        renderTrust();
       }
 
       if (typeof onEnd === 'function') {
@@ -358,10 +390,29 @@
   $('approve-btn').addEventListener('click', async () => {
     if (!S.runId) return;
     try {
-      await api(`/api/runs/${encodeURIComponent(S.runId)}/approve`, { method: 'POST' });
+      const res = await api(`/api/runs/${encodeURIComponent(S.runId)}/approve`, { method: 'POST' });
       $('approve-btn').disabled = true;
+      $('status-text').textContent = 'approved';
+      appendLog(0, `Human approval gate passed at ${res.approved_at || 'now'} ✔`, 'good');
+      const activeTab = document.querySelector('[role=tab][aria-selected="true"]');
+      if (activeTab && activeTab.id === 't-trust') {
+        renderTrust();
+      }
     } catch (err) {
       alert(`Approval error: ${err.message}`);
+    }
+  });
+
+  $('replay-select').addEventListener('change', (e) => {
+    const val = e.target.value;
+    if (val) {
+      S.runId = val;
+      $('report-link').href = `/api/report/${encodeURIComponent(val)}`;
+      $('report-link').hidden = false;
+      const activeTab = document.querySelector('[role=tab][aria-selected="true"]');
+      if (activeTab && activeTab.id === 't-trust') {
+        renderTrust();
+      }
     }
   });
 
@@ -373,7 +424,7 @@
     try {
       const res = await api(`/api/replay/${encodeURIComponent(targetRun)}?speed=${speed}`, { method: 'POST' });
       openTab('log');
-      startSseListener(res.replay_id, true);
+      startSseListener(res.replay_id, true, null, null, targetRun);
     } catch (err) {
       alert(`Replay failed: ${err.message}`);
     }
@@ -384,7 +435,7 @@
     try {
       const res = await api(`/api/replay/20261011-043610-3f24?speed=${speed}`, { method: 'POST' });
       openTab('log');
-      startSseListener(res.replay_id, true, 'Demo Baseline: 20261011-043610-3f24');
+      startSseListener(res.replay_id, true, 'Demo Baseline: 20261011-043610-3f24', null, '20261011-043610-3f24');
     } catch (err) {
       alert(`Demo replay failed: ${err.message}`);
     }
@@ -399,12 +450,44 @@
       startSseListener(res1.replay_id, true, '[BASELINE] 20261011-043610-3f24', async () => {
         appendLog(0, '=== COMPARE STEP 2/2: Improved Run 20261011-073159-a490 (passed on attempt 1) ===', 'good');
         const res2 = await api(`/api/replay/20261011-073159-a490?speed=${speed}`, { method: 'POST' });
-        startSseListener(res2.replay_id, true, '[IMPROVED] 20261011-073159-a490');
-      });
+        startSseListener(res2.replay_id, true, '[IMPROVED] 20261011-073159-a490', null, '20261011-073159-a490');
+      }, '20261011-043610-3f24');
     } catch (err) {
       alert(`Compare replay failed: ${err.message}`);
     }
   });
+
+  $('tiny-budget-btn').addEventListener('click', runTinyBudgetDemo);
+
+  async function runTinyBudgetDemo() {
+    try {
+      $('tiny-budget-btn').disabled = true;
+      $('idea-input').value = 'Tip splitter micro-budget (rail test)';
+      $('budget-input').value = '0.00001';
+
+      appendLog(0, 'Starting Tiny Budget Demo ($0.00001) in [MOCK] mode to verify budget rail firing...', 'warn');
+
+      const res = await api('/api/runs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          idea: 'Tip splitter micro-budget test',
+          mode: S.mode,
+          budget_usd: 0.00001,
+          mock: true,
+        }),
+      });
+
+      openTab('log');
+      startSseListener(res.run_id, false, null, () => {
+        openTab('trust');
+      });
+    } catch (err) {
+      alert(`Tiny budget demo failed: ${err.message}`);
+    } finally {
+      $('tiny-budget-btn').disabled = false;
+    }
+  }
 
   async function refreshReplayList() {
     try {
@@ -583,6 +666,139 @@
       });
     } catch (err) {
       container.innerHTML = `<p style="color: var(--red);">Verdict evaluation failed: ${esc(err.message)}</p>`;
+    }
+  }
+
+  /* ================= Trust & Safety Tab ================= */
+  async function renderTrust() {
+    const container = $('p-trust');
+    let runId = S.runId;
+    if (!runId) {
+      try {
+        const runs = await api('/api/runs');
+        if (runs && runs.length > 0) {
+          runId = runs[0].run_id;
+        }
+      } catch (_) {}
+    }
+
+    if (!runId) {
+      container.innerHTML = `
+        <h3>Trust & Safety Report</h3>
+        <p style="color: var(--ink2);">No run selected or recorded yet. Run a build or choose a replay to inspect safety rails.</p>
+      `;
+      return;
+    }
+
+    try {
+      const data = await api(`/api/trust/${encodeURIComponent(runId)}`);
+
+      const mockBadge = data.mock ? chip('MOCK') : '';
+      let statusBadge = '';
+      if (data.approved) {
+        statusBadge = `<span class="chip found">APPROVED ✔ ${esc(data.approved_at || 'recorded')}</span>`;
+      } else if (data.success) {
+        statusBadge = `<span class="chip comp">PASSED (Awaiting Approval)</span>`;
+      } else {
+        const failRail = (data.rails_fired && data.rails_fired.length) ? (data.rails_fired[0].rail || 'failed') : 'failed';
+        statusBadge = `<span class="chip bad">FAILED (${esc(failRail)})</span>`;
+      }
+
+      let html = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div>
+            <h3 style="margin: 0;">Trust Report: <code>${esc(data.run_id)}</code> ${mockBadge}</h3>
+            <div style="font-size: 12px; color: var(--ink2); margin-top: 4px;">Idea: "${esc(data.idea || 'unnamed')}"</div>
+          </div>
+          <div>${statusBadge}</div>
+        </div>
+
+        <!-- Guardrail Ceilings & Measurement -->
+        <div class="metric-card" style="margin-bottom: 16px;">
+          <h4>Enforced Guardrail Ceilings</h4>
+          <table class="metric-table">
+            <thead>
+              <tr>
+                <th>Constraint</th>
+                <th class="num">Used / Measured</th>
+                <th class="num">Ceiling / Cap</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Budget Cap</strong></td>
+                <td class="num">${usd(data.budget_used)} ${chip(data.mock ? 'MOCK' : 'MEASURED')}</td>
+                <td class="num">${usd(data.budget_cap)} ${chip('CONFIG')}</td>
+                <td><span class="chip ${data.budget_used >= data.budget_cap ? 'bad' : 'found'}">${data.budget_used >= data.budget_cap ? 'CAP REACHED' : 'WITHIN BUDGET'}</span></td>
+              </tr>
+              <tr>
+                <td><strong>Attempt Cap</strong></td>
+                <td class="num">${data.attempts_used} attempts ${chip('MEASURED')}</td>
+                <td class="num">${data.attempts_cap} attempts max ${chip('CONFIG')}</td>
+                <td><span class="chip ${data.attempts_used >= data.attempts_cap && !data.success ? 'bad' : 'found'}">${data.attempts_used >= data.attempts_cap && !data.success ? 'CAP REACHED' : 'WITHIN CAP'}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Dynamic Safety Rails Table -->
+        <div class="metric-card" style="margin-bottom: 16px;">
+          <h4>Dynamic Rails Status (Computed from result.json)</h4>
+          <table class="metric-table">
+            <thead>
+              <tr>
+                <th>Security Rail</th>
+                <th>Status</th>
+                <th>Measurement / Cap</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      (data.rails || []).forEach((r) => {
+        let badgeClass = 'comp';
+        if (r.status === 'FIRED') badgeClass = 'bad';
+        else if (r.status === 'NOT FIRED') badgeClass = 'found';
+        else if (r.status === 'NOT TESTED') badgeClass = 'meas';
+
+        html += `
+          <tr>
+            <td><strong>${esc(r.name)}</strong></td>
+            <td><span class="chip ${badgeClass}">${esc(r.status)}</span></td>
+            <td><code>${esc(r.used)}</code> / <code>${esc(r.cap)}</code></td>
+            <td style="font-size: 12px; color: var(--ink2);">${esc(r.desc)}</td>
+          </tr>
+        `;
+      });
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Human Approval Gate & Founder Report -->
+        <div class="metric-card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h4 style="margin: 0 0 4px 0;">Offline Founder Report</h4>
+              <p style="margin: 0; font-size: 12px; color: var(--ink2);">
+                Self-contained, 100% offline HTML artifact including verdict, layers, A/B metrics, limitations, and evidence provenance.
+              </p>
+            </div>
+            <div>
+              <a class="btn btn-sm btn-primary" href="/api/report/${encodeURIComponent(data.run_id)}" target="_blank" rel="noopener">
+                View Founder Report HTML ↗
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = html;
+    } catch (err) {
+      container.innerHTML = `<p style="color: var(--red);">Failed to load Trust Report: ${esc(err.message)}</p>`;
     }
   }
 

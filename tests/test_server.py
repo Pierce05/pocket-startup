@@ -4,11 +4,14 @@ Uses FastAPI TestClient with MockLLM.
 Tests write strictly to tmp_path.
 Covers every endpoint, replay, and path traversal protection.
 """
+import hashlib
 import json
 from pathlib import Path
 import shutil
+import subprocess
 
 import pytest
+
 from fastapi.testclient import TestClient
 
 import config
@@ -289,9 +292,15 @@ def test_approve_run_flow(client):
     assert r_pass.json()["approved"] is True
     assert r_pass.json()["status"] == "approved"
 
-    # Verify updated on disk
+    # Verify approval recorded in separate approval.json and result.json was never rewritten
+    appr_p = d_pass / "approval.json"
+    assert appr_p.exists()
+    appr = json.loads(appr_p.read_text(encoding="utf-8"))
+    assert appr["approved"] is True
+    assert "timestamp" in appr
     rec = json.loads((d_pass / "result.json").read_text(encoding="utf-8"))
-    assert rec["approved"] is True
+    assert rec["approved"] is False  # result.json is never overwritten
+    assert client.get("/api/runs/run-pass").json()["approved"] is True
 
 
 # 8. POST /api/runs/{id}/kill
@@ -778,22 +787,335 @@ def test_demo_run_and_compare_replay(client):
 
 
 # 21. STAGE 4c: Winner Patch Hash Mismatch detection
-def test_winner_patch_hash_mismatch(client):
-    winner_p = config.PATCH_DIR / "winner.txt"
-    original_content = winner_p.read_text(encoding="utf-8")
+def test_winner_patch_hash_mismatch(client, tmp_path, monkeypatch):
+    # Isolated tmp_path copy: never writes to evidence/ or fixture patch dir
+    custom_patch_dir = tmp_path / "custom_mismatch_patches"
+    custom_patch_dir.mkdir(parents=True, exist_ok=True)
+    mismatch_winner = custom_patch_dir / "winner.txt"
+    mismatch_winner.write_text("An entirely different patch text that cannot match recorded SHA\n", encoding="utf-8")
+
+    # Explicitly monkeypatch config.PATCH_DIR to this isolated tmp_path copy
+    monkeypatch.setattr(config, "PATCH_DIR", custom_patch_dir)
+
+    res = client.get("/api/evidence")
+    assert res.status_code == 200
+    data = res.json()
+    hashes = data["hashes"]
+
+    # When neither file bytes nor stripped prompt text matches recorded hash, report MISMATCH
+    assert hashes["winner_patch_match"] == "MISMATCH"
+    assert data["winner_patch_match"] == "MISMATCH"
+
+
+# 22. STAGE 4c Guard Test: Verify no tracked evidence files are ever modified
+def test_guard_no_tracked_evidence_files_modified(client, tmp_path, monkeypatch):
+    """Guard test: verifies that no tracked file under evidence/ is modified by server operations."""
+    real_repo_dir = Path(__file__).resolve().parent.parent
+    real_evidence_dir = real_repo_dir / "evidence"
+    assert real_evidence_dir.exists(), "real evidence/ directory must exist"
+
+    # Identify all tracked files under evidence/ using git ls-files
+    tracked_files = []
     try:
-        # Overwrite winner.txt with content whose hashes will not match recorded hash in metrics.json
-        winner_p.write_text("An entirely different patch text that cannot match recorded SHA\n", encoding="utf-8")
+        res = subprocess.run(
+            ["git", "ls-files", "evidence"],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=str(real_repo_dir),
+        )
+        for line in res.stdout.splitlines():
+            f = real_repo_dir / line.strip()
+            if f.is_file():
+                tracked_files.append(f)
+    except Exception:
+        for f in real_evidence_dir.rglob("*"):
+            if f.is_file() and "__pycache__" not in f.parts:
+                tracked_files.append(f)
 
-        res = client.get("/api/evidence")
+    assert len(tracked_files) > 0, "Must find tracked files under evidence/"
+
+    # Snapshot hashes before representative server requests
+    before_hashes = {str(f): hashlib.sha256(f.read_bytes()).hexdigest() for f in tracked_files}
+
+    # Execute representative server endpoints
+    r1 = client.get("/api/evidence")
+    assert r1.status_code == 200
+
+    r2 = client.get("/api/metrics")
+    assert r2.status_code == 200
+
+    r3 = client.get("/api/verdict?founder=a")
+    assert r3.status_code == 200
+
+    # Also run isolated mismatch check with monkeypatch
+    custom_patch_dir = tmp_path / "guard_mismatch_patches"
+    custom_patch_dir.mkdir(parents=True, exist_ok=True)
+    (custom_patch_dir / "winner.txt").write_text("Guard mismatch content\n", encoding="utf-8")
+    monkeypatch.setattr(config, "PATCH_DIR", custom_patch_dir)
+
+    r4 = client.get("/api/evidence")
+    assert r4.status_code == 200
+    assert r4.json()["winner_patch_match"] == "MISMATCH"
+
+    # Snapshot hashes after server requests
+    after_hashes = {str(f): hashlib.sha256(f.read_bytes()).hexdigest() for f in tracked_files}
+
+    modified_files = [f for f in tracked_files if before_hashes[str(f)] != after_hashes.get(str(f))]
+    assert not modified_files, f"Guard failure: tracked evidence files were modified: {modified_files}"
+
+
+# =========================================================================
+# 23. STAGE 5: Trust rails computed dynamically from result.json
+# =========================================================================
+def test_stage5_trust_rails_computed_from_result_json(client):
+    """Rails are computed dynamically from result.json, never hard-coded."""
+    # Case A: Failed run with attempt_cap
+    run_failed_attempts = "run-fail-attempts"
+    d_fail = config.RUNS / run_failed_attempts
+    d_fail.mkdir(parents=True, exist_ok=True)
+    rec_fail = {
+        "run_id": run_failed_attempts,
+        "idea": "Split cafe checks",
+        "mode": "baseline",
+        "success": False,
+        "attempts": 4,
+        "max_attempts": 4,
+        "cost_usd": 0.045,
+        "budget_usd": 0.50,
+        "latency_s": 22.4,
+        "timeout_s": 60.0,
+        "mock": True,
+        "approved": False,
+        "rails_fired": [{"rail": "attempt_cap", "message": "max attempts reached"}],
+    }
+    (d_fail / "result.json").write_text(json.dumps(rec_fail), encoding="utf-8")
+
+    res_fail = client.get(f"/api/trust/{run_failed_attempts}")
+    assert res_fail.status_code == 200
+    tf = res_fail.json()
+    assert tf["run_id"] == run_failed_attempts
+    assert tf["budget_used"] == 0.045
+    assert tf["budget_cap"] == 0.50
+    assert tf["attempts_used"] == 4
+    assert tf["attempts_cap"] == 4
+
+    rails_map_fail = {r["name"]: r for r in tf["rails"]}
+    assert rails_map_fail["Attempt cap"]["status"] == "FIRED"
+    assert rails_map_fail["Attempt cap"]["fired"] is True
+    assert rails_map_fail["Budget cap"]["status"] == "NOT FIRED"
+    assert rails_map_fail["Wall-clock timeout"]["status"] == "NOT FIRED"
+    assert rails_map_fail["Sandbox with network blocked"]["status"] == "NOT FIRED"
+    assert rails_map_fail["Kill switch"]["status"] == "NOT TESTED"
+
+    # Case B: Run where budget cap rail fired
+    run_failed_budget = "run-fail-budget"
+    d_b = config.RUNS / run_failed_budget
+    d_b.mkdir(parents=True, exist_ok=True)
+    rec_b = {
+        "run_id": run_failed_budget,
+        "idea": "Micro budget idea",
+        "mode": "improved",
+        "success": False,
+        "attempts": 1,
+        "max_attempts": 4,
+        "cost_usd": 0.00005,
+        "budget_usd": 0.00001,
+        "latency_s": 1.2,
+        "timeout_s": 60.0,
+        "mock": True,
+        "approved": False,
+        "rails_fired": [{"rail": "budget", "detail": "spent $0.000050 of $0.000010 cap"}],
+    }
+    (d_b / "result.json").write_text(json.dumps(rec_b), encoding="utf-8")
+
+    res_b = client.get(f"/api/trust/{run_failed_budget}")
+    assert res_b.status_code == 200
+    tb = res_b.json()
+    rails_map_b = {r["name"]: r for r in tb["rails"]}
+    assert rails_map_b["Budget cap"]["status"] == "FIRED"
+    assert rails_map_b["Budget cap"]["fired"] is True
+    assert rails_map_b["Attempt cap"]["status"] == "NOT FIRED"
+
+    # Case C: Passing run with all rails NOT FIRED
+    run_passed = "run-pass-stage5"
+    d_p = config.RUNS / run_passed
+    d_p.mkdir(parents=True, exist_ok=True)
+    rec_p = {
+        "run_id": run_passed,
+        "idea": "Working tip splitter",
+        "mode": "improved",
+        "success": True,
+        "attempts": 1,
+        "max_attempts": 4,
+        "cost_usd": 0.008,
+        "budget_usd": 0.50,
+        "latency_s": 9.5,
+        "timeout_s": 60.0,
+        "mock": False,
+        "approved": False,
+        "rails_fired": [],
+    }
+    (d_p / "result.json").write_text(json.dumps(rec_p), encoding="utf-8")
+
+    res_p = client.get(f"/api/trust/{run_passed}")
+    assert res_p.status_code == 200
+    tp = res_p.json()
+    rails_map_p = {r["name"]: r for r in tp["rails"]}
+    assert rails_map_p["Budget cap"]["status"] == "NOT FIRED"
+    assert rails_map_p["Attempt cap"]["status"] == "NOT FIRED"
+    assert rails_map_p["Wall-clock timeout"]["status"] == "NOT FIRED"
+    assert rails_map_p["Sandbox with network blocked"]["status"] == "NOT FIRED"
+    assert rails_map_p["Kill switch"]["status"] == "NOT TESTED"
+
+
+# =========================================================================
+# 24. STAGE 5: Approval gate hardening (separate approval.json, result.json untouched)
+# =========================================================================
+def test_stage5_approval_gate_and_approval_file(client):
+    """Approval cannot happen on failed run; passing run creates approval.json without rewriting result.json."""
+    # 1. Approval on failed run fails with 409
+    d_fail = config.RUNS / "run-fail-gate"
+    d_fail.mkdir(parents=True, exist_ok=True)
+    (d_fail / "result.json").write_text(json.dumps({
+        "run_id": "run-fail-gate",
+        "success": False,
+        "approved": False,
+    }), encoding="utf-8")
+
+    r_fail = client.post("/api/runs/run-fail-gate/approve")
+    assert r_fail.status_code == 409
+    assert "only a run that passed all checks can be approved" in r_fail.json()["detail"].lower()
+    assert not (d_fail / "approval.json").exists()
+
+    # 2. Approval on passing run succeeds
+    d_pass = config.RUNS / "run-pass-gate"
+    d_pass.mkdir(parents=True, exist_ok=True)
+    orig_content = json.dumps({
+        "run_id": "run-pass-gate",
+        "success": True,
+        "approved": False,
+        "cost_usd": 0.012,
+        "attempts": 2,
+    }, indent=2)
+    (d_pass / "result.json").write_text(orig_content, encoding="utf-8")
+
+    r_pass = client.post("/api/runs/run-pass-gate/approve")
+    assert r_pass.status_code == 200
+    res_data = r_pass.json()
+    assert res_data["approved"] is True
+    assert res_data["status"] == "approved"
+    assert "approved_at" in res_data
+
+    # Verify result.json was NEVER modified or rewritten
+    after_content = (d_pass / "result.json").read_text(encoding="utf-8")
+    assert after_content == orig_content
+    raw_rec = json.loads(after_content)
+    assert raw_rec["approved"] is False
+
+    # Verify separate approval.json exists
+    appr_p = d_pass / "approval.json"
+    assert appr_p.exists()
+    appr_data = json.loads(appr_p.read_text(encoding="utf-8"))
+    assert appr_data["approved"] is True
+    assert appr_data["run_id"] == "run-pass-gate"
+    assert "timestamp" in appr_data
+
+    # Verify GET endpoints transparently reflect approval from approval.json
+    trust_res = client.get("/api/trust/run-pass-gate").json()
+    assert trust_res["approved"] is True
+    assert trust_res["approved_at"] == appr_data["timestamp"]
+
+    run_res = client.get("/api/runs/run-pass-gate").json()
+    assert run_res["approved"] is True
+    assert run_res["approved_at"] == appr_data["timestamp"]
+
+
+# =========================================================================
+# 25. STAGE 5: Offline Founder Report with ZERO external URLs
+# =========================================================================
+def test_stage5_founder_report_offline_zero_external_urls(client):
+    """GET /api/report/{id} returns self-contained offline HTML with zero external URLs."""
+    import re
+
+    # Ensure a valid run exists
+    run_id = "run-report-test"
+    d = config.RUNS / run_id
+    d.mkdir(parents=True, exist_ok=True)
+    rec = {
+        "run_id": run_id,
+        "idea": "An automated bill and tip splitter for team lunches",
+        "mode": "improved",
+        "success": True,
+        "attempts": 1,
+        "cost_usd": 0.0084,
+        "budget_usd": 0.50,
+        "latency_s": 8.5,
+        "mock": False,
+        "approved": True,
+        "approved_at": "2026-10-12T00:00:00Z",
+        "rails_fired": [],
+    }
+    (d / "result.json").write_text(json.dumps(rec), encoding="utf-8")
+    (d / "index.html").write_text("<!doctype html><html><body><h1>Tested App</h1></body></html>", encoding="utf-8")
+
+    for founder_profile in ("a", "b"):
+        res = client.get(f"/api/report/{run_id}?founder={founder_profile}")
         assert res.status_code == 200
-        data = res.json()
-        hashes = data["hashes"]
+        assert "text/html" in res.headers["content-type"]
+        html = res.text
 
-        # When neither file bytes nor stripped prompt text matches recorded hash, report MISMATCH
-        assert hashes["winner_patch_match"] == "MISMATCH"
-        assert data["winner_patch_match"] == "MISMATCH"
-    finally:
-        winner_p.write_text(original_content, encoding="utf-8")
+        # Strict requirement: zero external URLs (no http:// or https://)
+        external_urls = re.findall(r"https?://", html)
+        assert len(external_urls) == 0, f"Found external URLs in Founder Report: {external_urls}"
+
+        # Verification of required content sections
+        assert rec["idea"] in html
+        assert run_id in html
+        # Verdict stamp
+        assert any(v in html for v in ["BUILD", "PIVOT", "KILL"])
+        # Verdict layers
+        assert "Economics Layer" in html or "economics" in html.lower()
+        # Key A/B metrics with tags
+        assert "[MEASURED]" in html
+        assert "[COMPUTED]" in html
+        # Limitations box
+        assert "Limitations" in html
+        assert "Tip-pool idea/template mismatch" in html
+        # CFO summary
+        assert "cfo.ai Viability Summary" in html
+        # Evidence table with metrics.json SHA-256
+        assert "evidence/metrics.json" in html
+        assert "SHA-256" in html or "Evidence Locker Provenance" in html
 
 
+# =========================================================================
+# 26. STAGE 5: Tiny budget demo run firing budget rail
+# =========================================================================
+def test_stage5_tiny_budget_demo_run(client):
+    """Tiny budget demo starts a run with $0.00001 cap, firing budget rail and labeling MOCK."""
+    res = client.post("/api/runs", json={
+        "idea": "Tip splitter micro-budget test",
+        "mode": "baseline",
+        "budget_usd": 0.00001,
+        "mock": True,
+        "sync": True,
+    })
+    assert res.status_code == 200
+    run_id = res.json()["run_id"]
+
+    trust_res = client.get(f"/api/trust/{run_id}")
+    assert trust_res.status_code == 200
+    data = trust_res.json()
+
+    assert data["mock"] is True
+    assert data["budget_cap"] == 0.00001
+    assert data["success"] is False
+
+    rails_map = {r["name"]: r for r in data["rails"]}
+    assert rails_map["Budget cap"]["status"] == "FIRED"
+    assert rails_map["Budget cap"]["fired"] is True
+
+    # Approve must be rejected
+    approve_res = client.post(f"/api/runs/{run_id}/approve")
+    assert approve_res.status_code == 409
