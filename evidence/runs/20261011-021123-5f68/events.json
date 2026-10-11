@@ -1,0 +1,93 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-021123-5f68",
+      "idea": "A tip splitter for friends sharing a restaurant bill",
+      "mode": "baseline",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 3.375,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "BillSplit",
+      "one_line_pitch": "The easiest way for friends to calculate bills and tips at restaurants.",
+      "target_user": "Group diners looking for a fast and fair way to split restaurant checks.",
+      "adaptation_note": "Utilizes the core tip calculator and itemized sharing features of the template for dining out.",
+      "_cost": 0.0002645,
+      "_tokens": 185
+    }
+  },
+  {
+    "t": 3.375,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002645,
+      "_tokens": 185
+    }
+  },
+  {
+    "t": 10.015,
+    "type": "code_written",
+    "data": {
+      "bytes": 8615,
+      "attempt": 1,
+      "_cost": 0.0064523,
+      "_tokens": 2881
+    }
+  },
+  {
+    "t": 10.015,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0064523,
+      "_tokens": 2881
+    }
+  },
+  {
+    "t": 11.703,
+    "type": "check_passed",
+    "data": {
+      "attempt": 1,
+      "console_errors": [],
+      "_cost": 0.0064523,
+      "_tokens": 2881
+    }
+  },
+  {
+    "t": 11.703,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-021123-5f68",
+      "_cost": 0.0064523,
+      "_tokens": 2881
+    }
+  },
+  {
+    "t": 11.703,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-021123-5f68",
+      "success": true,
+      "attempts": 1,
+      "first_attempt_passed": true,
+      "cost_usd": 0.0064523,
+      "tokens": 2881,
+      "latency_s": 11.703,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]
