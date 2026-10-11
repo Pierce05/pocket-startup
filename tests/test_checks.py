@@ -23,6 +23,36 @@ async def test_bad_fixture_fails_on_zero_people():
     assert r.test == "zero_people"
 
 
+@needs_browser
+async def test_hidden_result_with_text_passes():
+    r = await checks.run(T1, FIX / "hidden_result_with_text.html")
+    assert r.passed, (r.test, r.actual)
+
+
+@needs_browser
+async def test_visible_zero_result_fails():
+    r = await checks.run(T1, FIX / "visible_zero_result.html")
+    assert not r.passed
+    assert r.test == "zero_people"
+    assert "$0.00" in r.actual
+
+
+@needs_browser
+async def test_missing_required_ids_fails(tmp_path):
+    p = tmp_path / "index.html"
+    p.write_text(
+        "<html><body>"
+        "<input id='bill'><input id='people'><input id='tip'>"
+        "<div id='result'></div><div id='error'></div>"
+        "</body></html>",
+        encoding="utf-8",
+    )
+    r = await checks.run(T1, p)
+    assert not r.passed
+    assert r.test == "required_ids"
+    assert "missing: #calc" in r.actual
+
+
 async def test_storage_usage_fails_without_browser(tmp_path):
     p = tmp_path / "index.html"
     p.write_text("<html><script>localStorage.setItem('a','b')</script></html>", encoding="utf-8")

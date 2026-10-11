@@ -1,0 +1,35 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Tip Splitter</title></head>
+<body>
+<h1>Tip Splitter</h1>
+<input id="bill" type="text" placeholder="Bill">
+<input id="people" type="text" placeholder="People">
+<input id="tip" type="text" placeholder="Tip %">
+<button id="calc">Calculate</button>
+<div id="result"></div>
+<div id="error" style="color:red; display:none;"></div>
+<script>
+function num(v){ if (v === null || String(v).trim() === '') return NaN; return Number(v); }
+document.getElementById('calc').addEventListener('click', function(){
+  var bill = num(document.getElementById('bill').value);
+  var people = num(document.getElementById('people').value);
+  var tip = num(document.getElementById('tip').value);
+  var res = document.getElementById('result'), err = document.getElementById('error');
+  var msg = '';
+  if (isNaN(bill) || bill < 0) msg = 'Enter a valid bill amount.';
+  else if (isNaN(people) || people <= 0 || Math.floor(people) !== people) msg = 'People must be a whole number greater than zero.';
+  else if (isNaN(tip) || tip < 0) msg = 'Tip must be zero or more.';
+  if (msg) {
+    err.textContent = msg;
+    err.style.display = 'block';
+    res.style.display = 'block';
+    res.textContent = '$0.00';
+    return;
+  }
+  err.style.display = 'none';
+  err.textContent = '';
+  res.style.display = 'block';
+  res.textContent = ((bill * (1 + tip / 100)) / people).toFixed(2);
+});
+</script>
+</body></html>

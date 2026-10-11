@@ -27,11 +27,24 @@ Template notes: {template_notes}
 Build the app now."""
 
 RETRY_USER = """Your previous attempt failed automated checks.
+
+Product spec:
+{spec_json}
+Required element ids: {ids}
+Template notes: {template_notes}
+
+Previous attempt code:
+```html
+{previous_html}
+```
+
+Check failure details:
 Failed test: {test_name}
 Expected: {expected}
 Actual: {actual}
 Browser console errors: {console_errors}
-Fix the root cause. Do not rewrite unrelated parts. Return the complete corrected index.html in one html code block, preceded by one sentence naming the root cause."""
+
+Fix the issue while keeping every required element id ({ids}) and changing only what is needed. Return the complete corrected index.html in one fenced html code block, preceded by one sentence naming the root cause."""
 
 AUTOPSY_SYSTEM = """You are the Flight Recorder. You read an agent run and write a crash report.
 Input JSON: spans (name, type, duration_ms, tokens, cost_usd, status, error), failed_check (test, expected, actual, console_errors), generated_index_html (possibly truncated).

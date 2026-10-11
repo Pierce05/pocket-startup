@@ -140,7 +140,14 @@ async def run_build(idea: str, mode: str, emit=None, *, template: str | None = N
                 except Exception as e:  # noqa: BLE001
                     _emit("autopsy", {"error": f"{type(e).__name__}: {e}"})
             if attempt < rails.max_attempts:
-                feedback = prompts.RETRY_USER.format(**result.as_dict())
+                retry_ctx = result.as_dict()
+                retry_ctx.update({
+                    "spec_json": json.dumps(spec, indent=2),
+                    "ids": ", ".join(tpl.ids),
+                    "template_notes": tpl.notes,
+                    "previous_html": html,
+                })
+                feedback = prompts.RETRY_USER.format(**retry_ctx)
                 _emit("retry", {"next": attempt + 1})
         _fire("attempt_cap", f"gave up after {rails.max_attempts} attempts")
 
