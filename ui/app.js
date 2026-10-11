@@ -787,8 +787,19 @@
                 <td style="font-size: 11px; word-break: break-all;"><code>${esc(data.hashes?.['evidence/ab/metrics.sha256'] || 'none')}</code></td>
               </tr>
               <tr>
-                <td><code>winner.txt</code></td>
-                <td style="font-size: 11px; word-break: break-all;"><code>${esc(data.hashes?.['winner.txt'] || data.hashes?.['evidence/patches/winner.txt'] || 'none')}</code></td>
+                <td><code>winner.txt (file bytes)</code></td>
+                <td style="font-size: 11px; word-break: break-all;"><code>${esc(data.hashes?.['winner.txt (file bytes)'] || 'none')}</code></td>
+              </tr>
+              <tr>
+                <td><code>winner.txt (prompt text (stripped))</code></td>
+                <td style="font-size: 11px; word-break: break-all;"><code>${esc(data.hashes?.['winner.txt (prompt text (stripped))'] || 'none')}</code></td>
+              </tr>
+              <tr>
+                <td><code>winner patch (recorded)</code></td>
+                <td style="font-size: 11px; word-break: break-all;">
+                  <code>${esc(data.hashes?.['winner_patch_recorded_sha256'] || 'none')}</code>
+                  <span class="chip ${data.winner_patch_match && !data.winner_patch_match.includes('MISMATCH') ? 'found' : 'bad'}">${esc(data.winner_patch_match || data.hashes?.['winner_patch_match'] || 'MISMATCH')}</span>
+                </td>
               </tr>
               <tr>
                 <td><code>agent/prompts.py</code></td>

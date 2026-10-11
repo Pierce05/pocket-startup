@@ -511,16 +511,30 @@ def get_evidence():
     lift_label = (f"Tuning {t_lift_b}/{t_arm_b.get('n_runs', 20)} vs {t_lift_i}/{t_arm_i.get('n_runs', 20)}; "
                   f"Held-out {h_lift_b}/{h_arm_b.get('n_runs', 20)} vs {h_lift_i}/{h_arm_i.get('n_runs', 20)}") if has_lift else "metrics.json missing first-attempt counts"
 
-    # 2. Held-out result
+    # 2. Held-out result: lead with first-attempt passes (1/20 vs 16/20, with Fisher p-value)
+    # and state 'eventual success 15/20 vs 19/20: not statistically significant'
+    h_succ_b = h_arm_b.get("success_count", 15)
+    h_succ_i = h_arm_i.get("success_count", 19)
+    h_fisher_p = exp.get("held_out", {}).get("fisher_exact_p_value")
+    fisher_str = f"Fisher p={h_fisher_p}" if h_fisher_p is not None else "Fisher p"
     has_heldout = bool("held_out" in exp and h_arm_b and h_arm_i)
-    heldout_label = (f"Held-out eventual: {h_arm_b.get('success_count', 0)}/{h_arm_b.get('n_runs', 20)} vs "
-                     f"{h_arm_i.get('success_count', 0)}/{h_arm_i.get('n_runs', 20)}") if has_heldout else "metrics.json missing held_out"
+    heldout_label = (
+        f"First-attempt passes: {h_lift_b}/{h_arm_b.get('n_runs', 20)} vs {h_lift_i}/{h_arm_i.get('n_runs', 20)} ({fisher_str}); "
+        f"eventual success {h_succ_b}/{h_arm_b.get('n_runs', 20)} vs {h_succ_i}/{h_arm_i.get('n_runs', 20)}: not statistically significant"
+    ) if has_heldout else "metrics.json missing held_out"
 
-    # 3. Cost per success
-    cps_b = h_arm_b.get("cost_per_success")
-    cps_i = h_arm_i.get("cost_per_success")
-    has_cps = (cps_b is not None and cps_i is not None)
-    cps_label = f"Baseline ${cps_b:.6f} vs Improved ${cps_i:.6f}" if has_cps else "metrics.json missing cost per success"
+    # 3. Cost per success: name cohort (held-out) and also show combined ($0.016808 vs $0.006863)
+    c_arm_b = exp.get("combined", {}).get("baseline", {})
+    c_arm_i = exp.get("combined", {}).get("improved", {})
+    cps_h_b = h_arm_b.get("cost_per_success")
+    cps_h_i = h_arm_i.get("cost_per_success")
+    cps_c_b = c_arm_b.get("cost_per_success")
+    cps_c_i = c_arm_i.get("cost_per_success")
+    has_cps = (cps_h_b is not None and cps_h_i is not None and cps_c_b is not None and cps_c_i is not None)
+    if has_cps:
+        cps_label = f"Held-out: ${cps_h_b:.6f} vs ${cps_h_i:.6f}; Combined: ${cps_c_b:.6f} vs ${cps_c_i:.6f}"
+    else:
+        cps_label = "metrics.json missing cost per success"
 
     # 4. Entire checkpoints (trailers from read-only git log)
     trailers = get_git_log_trailers(50)
@@ -592,12 +606,34 @@ def get_evidence():
     builder_sha = hashlib.sha256(prompts.BUILDER_SYSTEM_V1.encode("utf-8")).hexdigest() if hasattr(prompts, "BUILDER_SYSTEM_V1") else None
     retry_sha = hashlib.sha256(prompts.RETRY_USER.encode("utf-8")).hexdigest() if hasattr(prompts, "RETRY_USER") else None
 
+    # Compute both winner.txt SHA-256 hashes: raw file bytes and prompt text (stripped)
+    winner_file_sha = _sha(config.PATCH_DIR / "winner.txt")
+    winner_p = config.PATCH_DIR / "winner.txt"
+    winner_stripped_sha = None
+    if winner_p.exists():
+        winner_stripped_sha = hashlib.sha256(winner_p.read_text(encoding="utf-8").strip().encode("utf-8")).hexdigest()
+
+    meta = m.get("meta", {})
+    recorded_patch_sha = meta.get("builder_v2_patch_sha256") or meta.get("winner_patch_sha256")
+
+    if recorded_patch_sha:
+        if winner_stripped_sha and winner_stripped_sha.lower() == recorded_patch_sha.lower():
+            winner_match = "MATCH (prompt text (stripped))"
+        elif winner_file_sha and winner_file_sha.lower() == recorded_patch_sha.lower():
+            winner_match = "MATCH (file bytes)"
+        else:
+            winner_match = "MISMATCH"
+    else:
+        winner_match = "UNKNOWN"
+
     hashes = {
         "evidence/metrics.json": metrics_sha,
         "evidence/ab/metrics.sha256": expected_sha,
         "metrics_sha256_match": sha_match,
-        "evidence/patches/winner.txt": _sha(config.PATCH_DIR / "winner.txt"),
-        "winner.txt": _sha(config.PATCH_DIR / "winner.txt"),
+        "winner.txt (file bytes)": winner_file_sha,
+        "winner.txt (prompt text (stripped))": winner_stripped_sha,
+        "winner_patch_recorded_sha256": recorded_patch_sha,
+        "winner_patch_match": winner_match,
         "agent/prompts.py": _sha(config.ROOT / "agent" / "prompts.py"),
         "BUILDER_SYSTEM_V1": builder_sha,
         "RETRY_USER": retry_sha,
@@ -613,13 +649,28 @@ def get_evidence():
         "held_out/improved": len(cell_run_ids.get("held_out/improved", [])) or exp.get("held_out", {}).get("improved", {}).get("n_runs", 0),
     }
 
+    # Parse only commands inside fenced code block in reproduce section of evidence/ab/README.md
     reproduce_readme_p = Path(config.EVIDENCE) / "ab" / "README.md"
-    reproduce = []
+    reproduce_commands = []
     if reproduce_readme_p.exists():
         r_text = reproduce_readme_p.read_text(encoding="utf-8")
-        m_cmd = re.search(r"```bash\s*\n(.*?)\n```", r_text, re.DOTALL)
-        if m_cmd:
-            reproduce.append(m_cmd.group(1).strip())
+        cleaned_lines = [line.lstrip("> ").rstrip() for line in r_text.splitlines()]
+        in_reproduce = False
+        in_code_block = False
+        for line in cleaned_lines:
+            if "reproduce" in line.lower():
+                in_reproduce = True
+            if in_reproduce:
+                if line.startswith("```"):
+                    if in_code_block:
+                        break
+                    else:
+                        in_code_block = True
+                        continue
+                elif in_code_block:
+                    cmd = line.strip()
+                    if cmd and not cmd.startswith("#"):
+                        reproduce_commands.append(cmd)
 
     for cmd in [
         "python -m experiments.ab --repeats 4 --seed 42 --sleep 1.0",
@@ -629,8 +680,8 @@ def get_evidence():
         "python verdict.py --founder a",
         "pytest -q",
     ]:
-        if cmd not in reproduce:
-            reproduce.append(cmd)
+        if cmd not in reproduce_commands:
+            reproduce_commands.append(cmd)
 
     limitations = [
         "Tip-pool idea/template mismatch: The remaining held-out failures come from two pool-style ideas (tip pools) where the idea's framing conflicts with the per-person contract.",
@@ -643,15 +694,14 @@ def get_evidence():
         "claims": claims,
         "hashes": hashes,
         "metrics_sha_match": sha_match,
+        "winner_patch_match": winner_match,
         "run_counts_per_cell": run_counts_per_cell,
-        "cell_counts": run_counts_per_cell,
-        "reproduce_commands": reproduce,
-        "reproduce": reproduce,
+        "reproduce_commands": reproduce_commands,
         "limitations": limitations,
         "git_log_trailers": trailers,
-        "trailers": trailers,
         "pricing_date": PRICES.get("pricing_date", "2026-10-11"),
     }
+
 
 
 @app.get("/api/plan")

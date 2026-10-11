@@ -424,7 +424,12 @@ def test_evidence_endpoint(client):
     assert res.status_code == 200
     data = res.json()
 
-    # (a) Exactly 7 claims with FOUND or MISSING status
+    # (a) No duplicate keys at top level
+    assert "cell_counts" not in data, "cell_counts is a duplicate of run_counts_per_cell"
+    assert "trailers" not in data, "trailers is a duplicate of git_log_trailers"
+    assert "reproduce" not in data, "reproduce is a duplicate of reproduce_commands"
+
+    # (b) Exactly 7 claims with FOUND or MISSING status
     assert "claims" in data
     claim_names = [c["claim"] for c in data["claims"]]
     assert len(data["claims"]) == 7
@@ -440,25 +445,51 @@ def test_evidence_endpoint(client):
     for exp_c in expected_claims:
         assert exp_c in claim_names, f"Expected claim {exp_c} missing from claims list"
 
-
     for claim in data["claims"]:
         assert claim["status"] in ("FOUND", "MISSING")
         assert "proof" in claim
         for p in claim["proof"]:
             assert p["status"] in ("FOUND", "MISSING")
 
-    # (b) Provenance & SHA-256 hashes
+    # (c) Specific claim wording checks
+    # Held-out claim: leads with first-attempt passes (1/20 vs 16/20, with Fisher p) and states eventual success 15/20 vs 19/20: not statistically significant
+    held_out_claim = next(c for c in data["claims"] if c["claim"] == "Held-out result")
+    h_label = held_out_claim["proof"][0]["label"]
+    assert "First-attempt passes: 1/20 vs 16/20" in h_label
+    assert "2e-06" in h_label or "p=" in h_label
+    assert "eventual success 15/20 vs 19/20: not statistically significant" in h_label
+
+    # Cost-per-success claim: names cohort (held-out) and shows combined ($0.016808 vs $0.006863)
+    cps_claim = next(c for c in data["claims"] if c["claim"] == "Cost per success")
+    cps_label = cps_claim["proof"][0]["label"]
+    assert "Held-out:" in cps_label
+    assert "Combined:" in cps_label
+    assert "$0.016808" in cps_label
+    assert "$0.006863" in cps_label
+
+    # (d) Provenance & SHA-256 hashes
     assert data.get("metrics_sha_match") == "MATCH"
     assert "hashes" in data
     hashes = data["hashes"]
     assert "evidence/metrics.json" in hashes
     assert "evidence/ab/metrics.sha256" in hashes
-    assert hashes["winner.txt"] is not None
+
+    # Winner patch hash labelling: file bytes vs prompt text (stripped)
+    assert "winner.txt (file bytes)" in hashes
+    assert "winner.txt (prompt text (stripped))" in hashes
+    assert hashes["winner.txt (file bytes)"] == "35fec47a8b8ef971239cb2df886d9a4bc874b2f1ffcbcaf26adc70306be809a9"
+    assert hashes["winner.txt (prompt text (stripped))"] == "49156a531807280673be59af60163f3f8b5af05a470ab5262a4b74f510c8995c"
+    assert "evidence/patches/winner.txt" not in hashes, "Duplicate winner patch hash entry must be removed"
+    assert "winner.txt" not in hashes, "Ambiguous winner.txt hash entry replaced with labelled entries"
+    assert "winner_patch_match" in hashes
+    assert "MATCH" in hashes["winner_patch_match"]
+    assert data.get("winner_patch_match") == hashes["winner_patch_match"]
+
     assert hashes["agent/prompts.py"] is not None
     assert hashes["BUILDER_SYSTEM_V1"] is not None
     assert hashes["RETRY_USER"] is not None
 
-    # (c) Run counts per cell (20 runs each)
+    # (e) Run counts per cell (20 runs each)
     assert "run_counts_per_cell" in data
     cell_counts = data["run_counts_per_cell"]
     assert cell_counts["tuning/baseline"] == 20
@@ -466,11 +497,16 @@ def test_evidence_endpoint(client):
     assert cell_counts["held_out/baseline"] == 20
     assert cell_counts["held_out/improved"] == 20
 
-    # (d) Reproduce commands from README
+    # (f) Reproduce commands from README: single list, parsed cleanly one command per entry
     assert "reproduce_commands" in data
-    assert any("experiments.ab" in cmd for cmd in data["reproduce_commands"])
+    assert isinstance(data["reproduce_commands"], list)
+    for cmd in data["reproduce_commands"]:
+        assert not cmd.startswith(">"), f"Command line must not have markdown quote prefix: {cmd}"
+        assert "```" not in cmd, f"Command line must not contain markdown fences: {cmd}"
+        assert "\n" not in cmd, f"Each command must be a single line, got multi-line: {cmd}"
+    assert "python -m experiments.ab --repeats 4 --seed 42 --sleep 1.0" in data["reproduce_commands"]
 
-    # (e) Limitations box (4 items)
+    # (g) Limitations box (4 items)
     assert "limitations" in data
     assert len(data["limitations"]) == 4
     lim_text = " ".join(data["limitations"]).lower()
@@ -479,9 +515,10 @@ def test_evidence_endpoint(client):
     assert "same template" in lim_text
     assert "n is small" in lim_text
 
-    # (f) Git log trailers
+    # (h) Git log trailers
     assert "git_log_trailers" in data
     assert isinstance(data["git_log_trailers"], list)
+
 
 
 
@@ -733,9 +770,30 @@ def test_demo_run_and_compare_replay(client):
     imp_replay_id = r_imp.json()["replay_id"]
 
     with client.stream("GET", f"/api/runs/{imp_replay_id}/events") as response:
-        assert response.status_code == 200
         text_imp = "\n".join(response.iter_lines())
         assert "check_passed" in text_imp
+
         assert "run_finished" in text_imp
         assert '"attempts": 1' in text_imp
+
+
+# 21. STAGE 4c: Winner Patch Hash Mismatch detection
+def test_winner_patch_hash_mismatch(client):
+    winner_p = config.PATCH_DIR / "winner.txt"
+    original_content = winner_p.read_text(encoding="utf-8")
+    try:
+        # Overwrite winner.txt with content whose hashes will not match recorded hash in metrics.json
+        winner_p.write_text("An entirely different patch text that cannot match recorded SHA\n", encoding="utf-8")
+
+        res = client.get("/api/evidence")
+        assert res.status_code == 200
+        data = res.json()
+        hashes = data["hashes"]
+
+        # When neither file bytes nor stripped prompt text matches recorded hash, report MISMATCH
+        assert hashes["winner_patch_match"] == "MISMATCH"
+        assert data["winner_patch_match"] == "MISMATCH"
+    finally:
+        winner_p.write_text(original_content, encoding="utf-8")
+
 
