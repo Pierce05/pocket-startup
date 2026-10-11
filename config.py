@@ -19,6 +19,8 @@ METRICS_PATH = EVIDENCE / "metrics.json"
 PATCH_DIR = EVIDENCE / "patches"
 CFO_DIR = EVIDENCE / "cfo"
 ASSUMPTIONS_PATH = ROOT / "assumptions.yaml"
+FOUNDER_PATH = ROOT / "founder.yaml"
+LEDGER_PATH = EVIDENCE / "ledger.json"
 
 DEFAULT_MAX_ATTEMPTS = 4
 DEFAULT_BUDGET_USD = 0.50
@@ -29,3 +31,9 @@ CHECK_TIMEOUT_S = 15
 def load_assumptions(path=None):
     p = Path(path) if path else ASSUMPTIONS_PATH
     return yaml.safe_load(p.read_text(encoding="utf-8"))
+
+
+def load_founder(path=None):
+    p = Path(path) if path else FOUNDER_PATH
+    return yaml.safe_load(p.read_text(encoding="utf-8"))
+

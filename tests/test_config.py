@@ -8,16 +8,19 @@ def test_load_assumptions_default():
     assumptions = config.load_assumptions()
     assert isinstance(assumptions, dict)
     assert "thresholds" in assumptions
-    assert "business" in assumptions
+    assert "business" not in assumptions
+
+    assert assumptions["usd_inr"] == 85.0
+    assert assumptions["infra_per_run_usd"] == 0.02
+    assert assumptions["fixed_monthly_inr"] == 20000
+    assert assumptions["runs_per_customer_per_month"] == 20
+    assert assumptions["customers_month_1"] == 10
+    assert assumptions["customers_month_12"] == 200
 
     thresholds = assumptions["thresholds"]
     assert thresholds["kill_success_rate"] == 0.5
     assert thresholds["build_success_rate"] == 0.8
     assert thresholds["build_margin"] == 0.6
-
-    business = assumptions["business"]
-    assert business["price_per_run"] == 1.00
-    assert business["starting_cash"] == 10000
 
 
 def test_load_assumptions_custom_path_utf8(tmp_path):

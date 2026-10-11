@@ -1,0 +1,14 @@
+# Schema specification and base founder profile for Pocket Startup.
+# Tag: USER-PROVIDED
+
+target_user: "Hair salon owners and managers" # [USER-PROVIDED]
+payer: "Salon owners" # [USER-PROVIDED]
+budget_inr: 250000 # [USER-PROVIDED]
+weekly_hours: 30 # [USER-PROVIDED]
+skills: # [USER-PROVIDED]
+  - "b2b sales"
+  - "python"
+goal: "Launch profitable tip-splitting micro-SaaS" # [USER-PROVIDED]
+first_customer_channel: "Local salon visits and cold outreach" # [USER-PROVIDED]
+demand_evidence: "interviews" # [USER-PROVIDED] Enum: [none, interviews, waitlist, paid_pilot]
+price_per_run_inr: 50.0 # [USER-PROVIDED]

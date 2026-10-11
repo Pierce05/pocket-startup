@@ -1,0 +1,11 @@
+target_user: "Office teams who run shared coffee and lunch orders"
+payer: "Office managers"
+goal: "Per-person bill and tip splitting for office group orders"
+first_customer_channel: "Direct outreach to office managers"
+demand_evidence: "interviews"
+budget_inr: 350000 # [USER-PROVIDED]
+weekly_hours: 40 # [USER-PROVIDED]
+skills: # [USER-PROVIDED]
+  - "b2b sales"
+  - "python"
+price_per_run_inr: 50.0 # [USER-PROVIDED]

@@ -1,0 +1,165 @@
+{
+  "n_runs": {
+    "value": null,
+    "tag": "MEASURED",
+    "source": "empty_metrics.json"
+  },
+  "success_rate": {
+    "value": null,
+    "tag": "MEASURED",
+    "source": "empty_metrics.json"
+  },
+  "first_attempt_pass_rate": {
+    "value": null,
+    "tag": "MEASURED",
+    "source": "empty_metrics.json"
+  },
+  "avg_tokens": {
+    "value": null,
+    "tag": "MEASURED",
+    "source": "empty_metrics.json"
+  },
+  "median_latency_s": {
+    "value": null,
+    "tag": "MEASURED",
+    "source": "empty_metrics.json"
+  },
+  "failures_by_test": {
+    "value": {},
+    "tag": "MEASURED",
+    "source": "empty_metrics.json"
+  },
+  "cost_per_success": {
+    "value": null,
+    "tag": "COMPUTED",
+    "source": "empty_metrics.json"
+  },
+  "retry_tax": {
+    "value": null,
+    "tag": "COMPUTED",
+    "source": "empty_metrics.json"
+  },
+  "model": {
+    "value": "unknown",
+    "tag": "CONFIG",
+    "source": "empty_metrics.json"
+  },
+  "pricing_date": {
+    "value": "2026-10-11",
+    "tag": "CONFIG",
+    "source": "empty_metrics.json"
+  },
+  "usd_inr": {
+    "value": 85.0,
+    "tag": "ASSUMED",
+    "source": "assumptions.yaml"
+  },
+  "infra_per_run_usd": {
+    "value": 0.02,
+    "tag": "ASSUMED",
+    "source": "assumptions.yaml"
+  },
+  "fixed_monthly_inr": {
+    "value": 20000,
+    "tag": "ASSUMED",
+    "source": "assumptions.yaml"
+  },
+  "runs_per_customer_per_month": {
+    "value": 20,
+    "tag": "ASSUMED",
+    "source": "assumptions.yaml"
+  },
+  "customers_month_1": {
+    "value": 10,
+    "tag": "ASSUMED",
+    "source": "assumptions.yaml"
+  },
+  "customers_month_12": {
+    "value": 200,
+    "tag": "ASSUMED",
+    "source": "assumptions.yaml"
+  },
+  "kill_success_rate": {
+    "value": 0.5,
+    "tag": "ASSUMED",
+    "source": "assumptions.yaml"
+  },
+  "build_success_rate": {
+    "value": 0.8,
+    "tag": "ASSUMED",
+    "source": "assumptions.yaml"
+  },
+  "kill_margin": {
+    "value": 0.2,
+    "tag": "ASSUMED",
+    "source": "assumptions.yaml"
+  },
+  "build_margin": {
+    "value": 0.6,
+    "tag": "ASSUMED",
+    "source": "assumptions.yaml"
+  },
+  "kill_runway_months": {
+    "value": 6,
+    "tag": "ASSUMED",
+    "source": "assumptions.yaml"
+  },
+  "build_runway_months": {
+    "value": 12,
+    "tag": "ASSUMED",
+    "source": "assumptions.yaml"
+  },
+  "build_retry_tax": {
+    "value": 0.35,
+    "tag": "ASSUMED",
+    "source": "assumptions.yaml"
+  },
+  "target_user": {
+    "value": "Hair salon owners and managers",
+    "tag": "USER-PROVIDED",
+    "source": "founder.yaml"
+  },
+  "payer": {
+    "value": "Salon owners",
+    "tag": "USER-PROVIDED",
+    "source": "founder.yaml"
+  },
+  "budget_inr": {
+    "value": 250000,
+    "tag": "USER-PROVIDED",
+    "source": "founder.yaml"
+  },
+  "weekly_hours": {
+    "value": 30,
+    "tag": "USER-PROVIDED",
+    "source": "founder.yaml"
+  },
+  "skills": {
+    "value": [
+      "b2b sales",
+      "python"
+    ],
+    "tag": "USER-PROVIDED",
+    "source": "founder.yaml"
+  },
+  "goal": {
+    "value": "Launch profitable tip-splitting micro-SaaS",
+    "tag": "USER-PROVIDED",
+    "source": "founder.yaml"
+  },
+  "first_customer_channel": {
+    "value": "Local salon visits and cold outreach",
+    "tag": "USER-PROVIDED",
+    "source": "founder.yaml"
+  },
+  "demand_evidence": {
+    "value": "interviews",
+    "tag": "USER-PROVIDED",
+    "source": "founder.yaml"
+  },
+  "price_per_run_inr": {
+    "value": 50.0,
+    "tag": "USER-PROVIDED",
+    "source": "founder.yaml"
+  }
+}

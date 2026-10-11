@@ -1,20 +1,19 @@
 # Every value in this file is ASSUMED (a human decision), never measured.
-# Edit the placeholders before running the cfo bridge and verdict.
+# Tag: ASSUMED
+
+usd_inr: 85.0 # [ASSUMED] Currency conversion rate USD to INR
+infra_per_run_usd: 0.02 # [ASSUMED] Estimated infrastructure cost per run in USD
+fixed_monthly_inr: 20000 # [ASSUMED] Fixed monthly operating cost in INR
+runs_per_customer_per_month: 20 # [ASSUMED] Usage volume per customer per month
+customers_month_1: 10 # [ASSUMED] Customer count in month 1
+customers_month_12: 200 # [ASSUMED] Projected customer count in month 12
+
 thresholds:
-  kill_success_rate: 0.5
-  kill_margin: 0.2
-  kill_runway_months: 6
-  build_success_rate: 0.8
-  build_margin: 0.6
-  build_runway_months: 12
-  build_retry_tax: 0.35
-business:
-  price_per_run: 1.00
-  infra_per_run: 0.02
-  customers_month_1: 10
-  customers_month_12: 200
-  runs_per_customer_per_month: 20
-  fixed_costs_per_month: 500
-  starting_cash: 10000
-  # Enter by hand from the exported cfo.ai plan. Leave null until you have it.
-  runway_months: null
+  kill_success_rate: 0.5 # [ASSUMED]
+  kill_margin: 0.2 # [ASSUMED]
+  kill_runway_months: 6 # [ASSUMED]
+  build_success_rate: 0.8 # [ASSUMED]
+  build_margin: 0.6 # [ASSUMED]
+  build_runway_months: 12 # [ASSUMED]
+  build_retry_tax: 0.35 # [ASSUMED]
+
