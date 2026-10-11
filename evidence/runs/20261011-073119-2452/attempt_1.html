@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CabSplit - Airport Taxi & Ride Fare Splitter</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #f59e0b;
+            --primary-hover: #d97706;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --error-bg: #7f1d1d;
+            --error-text: #fecaca;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .header p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.875rem;
+            background-color: var(--primary);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            margin-top: 1.5rem;
+            padding: 1.25rem;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .result-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>CabSplit</h1>
+            <p>Easily split taxi fares and tips among airport ride groups.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Fare & Surcharges ($)</label>
+            <input type="number" id="bill" step="0.01" min="0" placeholder="e.g. 54.50">
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of Passengers</label>
+            <input type="number" id="people" step="1" min="1" placeholder="e.g. 3">
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Tip Percentage (%)</label>
+            <input type="number" id="tip" step="1" min="0" placeholder="e.g. 15" value="15">
+        </div>
+
+        <button id="calc">Calculate Split</button>
+
+        <div id="error"></div>
+        <div id="result">
+            <div class="result-label">Each person pays</div>
+            <div class="result-amount" id="per-person-amount">$0.00</div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calc').addEventListener('click', function() {
+            const billInput = document.getElementById('bill').value.trim();
+            const peopleInput = document.getElementById('people').value.trim();
+            const tipInput = document.getElementById('tip').value.trim();
+            
+            const errorDiv = document.getElementById('error');
+            const resultDiv = document.getElementById('result');
+            const amountSpan = document.getElementById('per-person-amount');
+
+            // Reset states
+            errorDiv.style.display = 'none';
+            resultDiv.style.display = 'none';
+
+            // Parse numeric values
+            const bill = parseFloat(billInput);
+            const people = parseInt(peopleInput, 10);
+            const tip = tipInput === '' ? 0 : parseFloat(tipInput);
+
+            // Validation checks
+            if (billInput === '' || isNaN(bill) || bill < 0) {
+                showError("Please enter a valid total fare amount.");
+                return;
+            }
+
+            if (peopleInput === '' || isNaN(people) || !Number.isInteger(people) || people <= 0) {
+                showError("Please enter a valid number of passengers (at least 1).");
+                return;
+            }
+
+            if (tipInput !== '' && (isNaN(tip) || tip < 0)) {
+                showError("Please enter a valid tip percentage.");
+                return;
+            }
+
+            // Calculation
+            const tipMultiplier = 1 + (tip / 100);
+            const totalWithTip = bill * tipMultiplier;
+            const perPerson = totalWithTip / people;
+
+            // Display results
+            amountSpan.textContent = `$${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

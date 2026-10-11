@@ -1,0 +1,101 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-073832-4f9a",
+      "idea": "A coffee-run tip calculator for an office team",
+      "mode": "improved",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.156,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "CoffeeRun Splitter",
+      "one_line_pitch": "Quickly calculate and split tips and totals for the office coffee run.",
+      "target_user": "Office workers and team leads who regularly pick up coffee for colleagues.",
+      "adaptation_note": "Reframe the standard bill-splitting interface to focus on individual drink prices, customizable tip percentages for baristas, and quick participant assignment for office coffee orders.",
+      "_cost": 0.0003023,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 201
+    }
+  },
+  {
+    "t": 1.156,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0003023,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 201
+    }
+  },
+  {
+    "t": 6.266,
+    "type": "code_written",
+    "data": {
+      "bytes": 7125,
+      "attempt": 1,
+      "_cost": 0.0056596,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2710
+    }
+  },
+  {
+    "t": 6.266,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0056596,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2710
+    }
+  },
+  {
+    "t": 9.203,
+    "type": "check_passed",
+    "data": {
+      "attempt": 1,
+      "console_errors": [],
+      "_cost": 0.0056596,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2710
+    }
+  },
+  {
+    "t": 9.203,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-073832-4f9a",
+      "_cost": 0.0056596,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2710
+    }
+  },
+  {
+    "t": 9.203,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-073832-4f9a",
+      "success": true,
+      "attempts": 1,
+      "first_attempt_passed": true,
+      "cost_usd": 0.0056596,
+      "cost_tag": "COMPUTED",
+      "tokens": 2710,
+      "latency_s": 9.203,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

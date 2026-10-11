@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SalonPool Tips</title>
+    <style>
+        :root {
+            --primary: #8a4baf;
+            --primary-light: #f3eafa;
+            --primary-dark: #643180;
+            --bg: #f9f8fc;
+            --card-bg: #ffffff;
+            --text: #2d2b38;
+            --text-light: #6e6b7b;
+            --error: #d93838;
+            --error-bg: #fde8e8;
+            --border: #e2dceb;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px rgba(138, 75, 175, 0.08);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix, .suffix {
+            position: absolute;
+            color: var(--text-light);
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .prefix {
+            left: 14px;
+        }
+
+        .suffix {
+            right: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fff;
+            color: var(--text);
+        }
+
+        input.has-prefix {
+            padding-left: 30px;
+        }
+
+        input.has-suffix {
+            padding-right: 30px;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        button {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 4px;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+        }
+
+        #error {
+            background: var(--error-bg);
+            color: var(--error);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+            border: 1px solid #f5c2c2;
+        }
+
+        #result {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+            border: 1px solid #e0d0f0;
+        }
+
+        #result .label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        #result .amount {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>SalonPool Tips</h1>
+            <p>Easily split and track pooled tips fairly among your salon team.</p>
+        </div>
+        
+        <div class="content">
+            <div class="form-group">
+                <label for="bill">Total Bill Amount ($)</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="bill" class="has-prefix" placeholder="0.00" step="0.01" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="tip">Tip Percentage (%)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="tip" class="has-suffix" placeholder="20" step="0.1" min="0">
+                    <span class="suffix">%</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="people">Team Members (Sharing Pool)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="people" placeholder="1" step="1" min="1">
+                </div>
+            </div>
+
+            <button id="calc">Calculate Pool Split</button>
+
+            <div id="error"></div>
+            <div id="result">
+                <div class="label">Per-Person Tip Amount</div>
+                <div id="result-amount" class="amount">$0.00</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const tipInput = document.getElementById('tip');
+        const peopleInput = document.getElementById('people');
+        const calcButton = document.getElementById('calc');
+        const resultContainer = document.getElementById('result');
+        const resultAmount = document.getElementById('result-amount');
+        const errorContainer = document.getElementById('error');
+
+        calcButton.addEventListener('click', () => {
+            const billVal = billInput.value.trim();
+            const tipVal = tipInput.value.trim();
+            const peopleVal = peopleInput.value.trim();
+
+            // Validation checks
+            if (billVal === '' || tipVal === '' || peopleVal === '') {
+                showError('Please fill in all fields.');
+                return;
+            }
+
+            const bill = parseFloat(billVal);
+            const tipPct = parseFloat(tipVal);
+            const people = parseInt(peopleVal, 10);
+
+            if (isNaN(bill) || isNaN(tipPct) || isNaN(people)) {
+                showError('Please enter valid numbers in all fields.');
+                return;
+            }
+
+            if (bill < 0 || tipPct < 0) {
+                showError('Bill and tip percentage cannot be negative.');
+                return;
+            }
+
+            if (people <= 0 || !Number.isInteger(Number(peopleVal))) {
+                showError('Team members must be a whole number greater than zero.');
+                return;
+            }
+
+            // Calculation
+            const totalTip = bill * (tipPct / 100);
+            const perPerson = totalTip / people;
+
+            // Display valid output
+            errorContainer.style.display = 'none';
+            resultAmount.textContent = `$${perPerson.toFixed(2)}`;
+            resultContainer.style.display = 'block';
+        });
+
+        function showError(message) {
+            resultContainer.style.display = 'none';
+            errorContainer.textContent = message;
+            errorContainer.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

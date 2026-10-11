@@ -1,0 +1,97 @@
+{
+  "run_id": "20261011-073957-4061",
+  "mode": "improved",
+  "template": "tip_splitter",
+  "idea": "A tour guide tip pool calculator for a travel group",
+  "success": true,
+  "attempts": 3,
+  "first_attempt_passed": false,
+  "input_tokens": 5243,
+  "output_tokens": 5859,
+  "tokens": 11102,
+  "cost_usd": 0.0162204,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.0002373,
+    "build": 0.005002,
+    "retry": 0.0109811
+  },
+  "latency_s": 21.422,
+  "rails_fired": [],
+  "error": null,
+  "autopsy_error": null,
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 1437,
+      "tokens": 175,
+      "cost_usd": 0.0002373,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 5327,
+      "tokens": 2344,
+      "cost_usd": 0.005002,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 875,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_2",
+      "type": "CHAIN",
+      "duration_ms": 4437,
+      "tokens": 4273,
+      "cost_usd": 0.0054685,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 1922,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_3",
+      "type": "CHAIN",
+      "duration_ms": 4452,
+      "tokens": 4310,
+      "cost_usd": 0.0055126,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 2952,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "awaiting_approval"
+}

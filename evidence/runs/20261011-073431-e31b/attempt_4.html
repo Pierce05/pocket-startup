@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TruckTab Family</title>
+    <style>
+        :root {
+            --primary: #ff6b35;
+            --primary-dark: #e85a24;
+            --secondary: #004e89;
+            --bg: #f9f8f6;
+            --card-bg: #ffffff;
+            --text: #2d3142;
+            --text-light: #4f5d75;
+            --error: #d90429;
+            --success: #2b9348;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border-top: 6px solid var(--primary);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            color: var(--secondary);
+            font-size: 1.75rem;
+            margin-bottom: 6px;
+        }
+
+        p.pitch {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .vendors-container {
+            margin-bottom: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .vendor-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .vendor-row input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .vendor-row input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn-icon {
+            background: #ffe5df;
+            color: var(--error);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: #ffc2b4;
+        }
+
+        .btn-secondary {
+            background: #eef2f7;
+            color: var(--secondary);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #d6e2ef;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        input[type="number"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .tip-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tip-btn {
+            background: #f1f3f5;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+
+        .tip-btn.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        #calc {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        #calc:hover {
+            background: var(--primary-dark);
+        }
+
+        #error {
+            background: #fdf2f2;
+            color: var(--error);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-top: 16px;
+            text-align: center;
+            display: none;
+            border: 1px solid #f9c6c6;
+        }
+
+        #result {
+            background: #f0fdf4;
+            color: var(--success);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            margin-top: 16px;
+            text-align: center;
+            display: none;
+            border: 1px solid #bbf7d0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>TruckTab Family</h1>
+            <p class="pitch">Easily split food truck festival bills and calculate tips among family members.</p>
+        </header>
+
+        <div class="section-title">
+            Festival Vendor Subtotals
+            <button type="button" class="btn-secondary" id="add-vendor">+ Add Vendor</button>
+        </div>
+        
+        <div class="vendors-container" id="vendor-list">
+            <div class="vendor-row">
+                <input type="text" class="vendor-name" placeholder="Vendor Name (e.g., Taco Truck)">
+                <input type="number" class="vendor-amount" placeholder="0.00" step="0.01" min="0">
+                <button type="button" class="btn-icon" onclick="removeVendor(this)">×</button>
+            </div>
+        </div>
+
+        <!-- Master bill field for requirement #bill -->
+        <div class="input-group">
+            <label for="bill">Total Bill Amount ($)</label>
+            <input type="number" id="bill" placeholder="0.00" step="0.01" min="0">
+        </div>
+
+        <div class="input-group">
+            <label for="people">Family Members (Splitting Bill)</label>
+            <input type="number" id="people" placeholder="Enter number of people" min="1" value="">
+        </div>
+
+        <div class="input-group">
+            <label>Tip Percentage</label>
+            <div class="tip-buttons">
+                <button type="button" class="tip-btn" onclick="setTip(10)">10%</button>
+                <button type="button" class="tip-btn" onclick="setTip(15)">15%</button>
+                <button type="button" class="tip-btn" onclick="setTip(18)">18%</button>
+                <button type="button" class="tip-btn" onclick="setTip(20)">20%</button>
+            </div>
+            <input type="number" id="tip" placeholder="Custom tip %" min="0" value="0">
+        </div>
+
+        <button type="button" id="calc">Calculate Family Split</button>
+
+        <div id="error"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const vendorList = document.getElementById('vendor-list');
+        const addVendorBtn = document.getElementById('add-vendor');
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const tipInput = document.getElementById('tip');
+        const calcBtn = document.getElementById('calc');
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+
+        function updateMasterBill() {
+            const amounts = vendorList.querySelectorAll('.vendor-amount');
+            let total = 0;
+            amounts.forEach(input => {
+                const val = parseFloat(input.value);
+                if (!isNaN(val) && val > 0) {
+                    total += val;
+                }
+            });
+            if (total > 0) {
+                billInput.value = total.toFixed(2);
+            }
+        }
+
+        addVendorBtn.addEventListener('click', () => {
+            const row = document.createElement('div');
+            row.className = 'vendor-row';
+            row.innerHTML = `
+                <input type="text" class="vendor-name" placeholder="Vendor Name">
+                <input type="number" class="vendor-amount" placeholder="0.00" step="0.01" min="0">
+                <button type="button" class="btn-icon" onclick="removeVendor(this)">×</button>
+            `;
+            row.querySelector('.vendor-amount').addEventListener('input', updateMasterBill);
+            vendorList.appendChild(row);
+        });
+
+        function removeVendor(btn) {
+            const rows = vendorList.querySelectorAll('.vendor-row');
+            if (rows.length > 1) {
+                btn.closest('.vendor-row').remove();
+                updateMasterBill();
+            } else {
+                const amountInput = rows[0].querySelector('.vendor-amount');
+                const nameInput = rows[0].querySelector('.vendor-name');
+                amountInput.value = '';
+                nameInput.value = '';
+                updateMasterBill();
+            }
+        }
+
+        document.querySelectorAll('.vendor-amount').forEach(input => {
+            input.addEventListener('input', updateMasterBill);
+        });
+
+        function setTip(val) {
+            tipInput.value = val;
+            document.querySelectorAll('.tip-btn').forEach(btn => {
+                if (btn.textContent.includes(val + '%')) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        tipInput.addEventListener('input', () => {
+            document.querySelectorAll('.tip-btn').forEach(btn => btn.classList.remove('active'));
+        });
+
+        calcBtn.addEventListener('click', () => {
+            const billVal = parseFloat(billInput.value);
+            const rawPeopleStr = peopleInput.value;
+            const peopleVal = Number(rawPeopleStr);
+            const tipVal = parseFloat(tipInput.value);
+
+            errorDiv.style.display = 'none';
+            resultDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            resultDiv.textContent = '';
+
+            if (isNaN(billVal) || billVal <= 0) {
+                errorDiv.textContent = 'Please enter a valid total bill amount.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (rawPeopleStr.trim() === '' || isNaN(peopleVal) || peopleVal <= 0 || !Number.isInteger(peopleVal)) {
+                errorDiv.textContent = 'Please enter a valid whole number of family members.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (isNaN(tipVal) || tipVal < 0) {
+                errorDiv.textContent = 'Please enter a valid tip percentage (0 or greater).';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            const tipAmount = billVal * (tipVal / 100);
+            const totalSum = billVal + tipAmount;
+            const perPerson = totalSum / peopleVal;
+
+            resultDiv.textContent = `${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

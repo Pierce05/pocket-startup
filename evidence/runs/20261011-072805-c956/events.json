@@ -1,0 +1,157 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-072805-c956",
+      "idea": "A tool for roommates to split a shared grocery receipt including a tip for delivery",
+      "mode": "baseline",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.359,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "GrocySplit",
+      "one_line_pitch": "Easily split shared grocery receipts and delivery tips among roommates.",
+      "target_user": "Roommates who order groceries together and need to divide costs and delivery tips fairly.",
+      "adaptation_note": "Utilize the tip_splitter template to calculate individual shares of grocery items plus a proportionate share of the delivery tip.",
+      "_cost": 0.0002838,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 198
+    }
+  },
+  {
+    "t": 1.359,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002838,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 198
+    }
+  },
+  {
+    "t": 7.094,
+    "type": "code_written",
+    "data": {
+      "bytes": 7925,
+      "attempt": 1,
+      "_cost": 0.006072,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2772
+    }
+  },
+  {
+    "t": 7.094,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.006072,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2772
+    }
+  },
+  {
+    "t": 9.531,
+    "type": "check_failed",
+    "data": {
+      "attempt": 1,
+      "test": "fractional_people",
+      "expected": "#error visible with a message and #result not visible or empty",
+      "actual": "#error visible=False, #result visible_content='Per Person Total\\n$60.00'",
+      "console_errors": [],
+      "_cost": 0.006072,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2772
+    }
+  },
+  {
+    "t": 9.531,
+    "type": "retry",
+    "data": {
+      "next": 2,
+      "_cost": 0.006072,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2772
+    }
+  },
+  {
+    "t": 9.531,
+    "type": "attempt_started",
+    "data": {
+      "n": 2,
+      "of": 4,
+      "_cost": 0.006072,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2772
+    }
+  },
+  {
+    "t": 14.781,
+    "type": "code_written",
+    "data": {
+      "bytes": 8050,
+      "attempt": 2,
+      "_cost": 0.0124669,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 7625
+    }
+  },
+  {
+    "t": 14.781,
+    "type": "check_started",
+    "data": {
+      "attempt": 2,
+      "_cost": 0.0124669,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 7625
+    }
+  },
+  {
+    "t": 18.344,
+    "type": "check_passed",
+    "data": {
+      "attempt": 2,
+      "console_errors": [],
+      "_cost": 0.0124669,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 7625
+    }
+  },
+  {
+    "t": 18.344,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-072805-c956",
+      "_cost": 0.0124669,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 7625
+    }
+  },
+  {
+    "t": 18.344,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-072805-c956",
+      "success": true,
+      "attempts": 2,
+      "first_attempt_passed": false,
+      "cost_usd": 0.0124669,
+      "cost_tag": "COMPUTED",
+      "tokens": 7625,
+      "latency_s": 18.344,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

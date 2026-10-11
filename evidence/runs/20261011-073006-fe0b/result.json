@@ -1,0 +1,121 @@
+{
+  "run_id": "20261011-073006-fe0b",
+  "mode": "baseline",
+  "template": "tip_splitter",
+  "idea": "A tool for roommates to split a shared grocery receipt including a tip for delivery",
+  "success": false,
+  "attempts": 4,
+  "first_attempt_passed": false,
+  "input_tokens": 10888,
+  "output_tokens": 12517,
+  "tokens": 23405,
+  "cost_usd": 0.0345589,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.0002913,
+    "build": 0.0079066,
+    "retry": 0.026361
+  },
+  "latency_s": 32.984,
+  "rails_fired": [
+    {
+      "rail": "attempt_cap",
+      "detail": "gave up after 4 attempts",
+      "t": 32.98
+    }
+  ],
+  "error": null,
+  "autopsy_error": null,
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 1359,
+      "tokens": 201,
+      "cost_usd": 0.0002913,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 7062,
+      "tokens": 3424,
+      "cost_usd": 0.0079066,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 1047,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_2",
+      "type": "CHAIN",
+      "duration_ms": 6577,
+      "tokens": 6581,
+      "cost_usd": 0.0087855,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 1219,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_3",
+      "type": "CHAIN",
+      "duration_ms": 6468,
+      "tokens": 6608,
+      "cost_usd": 0.0087782,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 1453,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_4",
+      "type": "CHAIN",
+      "duration_ms": 6375,
+      "tokens": 6591,
+      "cost_usd": 0.0087973,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 1421,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "failed"
+}

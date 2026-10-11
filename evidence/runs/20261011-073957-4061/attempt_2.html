@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TourPool - Group Tipping Calculator</title>
+    <style>
+        :root {
+            --primary: #0f766e;
+            --primary-hover: #115e59;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #334155;
+            --text-heading: #0f172a;
+            --error-bg: #fee2e2;
+            --error-text: #991b1b;
+            --border: #cbd5e1;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 440px;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: var(--text-heading);
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 0.25rem;
+            text-align: center;
+        }
+
+        .pitch {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.375rem;
+            color: var(--text-heading);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 0.5rem;
+            text-align: center;
+            color: #166534;
+            font-size: 1.125rem;
+            font-weight: 600;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>TourPool</h1>
+        <div class="pitch">Easily calculate and distribute shared tips among tour guides and staff.</div>
+
+        <div class="input-group">
+            <label for="bill">Total Bill / Service Amount ($)</label>
+            <input type="number" id="bill" step="0.01" min="0" placeholder="0.00">
+        </div>
+
+        <div class="input-group">
+            <label for="tip">Tip Percentage (%)</label>
+            <input type="number" id="tip" step="any" min="0" placeholder="15">
+        </div>
+
+        <div class="input-group">
+            <label for="people">Number of Staff / Guides to Share</label>
+            <input type="number" id="people" step="1" min="1" placeholder="1">
+        </div>
+
+        <button id="calc">Calculate Share</button>
+
+        <div id="error"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const tipInput = document.getElementById('tip');
+        const peopleInput = document.getElementById('people');
+        const calcBtn = document.getElementById('calc');
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+
+        calcBtn.addEventListener('click', () => {
+            const billVal = billInput.value.trim();
+            const tipVal = tipInput.value.trim();
+            const peopleVal = peopleInput.value.trim();
+
+            // Check for empty fields
+            if (billVal === '' || tipVal === '' || peopleVal === '') {
+                showError('Please fill out all fields.');
+                return;
+            }
+
+            const bill = parseFloat(billVal);
+            const tip = parseFloat(tipVal);
+            const people = parseInt(peopleVal, 10);
+
+            // Validation checks
+            if (isNaN(bill) || bill < 0) {
+                showError('Please enter a valid bill amount (0 or greater).');
+                return;
+            }
+
+            if (isNaN(tip) || tip < 0) {
+                showError('Please enter a valid tip percentage (0 or greater).');
+                return;
+            }
+
+            if (isNaN(people) || !Number.isInteger(people) || people <= 0) {
+                showError('Number of people must be a whole number greater than zero.');
+                return;
+            }
+
+            // Calculation (total bill + total tip divided by number of people)
+            const totalTip = bill * (tip / 100);
+            const totalAmount = bill + totalTip;
+            const perPerson = totalAmount / people;
+
+            // Display results
+            errorDiv.style.display = 'none';
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = `${perPerson.toFixed(2)}`;
+        });
+
+        function showError(message) {
+            resultDiv.style.display = 'none';
+            resultDiv.textContent = '';
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = message;
+        }
+    </script>
+</body>
+</html>

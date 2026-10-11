@@ -1,0 +1,60 @@
+{
+  "run_id": "20261011-073832-4f9a",
+  "mode": "improved",
+  "template": "tip_splitter",
+  "idea": "A coffee-run tip calculator for an office team",
+  "success": true,
+  "attempts": 1,
+  "first_attempt_passed": true,
+  "input_tokens": 507,
+  "output_tokens": 2203,
+  "tokens": 2710,
+  "cost_usd": 0.0056596,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.0003023,
+    "build": 0.0053573
+  },
+  "latency_s": 9.203,
+  "rails_fired": [],
+  "error": null,
+  "autopsy_error": null,
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 1155,
+      "tokens": 201,
+      "cost_usd": 0.0003023,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 5110,
+      "tokens": 2509,
+      "cost_usd": 0.0053573,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 2936,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "awaiting_approval"
+}

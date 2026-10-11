@@ -1,0 +1,115 @@
+{
+  "run_id": "20261011-073431-e31b",
+  "mode": "baseline",
+  "template": "tip_splitter",
+  "idea": "A food-truck festival tab splitter for a family",
+  "success": true,
+  "attempts": 4,
+  "first_attempt_passed": false,
+  "input_tokens": 11591,
+  "output_tokens": 13506,
+  "tokens": 25097,
+  "cost_usd": 0.0372423,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.0002723,
+    "build": 0.008802,
+    "retry": 0.028168
+  },
+  "latency_s": 37.812,
+  "rails_fired": [],
+  "error": null,
+  "autopsy_error": null,
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 1375,
+      "tokens": 189,
+      "cost_usd": 0.0002723,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 8077,
+      "tokens": 3776,
+      "cost_usd": 0.008802,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 859,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_2",
+      "type": "CHAIN",
+      "duration_ms": 6937,
+      "tokens": 7154,
+      "cost_usd": 0.0093732,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 1187,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_3",
+      "type": "CHAIN",
+      "duration_ms": 6859,
+      "tokens": 6982,
+      "cost_usd": 0.0093986,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 2094,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_4",
+      "type": "CHAIN",
+      "duration_ms": 6969,
+      "tokens": 6996,
+      "cost_usd": 0.0093962,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 3437,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "awaiting_approval"
+}

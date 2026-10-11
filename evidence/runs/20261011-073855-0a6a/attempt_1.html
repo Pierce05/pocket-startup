@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TruckTab - Food Truck Festival Bill & Tip Splitter</title>
+    <style>
+        :root {
+            --primary: #ff6b35;
+            --secondary: #004e64;
+            --bg: #f9f6f0;
+            --card-bg: #ffffff;
+            --text: #2b2d42;
+            --error: #d90429;
+            --success: #2b9348;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 420px;
+            padding: 30px;
+            box-sizing: border-box;
+            border: 3px solid var(--secondary);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            margin: 0 0 8px 0;
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            margin: 0;
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 0.95rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #e55a2b;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #error {
+            color: var(--error);
+            background-color: #fdf2f4;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            margin-top: 24px;
+            background-color: #eef8f0;
+            border: 2px dashed var(--success);
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--success);
+            display: none;
+        }
+
+        .truck-icon {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div class="truck-icon">🚚🌮</div>
+            <h1>TruckTab</h1>
+            <p>Easily split food-truck festival bills and tips among family members.</p>
+        </div>
+
+        <div class="input-group">
+            <label for="bill">Total Festival Bill ($)</label>
+            <input type="number" id="bill" step="0.01" placeholder="e.g., 85.50" min="0">
+        </div>
+
+        <div class="input-group">
+            <label for="tip">Tip Percentage (%)</label>
+            <input type="number" id="tip" step="1" placeholder="e.g., 18" min="0" value="15">
+        </div>
+
+        <div class="input-group">
+            <label for="people">Number of Family Members</label>
+            <input type="number" id="people" step="1" placeholder="e.g., 4" min="1" value="1">
+        </div>
+
+        <button id="calc">Split the Tab</button>
+
+        <div id="error"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const tipInput = document.getElementById('tip');
+        const peopleInput = document.getElementById('people');
+        const calcButton = document.getElementById('calc');
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+
+        calcButton.addEventListener('click', () => {
+            // Reset states
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            resultDiv.style.display = 'none';
+            resultDiv.textContent = '';
+
+            const billVal = billInput.value.trim();
+            const tipVal = tipInput.value.trim();
+            const peopleVal = peopleInput.value.trim();
+
+            // Check empty inputs
+            if (billVal === '' || tipVal === '' || peopleVal === '') {
+                showError('Please fill out all fields.');
+                return;
+            }
+
+            const bill = parseFloat(billVal);
+            const tip = parseFloat(tipVal);
+            const people = parseFloat(peopleVal);
+
+            // Validation checks
+            if (isNaN(bill) || bill < 0) {
+                showError('Please enter a valid, non-negative total festival bill.');
+                return;
+            }
+
+            if (isNaN(tip) || tip < 0) {
+                showError('Please enter a valid, non-negative tip percentage.');
+                return;
+            }
+
+            if (isNaN(people) || !Number.isInteger(people) || people <= 0) {
+                showError('Number of family members must be a whole number greater than zero.');
+                return;
+            }
+
+            // Calculation
+            const tipAmount = bill * (tip / 100);
+            const totalWithTip = bill + tipAmount;
+            const perPerson = totalWithTip / people;
+
+            // Display result
+            resultDiv.textContent = `Each person owes: $${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

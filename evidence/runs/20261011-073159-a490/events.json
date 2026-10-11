@@ -1,0 +1,101 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-073159-a490",
+      "idea": "A tip splitter for friends sharing a restaurant bill",
+      "mode": "improved",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.062,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "BillSplit",
+      "one_line_pitch": "Quickly and fairly split restaurant bills and tips among friends.",
+      "target_user": "Group diners and friends sharing meals",
+      "adaptation_note": "Directly maps to the tip_splitter template for calculating itemized or equal bills with customizable gratuity.",
+      "_cost": 0.000252,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 180
+    }
+  },
+  {
+    "t": 1.062,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.000252,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 180
+    }
+  },
+  {
+    "t": 6.031,
+    "type": "code_written",
+    "data": {
+      "bytes": 6574,
+      "attempt": 1,
+      "_cost": 0.0054133,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2593
+    }
+  },
+  {
+    "t": 6.031,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0054133,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2593
+    }
+  },
+  {
+    "t": 9.297,
+    "type": "check_passed",
+    "data": {
+      "attempt": 1,
+      "console_errors": [],
+      "_cost": 0.0054133,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2593
+    }
+  },
+  {
+    "t": 9.297,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-073159-a490",
+      "_cost": 0.0054133,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2593
+    }
+  },
+  {
+    "t": 9.297,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-073159-a490",
+      "success": true,
+      "attempts": 1,
+      "first_attempt_passed": true,
+      "cost_usd": 0.0054133,
+      "cost_tag": "COMPUTED",
+      "tokens": 2593,
+      "latency_s": 9.297,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

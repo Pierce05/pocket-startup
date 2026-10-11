@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TruckTab - Food Truck Festival Tip Splitter</title>
+    <style>
+        :root {
+            --primary: #ff5722;
+            --primary-dark: #e64a19;
+            --secondary: #ffb300;
+            --bg: #fff8e1;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --error-bg: #ffebee;
+            --error-text: #c62828;
+            --success-bg: #e8f5e9;
+            --success-text: #2e7d32;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 420px;
+            box-sizing: border-box;
+            border-top: 6px solid var(--primary);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 6px;
+            color: var(--primary-dark);
+            text-align: center;
+        }
+
+        p.pitch {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #error {
+            display: none;
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        #result {
+            display: none;
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🚚 TruckTab</h1>
+        <p class="pitch">Easily split food truck festival bills and calculate tips across the family.</p>
+
+        <div class="input-group">
+            <label for="bill">Festival Bill Total ($)</label>
+            <input type="number" id="bill" step="0.01" placeholder="e.g. 85.50">
+        </div>
+
+        <div class="input-group">
+            <label for="tip">Tip Percentage (%)</label>
+            <input type="number" id="tip" step="1" placeholder="e.g. 18">
+        </div>
+
+        <div class="input-group">
+            <label for="people">Number of People</label>
+            <input type="number" id="people" step="1" placeholder="e.g. 4">
+        </div>
+
+        <button id="calc">Split Tab</button>
+
+        <div id="error"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('calc').addEventListener('click', function() {
+            const billInput = document.getElementById('bill').value.trim();
+            const tipInput = document.getElementById('tip').value.trim();
+            const peopleInput = document.getElementById('people').value.trim();
+
+            const errorDiv = document.getElementById('error');
+            const resultDiv = document.getElementById('result');
+
+            // Reset UI states
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            resultDiv.style.display = 'none';
+            resultDiv.textContent = '';
+
+            // Check if any field is empty
+            if (billInput === '' || tipInput === '' || peopleInput === '') {
+                errorDiv.textContent = 'Please fill out all fields.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            const bill = Number(billInput);
+            const tip = Number(tipInput);
+            const people = Number(peopleInput);
+
+            // Validate numeric parsing, ranges, and whole numbers
+            if (isNaN(bill) || isNaN(tip) || isNaN(people)) {
+                errorDiv.textContent = 'Please enter valid numbers in all fields.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (bill < 0) {
+                errorDiv.textContent = 'Bill amount cannot be negative.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (tip < 0) {
+                errorDiv.textContent = 'Tip percentage cannot be negative.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (!Number.isInteger(people) || people <= 0) {
+                errorDiv.textContent = 'Number of people must be a whole number greater than zero.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // Calculations
+            const tipAmount = bill * (tip / 100);
+            const totalAmount = bill + tipAmount;
+            const perPerson = totalAmount / people;
+
+            // Display results
+            resultDiv.textContent = `Each person pays: $${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

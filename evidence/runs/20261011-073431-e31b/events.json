@@ -1,0 +1,269 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-073431-e31b",
+      "idea": "A food-truck festival tab splitter for a family",
+      "mode": "baseline",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.375,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "TruckTab Family",
+      "one_line_pitch": "Easily split food truck festival bills and calculate tips among family members.",
+      "target_user": "Families attending food truck festivals or outdoor markets together",
+      "adaptation_note": "Re-labeled the interface from restaurant-centric tipping to food truck family tabs, focusing on multiple quick vendor entries.",
+      "_cost": 0.0002723,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 189
+    }
+  },
+  {
+    "t": 1.375,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002723,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 189
+    }
+  },
+  {
+    "t": 9.453,
+    "type": "code_written",
+    "data": {
+      "bytes": 12648,
+      "attempt": 1,
+      "_cost": 0.0090743,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3965
+    }
+  },
+  {
+    "t": 9.453,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0090743,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3965
+    }
+  },
+  {
+    "t": 10.312,
+    "type": "check_failed",
+    "data": {
+      "attempt": 1,
+      "test": "split_basic",
+      "expected": "#result contains 30.00",
+      "actual": "#result='Each family member owes: $19.05\\nTotal bill (incl. $12.70 tip): $76.20'",
+      "console_errors": [],
+      "_cost": 0.0090743,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3965
+    }
+  },
+  {
+    "t": 10.312,
+    "type": "retry",
+    "data": {
+      "next": 2,
+      "_cost": 0.0090743,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3965
+    }
+  },
+  {
+    "t": 10.312,
+    "type": "attempt_started",
+    "data": {
+      "n": 2,
+      "of": 4,
+      "_cost": 0.0090743,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3965
+    }
+  },
+  {
+    "t": 17.25,
+    "type": "code_written",
+    "data": {
+      "bytes": 12011,
+      "attempt": 2,
+      "_cost": 0.0184475,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 11119
+    }
+  },
+  {
+    "t": 17.25,
+    "type": "check_started",
+    "data": {
+      "attempt": 2,
+      "_cost": 0.0184475,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 11119
+    }
+  },
+  {
+    "t": 18.437,
+    "type": "check_failed",
+    "data": {
+      "attempt": 2,
+      "test": "split_basic",
+      "expected": "#error hidden and #result contains 30.00",
+      "actual": "#error visible: 'Please enter valid spending amounts across your food truck stops.'",
+      "console_errors": [],
+      "_cost": 0.0184475,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 11119
+    }
+  },
+  {
+    "t": 18.437,
+    "type": "retry",
+    "data": {
+      "next": 3,
+      "_cost": 0.0184475,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 11119
+    }
+  },
+  {
+    "t": 18.437,
+    "type": "attempt_started",
+    "data": {
+      "n": 3,
+      "of": 4,
+      "_cost": 0.0184475,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 11119
+    }
+  },
+  {
+    "t": 25.297,
+    "type": "code_written",
+    "data": {
+      "bytes": 11992,
+      "attempt": 3,
+      "_cost": 0.0278461,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 18101
+    }
+  },
+  {
+    "t": 25.297,
+    "type": "check_started",
+    "data": {
+      "attempt": 3,
+      "_cost": 0.0278461,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 18101
+    }
+  },
+  {
+    "t": 27.391,
+    "type": "check_failed",
+    "data": {
+      "attempt": 3,
+      "test": "fractional_people",
+      "expected": "#error visible with a message and #result not visible or empty",
+      "actual": "#error visible=False, #result visible_content='60.00'",
+      "console_errors": [],
+      "_cost": 0.0278461,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 18101
+    }
+  },
+  {
+    "t": 27.406,
+    "type": "retry",
+    "data": {
+      "next": 4,
+      "_cost": 0.0278461,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 18101
+    }
+  },
+  {
+    "t": 27.406,
+    "type": "attempt_started",
+    "data": {
+      "n": 4,
+      "of": 4,
+      "_cost": 0.0278461,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 18101
+    }
+  },
+  {
+    "t": 34.375,
+    "type": "code_written",
+    "data": {
+      "bytes": 12063,
+      "attempt": 4,
+      "_cost": 0.0372423,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 25097
+    }
+  },
+  {
+    "t": 34.375,
+    "type": "check_started",
+    "data": {
+      "attempt": 4,
+      "_cost": 0.0372423,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 25097
+    }
+  },
+  {
+    "t": 37.812,
+    "type": "check_passed",
+    "data": {
+      "attempt": 4,
+      "console_errors": [],
+      "_cost": 0.0372423,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 25097
+    }
+  },
+  {
+    "t": 37.812,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-073431-e31b",
+      "_cost": 0.0372423,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 25097
+    }
+  },
+  {
+    "t": 37.812,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-073431-e31b",
+      "success": true,
+      "attempts": 4,
+      "first_attempt_passed": false,
+      "cost_usd": 0.0372423,
+      "cost_tag": "COMPUTED",
+      "tokens": 25097,
+      "latency_s": 37.812,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

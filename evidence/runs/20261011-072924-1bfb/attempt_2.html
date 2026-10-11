@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeddingTab - Wedding Dinner Bill & Tip Splitter</title>
+    <style>
+        :root {
+            --primary: #d4af37; /* Wedding Gold */
+            --primary-dark: #b89728;
+            --bg: #f9f8f6;
+            --card-bg: #ffffff;
+            --text: #2c2c2c;
+            --text-light: #666666;
+            --error: #d9534f;
+            --border: #e0dede;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 450px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            border-top: 4px solid var(--primary);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: var(--text);
+            margin-bottom: 5px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .pitch {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix, .suffix {
+            position: absolute;
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .prefix {
+            left: 14px;
+        }
+
+        .suffix {
+            right: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+            background-color: #fff;
+        }
+
+        input.has-prefix {
+            padding-left: 30px;
+        }
+
+        input.has-suffix {
+            padding-right: 35px;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        .tip-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .tip-btn {
+            padding: 10px 0;
+            background-color: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tip-btn:hover {
+            background-color: #f0ede6;
+        }
+
+        .tip-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        button#calc {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+
+        button#calc:hover {
+            background-color: var(--primary-dark);
+        }
+
+        #error {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #fdf2f2;
+            color: var(--error);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: var(--bg);
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .result-amount {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>WeddingTab</h1>
+            <p class="pitch">Split wedding dinner bills and service charges effortlessly.</p>
+        </header>
+
+        <main>
+            <div class="form-group">
+                <label for="bill">Total Dinner Bill & Service Charge</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="bill" class="has-prefix" placeholder="0.00" step="0.01" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="tip">Additional Tip / Gratuity (%)</label>
+                <div class="tip-buttons">
+                    <button type="button" class="tip-btn" data-tip="10">10%</button>
+                    <button type="button" class="tip-btn" data-tip="15">15%</button>
+                    <button type="button" class="tip-btn" data-tip="18">18%</button>
+                    <button type="button" class="tip-btn" data-tip="20">20%</button>
+                </div>
+                <div class="input-wrapper">
+                    <input type="number" id="tip" class="has-suffix" placeholder="15" value="15" min="0" max="100">
+                    <span class="suffix">%</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="people">Number of Guests</label>
+                <input type="number" id="people" placeholder="1" min="1" value="1">
+            </div>
+
+            <button id="calc">Calculate Split</button>
+
+            <div id="error"></div>
+            
+            <div id="result">
+                <div class="result-label">Per Person Amount</div>
+                <div class="result-amount" id="result-amount-val">$0.00</div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const tipButtons = document.querySelectorAll('.tip-btn');
+        const tipInput = document.getElementById('tip');
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const calcButton = document.getElementById('calc');
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+        const resultAmountVal = document.getElementById('result-amount-val');
+
+        function updateTipButtons(val) {
+            tipButtons.forEach(btn => {
+                if (btn.getAttribute('data-tip') === val) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        updateTipButtons(tipInput.value);
+
+        tipButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tipInput.value = btn.getAttribute('data-tip');
+                updateTipButtons(tipInput.value);
+            });
+        });
+
+        tipInput.addEventListener('input', () => {
+            updateTipButtons(tipInput.value);
+        });
+
+        calcButton.addEventListener('click', () => {
+            const billVal = parseFloat(billInput.value);
+            const tipVal = parseFloat(tipInput.value);
+            const peopleRaw = peopleInput.value;
+            const peopleVal = parseFloat(peopleRaw);
+
+            let errorMessage = '';
+
+            if (isNaN(billVal) || billInput.value.trim() === '') {
+                errorMessage = 'Please enter a valid bill amount.';
+            } else if (billVal < 0) {
+                errorMessage = 'Bill amount cannot be negative.';
+            } else if (isNaN(tipVal) || tipInput.value.trim() === '') {
+                errorMessage = 'Please enter a valid tip percentage.';
+            } else if (tipVal < 0) {
+                errorMessage = 'Tip percentage cannot be negative.';
+            } else if (isNaN(peopleVal) || peopleRaw.trim() === '') {
+                errorMessage = 'Please enter the number of guests.';
+            } else if (peopleVal <= 0 || !Number.isInteger(Number(peopleRaw))) {
+                errorMessage = 'Number of guests must be a whole number of at least 1.';
+            }
+
+            if (errorMessage) {
+                errorDiv.textContent = errorMessage;
+                errorDiv.style.display = 'block';
+                resultDiv.style.display = 'none';
+                resultAmountVal.textContent = '';
+                return;
+            }
+
+            errorDiv.style.display = 'none';
+
+            const totalTipMultiplier = 1 + (tipVal / 100);
+            const grandTotal = billVal * totalTipMultiplier;
+            const perPerson = grandTotal / peopleVal;
+
+            resultAmountVal.textContent = `$${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

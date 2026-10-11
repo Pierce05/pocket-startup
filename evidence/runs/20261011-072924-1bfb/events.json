@@ -1,0 +1,157 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-072924-1bfb",
+      "idea": "A wedding dinner table bill splitter with service charge",
+      "mode": "baseline",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.453,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "WeddingTab",
+      "one_line_pitch": "Split wedding dinner bills and service charges effortlessly among guests.",
+      "target_user": "Wedding guests organizing group dinner tables or shared expenses.",
+      "adaptation_note": "Adapts the standard tip calculator to handle group dinner totals, customized percentages, and service charges specific to wedding receptions.",
+      "_cost": 0.000262,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 184
+    }
+  },
+  {
+    "t": 1.453,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.000262,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 184
+    }
+  },
+  {
+    "t": 7.718,
+    "type": "code_written",
+    "data": {
+      "bytes": 9686,
+      "attempt": 1,
+      "_cost": 0.0070878,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3166
+    }
+  },
+  {
+    "t": 7.718,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0070878,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3166
+    }
+  },
+  {
+    "t": 10.281,
+    "type": "check_failed",
+    "data": {
+      "attempt": 1,
+      "test": "fractional_people",
+      "expected": "#error visible with a message and #result not visible or empty",
+      "actual": "#error visible=False, #result visible_content='PER PERSON AMOUNT\\n$60.00'",
+      "console_errors": [],
+      "_cost": 0.0070878,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3166
+    }
+  },
+  {
+    "t": 10.281,
+    "type": "retry",
+    "data": {
+      "next": 2,
+      "_cost": 0.0070878,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3166
+    }
+  },
+  {
+    "t": 10.281,
+    "type": "attempt_started",
+    "data": {
+      "n": 2,
+      "of": 4,
+      "_cost": 0.0070878,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3166
+    }
+  },
+  {
+    "t": 16.312,
+    "type": "code_written",
+    "data": {
+      "bytes": 9591,
+      "attempt": 2,
+      "_cost": 0.014621,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8858
+    }
+  },
+  {
+    "t": 16.312,
+    "type": "check_started",
+    "data": {
+      "attempt": 2,
+      "_cost": 0.014621,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8858
+    }
+  },
+  {
+    "t": 20.203,
+    "type": "check_passed",
+    "data": {
+      "attempt": 2,
+      "console_errors": [],
+      "_cost": 0.014621,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8858
+    }
+  },
+  {
+    "t": 20.203,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-072924-1bfb",
+      "_cost": 0.014621,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8858
+    }
+  },
+  {
+    "t": 20.203,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-072924-1bfb",
+      "success": true,
+      "attempts": 2,
+      "first_attempt_passed": false,
+      "cost_usd": 0.014621,
+      "cost_tag": "COMPUTED",
+      "tokens": 8858,
+      "latency_s": 20.203,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

@@ -1,0 +1,269 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-073041-41c9",
+      "idea": "A bar tab splitter for a night out with coworkers",
+      "mode": "baseline",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.25,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "TabToss",
+      "one_line_pitch": "Split bar tabs and calculate coworker tips effortlessly after a night out.",
+      "target_user": "Office workers and professionals organizing happy hours and team outings.",
+      "adaptation_note": "Re-themed the bill-splitting interface from restaurant food items to bar drinks and grouped tabs by coworker attendees.",
+      "_cost": 0.0002698,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 188
+    }
+  },
+  {
+    "t": 1.25,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002698,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 188
+    }
+  },
+  {
+    "t": 11.047,
+    "type": "code_written",
+    "data": {
+      "bytes": 12333,
+      "attempt": 1,
+      "_cost": 0.0088115,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3859
+    }
+  },
+  {
+    "t": 11.047,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0088115,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3859
+    }
+  },
+  {
+    "t": 12.078,
+    "type": "check_failed",
+    "data": {
+      "attempt": 1,
+      "test": "required_ids",
+      "expected": "all required ids present: #bill, #people, #tip, #calc, #result, #error",
+      "actual": "missing: #bill, #people",
+      "console_errors": [],
+      "_cost": 0.0088115,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3859
+    }
+  },
+  {
+    "t": 12.078,
+    "type": "retry",
+    "data": {
+      "next": 2,
+      "_cost": 0.0088115,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3859
+    }
+  },
+  {
+    "t": 12.078,
+    "type": "attempt_started",
+    "data": {
+      "n": 2,
+      "of": 4,
+      "_cost": 0.0088115,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3859
+    }
+  },
+  {
+    "t": 19.078,
+    "type": "code_written",
+    "data": {
+      "bytes": 11247,
+      "attempt": 2,
+      "_cost": 0.0176165,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 10659
+    }
+  },
+  {
+    "t": 19.078,
+    "type": "check_started",
+    "data": {
+      "attempt": 2,
+      "_cost": 0.0176165,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 10659
+    }
+  },
+  {
+    "t": 20.422,
+    "type": "check_failed",
+    "data": {
+      "attempt": 2,
+      "test": "split_basic",
+      "expected": "#result contains 30.00",
+      "actual": "#result='25.80'",
+      "console_errors": [],
+      "_cost": 0.0176165,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 10659
+    }
+  },
+  {
+    "t": 20.422,
+    "type": "retry",
+    "data": {
+      "next": 3,
+      "_cost": 0.0176165,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 10659
+    }
+  },
+  {
+    "t": 20.422,
+    "type": "attempt_started",
+    "data": {
+      "n": 3,
+      "of": 4,
+      "_cost": 0.0176165,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 10659
+    }
+  },
+  {
+    "t": 25.282,
+    "type": "code_written",
+    "data": {
+      "bytes": 7213,
+      "attempt": 3,
+      "_cost": 0.0238769,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 16193
+    }
+  },
+  {
+    "t": 25.282,
+    "type": "check_started",
+    "data": {
+      "attempt": 3,
+      "_cost": 0.0238769,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 16193
+    }
+  },
+  {
+    "t": 28.032,
+    "type": "check_failed",
+    "data": {
+      "attempt": 3,
+      "test": "fractional_people",
+      "expected": "#error visible with a message and #result not visible or empty",
+      "actual": "#error visible=False, #result visible_content='60.00'",
+      "console_errors": [],
+      "_cost": 0.0238769,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 16193
+    }
+  },
+  {
+    "t": 28.032,
+    "type": "retry",
+    "data": {
+      "next": 4,
+      "_cost": 0.0238769,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 16193
+    }
+  },
+  {
+    "t": 28.032,
+    "type": "attempt_started",
+    "data": {
+      "n": 4,
+      "of": 4,
+      "_cost": 0.0238769,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 16193
+    }
+  },
+  {
+    "t": 32.688,
+    "type": "code_written",
+    "data": {
+      "bytes": 7294,
+      "attempt": 4,
+      "_cost": 0.0298652,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 20754
+    }
+  },
+  {
+    "t": 32.688,
+    "type": "check_started",
+    "data": {
+      "attempt": 4,
+      "_cost": 0.0298652,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 20754
+    }
+  },
+  {
+    "t": 36.391,
+    "type": "check_passed",
+    "data": {
+      "attempt": 4,
+      "console_errors": [],
+      "_cost": 0.0298652,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 20754
+    }
+  },
+  {
+    "t": 36.391,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-073041-41c9",
+      "_cost": 0.0298652,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 20754
+    }
+  },
+  {
+    "t": 36.391,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-073041-41c9",
+      "success": true,
+      "attempts": 4,
+      "first_attempt_passed": false,
+      "cost_usd": 0.0298652,
+      "cost_tag": "COMPUTED",
+      "tokens": 20754,
+      "latency_s": 36.391,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

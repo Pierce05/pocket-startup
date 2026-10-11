@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrunchSplit - Effortless Bill Splitting</title>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #fff5f0 13%, #ffe3e0 100%);
+      --card-bg: #ffffff;
+      --primary: #ff6b6b;
+      --primary-hover: #fa5252;
+      --text-main: #2d3748;
+      --text-muted: #718096;
+      --error-color: #e53e3e;
+      --error-bg: #fff5f5;
+      --success-bg: #f0fff4;
+      --success-border: #9ae6b4;
+      --border-color: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .container {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 420px;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(255, 107, 107, 0.15);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .header h1 {
+      font-size: 1.75rem;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .header p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.5text;
+      margin-bottom: 0.4rem;
+      color: var(--text-main);
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-prefix {
+      position: absolute;
+      left: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem 0.75rem 0.75rem 2rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input.no-prefix {
+      padding-left: 0.75rem;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
+    }
+
+    .quick-tips {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .tip-btn {
+      background: #f7fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.4rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tip-btn:hover, .tip-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    button#calc {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 0.85rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    button#calc:hover {
+      background: var(--primary-hover);
+    }
+
+    #error {
+      background: var(--error-bg);
+      color: var(--error-color);
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+      text-align: center;
+      display: none;
+      border: 1px solid #fed7d7;
+    }
+
+    #result {
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: #22543d;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-top: 1rem;
+      text-align: center;
+      display: none;
+    }
+
+    #result .amount {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #276749;
+      margin-top: 0.2rem;
+    }
+
+    #result .label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>BrunchSplit</h1>
+      <p>Split brunch bills effortlessly with friends</p>
+    </div>
+
+    <div class="form-group">
+      <label for="bill">Bill Total</label>
+      <div class="input-wrapper">
+        <span class="input-prefix">$</span>
+        <input type="number" id="bill" placeholder="0.00" step="0.01" min="0">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="tip">Tip Percentage</label>
+      <div class="input-wrapper">
+        <input type="number" id="tip" class="no-prefix" placeholder="18" value="18" min="0" step="1">
+        <span class="input-prefix" style="left: auto; right: 12px;">%</span>
+      </div>
+      <div class="quick-tips">
+        <button type="button" class="tip-btn" data-tip="10">10%</button>
+        <button type="button" class="tip-btn" data-tip="15">15%</button>
+        <button type="button" class="tip-btn active" data-tip="18">18%</button>
+        <button type="button" class="tip-btn" data-tip="20">20%</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="people">Number of People</label>
+      <div class="input-wrapper">
+        <input type="number" id="people" class="no-prefix" placeholder="1" value="1" min="1" step="1">
+      </div>
+    </div>
+
+    <button id="calc">Calculate Split</button>
+
+    <div id="error"></div>
+    <div id="result">
+      <div class="label">Per Person Amount</div>
+      <div class="amount" id="amount-val">$0.00</div>
+    </div>
+  </div>
+
+  <script>
+    const billInput = document.getElementById('bill');
+    const tipInput = document.getElementById('tip');
+    const peopleInput = document.getElementById('people');
+    const calcBtn = document.getElementById('calc');
+    const errorDiv = document.getElementById('error');
+    const resultDiv = document.getElementById('result');
+    const amountVal = document.getElementById('amount-val');
+    const tipButtons = document.querySelectorAll('.tip-btn');
+
+    // Quick tip buttons logic
+    tipButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tipButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        tipInput.value = btn.getAttribute('data-tip');
+      });
+    });
+
+    // Clear active quick-tip state if user types manually in tip field
+    tipInput.addEventListener('input', () => {
+      const val = tipInput.value;
+      tipButtons.forEach(btn => {
+        if (btn.getAttribute('data-tip') === val) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    });
+
+    calcBtn.addEventListener('click', () => {
+      errorDiv.style.display = 'none';
+      resultDiv.style.display = 'none';
+      errorDiv.textContent = '';
+
+      const billRaw = billInput.value.trim();
+      const tipRaw = tipInput.value.trim();
+      const peopleRaw = peopleInput.value.trim();
+
+      // Check for empty inputs
+      if (billRaw === '' || tipRaw === '' || peopleRaw === '') {
+        showError('Please fill in all fields.');
+        return;
+      }
+
+      const bill = parseFloat(billRaw);
+      const tip = parseFloat(tipRaw);
+      const people = parseFloat(peopleRaw);
+
+      // Validate numeric types & boundaries
+      if (isNaN(bill) || isNaN(tip) || isNaN(people)) {
+        showError('Please enter valid numbers in all fields.');
+        return;
+      }
+
+      if (bill < 0) {
+        showError('Bill amount cannot be negative.');
+        return;
+      }
+
+      if (tip < 0) {
+        showError('Tip percentage cannot be negative.');
+        return;
+      }
+
+      if (people <= 0) {
+        showError('Number of people must be greater than zero.');
+        return;
+      }
+
+      if (!Number.isInteger(people)) {
+        showError('Number of people must be a whole number.');
+        return;
+      }
+
+      // Calculation
+      const tipAmount = bill * (tip / 100);
+      const totalAmount = bill + tipAmount;
+      const perPerson = totalAmount / people;
+
+      // Display results
+      amountVal.textContent = `$${perPerson.toFixed(2)}`;
+      resultDiv.style.display = 'block';
+    });
+
+    function showError(message) {
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+      resultDiv.style.display = 'none';
+    }
+  </script>
+</body>
+</html>

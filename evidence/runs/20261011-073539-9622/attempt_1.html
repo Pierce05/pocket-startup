@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TourPool - Tour Guide Tip Splitter</title>
+    <style>
+        :root {
+            --primary: #0f766e;
+            --primary-dark: #115e59;
+            --accent: #f59e0b;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --error: #ef4444;
+            --error-bg: #fee2e2;
+            --border: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.025em;
+            margin-bottom: 0.25rem;
+        }
+
+        .pitch {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5Rem;
+            color: var(--text);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix, .suffix {
+            position: absolute;
+            color: var(--text-light);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .prefix {
+            left: 1rem;
+        }
+
+        .suffix {
+            right: 1rem;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fff;
+            color: var(--text);
+        }
+
+        input.has-prefix {
+            padding-left: 2.25rem;
+        }
+
+        input.has-suffix {
+            padding-right: 2.25rem;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+        }
+
+        .tip-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tip-btn {
+            padding: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            cursor: pointer;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+
+        .tip-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .tip-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        #calc {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        #calc:hover {
+            background-color: var(--primary-dark);
+        }
+
+        #error {
+            background-color: var(--error-bg);
+            color: var(--error);
+            font-size: 0.875rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+            font-weight: 500;
+        }
+
+        .result-card {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+            text-align: center;
+            display: none;
+        }
+
+        .result-card.visible {
+            display: block;
+        }
+
+        .result-label {
+            font-size: 0.875rem;
+            color: #166534;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .result-amount {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: #15803d;
+        }
+        
+        .result-subtext {
+            font-size: 0.8rem;
+            color: #166534;
+            margin-top: 0.25rem;
+        }
+
+        footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="logo">TourPool</div>
+            <p class="pitch">Effortlessly calculate and distribute tips among your tour guide team.</p>
+        </header>
+
+        <main>
+            <div class="form-group">
+                <label for="bill">Total Tour Tip Pool</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="bill" class="has-prefix" placeholder="0.00" step="0.01" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="tip">Tip Percentage (%)</label>
+                <div class="tip-buttons">
+                    <button type="button" class="tip-btn" data-tip="10">10%</button>
+                    <button type="button" class="tip-btn" data-tip="15">15%</button>
+                    <button type="button" class="tip-btn" data-tip="18">18%</button>
+                    <button type="button" class="tip-btn" data-tip="20">20%</button>
+                </div>
+                <div class="input-wrapper">
+                    <input type="number" id="tip" class="has-suffix" placeholder="Custom" min="0" step="any">
+                    <span class="suffix">%</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="people">Participating Guides / Crew</label>
+                <div class="input-wrapper">
+                    <input type="number" id="people" placeholder="1" min="1" step="1" value="1">
+                </div>
+            </div>
+
+            <button type="button" id="calc">Calculate Pool Distribution</button>
+
+            <div id="error"></div>
+
+            <div id="resultContainer" class="result-card">
+                <div class="result-label">Per Guide Share</div>
+                <div id="result" class="result-amount">$0.00</div>
+                <div id="resultSub" class="result-subtext"></div>
+            </div>
+        </main>
+
+        <footer>
+            TourPool Tip Distribution Tool &bull; Built for Leaders
+        </footer>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const tipInput = document.getElementById('tip');
+        const peopleInput = document.getElementById('people');
+        const calcBtn = document.getElementById('calc');
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultSub = document.getElementById('resultSub');
+        const tipButtons = document.querySelectorAll('.tip-btn');
+
+        // Handle preset tip buttons
+        tipButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tipButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                tipInput.value = btn.getAttribute('data-tip');
+                calculatePool();
+            });
+        });
+
+        tipInput.addEventListener('input', () => {
+            tipButtons.forEach(b => {
+                if (b.getAttribute('data-tip') === tipInput.value) {
+                    b.classList.add('active');
+                } else {
+                    b.classList.remove('active');
+                }
+            });
+        });
+
+        calcBtn.addEventListener('click', calculatePool);
+
+        // Optional: Auto-calculate on input change for smoother experience
+        [billInput, tipInput, peopleInput].forEach(element => {
+            element.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    calculatePool();
+                }
+            });
+        });
+
+        function calculatePool() {
+            const billVal = billInput.value.trim();
+            const tipVal = tipInput.value.trim();
+            const peopleVal = peopleInput.value.trim();
+
+            // Clear previous states
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            resultContainer.classList.remove('visible');
+            resultDiv.textContent = '';
+
+            // Validation checks
+            if (billVal === '' && tipVal === '' && (peopleVal === '' || peopleVal === '1')) {
+                showError('Please enter the total tip pool or amount.');
+                return;
+            }
+
+            const bill = parseFloat(billVal);
+            const tipPercent = parseFloat(tipVal);
+            const people = parseInt(peopleVal, 10);
+
+            // Validate Total Pool/Bill
+            if (isNaN(bill) || bill < 0) {
+                showError('Please enter a valid amount for the tip pool.');
+                return;
+            }
+
+            // Validate Tip Percentage (optional input, defaults to 0 if blank)
+            let tipMultiplier = 0;
+            if (tipVal !== '') {
+                if (isNaN(tipPercent) || tipPercent < 0) {
+                    showError('Please enter a valid tip percentage.');
+                    return;
+                }
+                tipMultiplier = tipPercent / 100;
+            }
+
+            // Validate People/Guides
+            if (isNaN(people) || people <= 0 || !Number.isInteger(people)) {
+                showError('Number of guides must be a whole number of at least 1.');
+                return;
+            }
+
+            // Calculation
+            const totalTipAmount = bill * (1 + tipMultiplier);
+            const perPersonAmount = totalTipAmount / people;
+
+            if (!isFinite(perPersonAmount)) {
+                showError('Unable to compute pool distribution with current inputs.');
+                return;
+            }
+
+            // Display valid outcome
+            errorDiv.style.display = 'none';
+            resultDiv.textContent = `$${perPersonAmount.toFixed(2)}`;
+            
+            if (tipMultiplier > 0) {
+                resultSub.textContent = `Total pool of $${totalTipAmount.toFixed(2)} split among ${people} guide(s).`;
+            } else {
+                resultSub.textContent = `Split evenly among ${people} guide(s).`;
+            }
+            
+            resultContainer.classList.add('visible');
+        }
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            resultContainer.classList.remove('visible');
+            resultDiv.textContent = '';
+        }
+    </script>
+</body>
+</html>

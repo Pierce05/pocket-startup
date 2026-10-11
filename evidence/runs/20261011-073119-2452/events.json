@@ -1,0 +1,157 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-073119-2452",
+      "idea": "A taxi fare and tip splitter for a group airport ride",
+      "mode": "baseline",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.453,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "CabSplit",
+      "one_line_pitch": "Easily split taxi fares and tips among friends after a group airport ride.",
+      "target_user": "Frequent travelers who share airport cabs and rideshares.",
+      "adaptation_note": "Rebranded the itemized bill and tip interface specifically for taxi meter totals, tolls, and airport surcharges.",
+      "_cost": 0.0002701,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 189
+    }
+  },
+  {
+    "t": 1.453,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002701,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 189
+    }
+  },
+  {
+    "t": 6.531,
+    "type": "code_written",
+    "data": {
+      "bytes": 6873,
+      "attempt": 1,
+      "_cost": 0.0053843,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2489
+    }
+  },
+  {
+    "t": 6.531,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0053843,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2489
+    }
+  },
+  {
+    "t": 9.187,
+    "type": "check_failed",
+    "data": {
+      "attempt": 1,
+      "test": "fractional_people",
+      "expected": "#error visible with a message and #result not visible or empty",
+      "actual": "#error visible=False, #result visible_content='Each person pays\\n$60.00'",
+      "console_errors": [],
+      "_cost": 0.0053843,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2489
+    }
+  },
+  {
+    "t": 9.187,
+    "type": "retry",
+    "data": {
+      "next": 2,
+      "_cost": 0.0053843,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2489
+    }
+  },
+  {
+    "t": 9.187,
+    "type": "attempt_started",
+    "data": {
+      "n": 2,
+      "of": 4,
+      "_cost": 0.0053843,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2489
+    }
+  },
+  {
+    "t": 13.953,
+    "type": "code_written",
+    "data": {
+      "bytes": 7093,
+      "attempt": 2,
+      "_cost": 0.0111516,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 6878
+    }
+  },
+  {
+    "t": 13.953,
+    "type": "check_started",
+    "data": {
+      "attempt": 2,
+      "_cost": 0.0111516,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 6878
+    }
+  },
+  {
+    "t": 17.672,
+    "type": "check_passed",
+    "data": {
+      "attempt": 2,
+      "console_errors": [],
+      "_cost": 0.0111516,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 6878
+    }
+  },
+  {
+    "t": 17.672,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-073119-2452",
+      "_cost": 0.0111516,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 6878
+    }
+  },
+  {
+    "t": 17.672,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-073119-2452",
+      "success": true,
+      "attempts": 2,
+      "first_attempt_passed": false,
+      "cost_usd": 0.0111516,
+      "cost_tag": "COMPUTED",
+      "tokens": 6878,
+      "latency_s": 17.672,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

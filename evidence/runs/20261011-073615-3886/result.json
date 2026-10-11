@@ -1,0 +1,79 @@
+{
+  "run_id": "20261011-073615-3886",
+  "mode": "baseline",
+  "template": "tip_splitter",
+  "idea": "A group brunch bill splitter with a suggested tip percentage",
+  "success": true,
+  "attempts": 2,
+  "first_attempt_passed": false,
+  "input_tokens": 3479,
+  "output_tokens": 5573,
+  "tokens": 9052,
+  "cost_usd": 0.0149762,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.0002773,
+    "build": 0.0069101,
+    "retry": 0.0077888
+  },
+  "latency_s": 18.875,
+  "rails_fired": [],
+  "error": null,
+  "autopsy_error": null,
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 1452,
+      "tokens": 191,
+      "cost_usd": 0.0002773,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 6327,
+      "tokens": 3021,
+      "cost_usd": 0.0069101,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 2141,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_2",
+      "type": "CHAIN",
+      "duration_ms": 6030,
+      "tokens": 5840,
+      "cost_usd": 0.0077888,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 2922,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "awaiting_approval"
+}

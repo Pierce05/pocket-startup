@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeddingTab - Wedding Dinner Bill Splitter</title>
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --bg: #fdf4ff;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --error: #ef4444;
+            --success-bg: #f3e8ff;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.1);
+            width: 100%;
+            max-width: 420px;
+            box-sizing: border-box;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 1.75rem;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .pitch {
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            color: #4b5563;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            color: var(--error);
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: 500;
+            min-height: 1.2rem;
+        }
+
+        #result {
+            margin-top: 1.5rem;
+            background-color: var(--success-bg);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>WeddingTab</h1>
+        <div class="pitch">Split wedding dinner bills and service charges effortlessly among guests.</div>
+
+        <div class="input-group">
+            <label for="bill">Total Bill Amount ($)</label>
+            <input type="number" id="bill" step="0.01" placeholder="0.00">
+        </div>
+
+        <div class="input-group">
+            <label for="tip">Tip / Service Charge Percentage (%)</label>
+            <input type="number" id="tip" step="0.1" placeholder="15">
+        </div>
+
+        <div class="input-group">
+            <label for="people">Number of Guests</label>
+            <input type="number" id="people" step="1" placeholder="1">
+        </div>
+
+        <button id="calc">Calculate Split</button>
+
+        <div id="error"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('calc').addEventListener('click', function() {
+            const billInput = document.getElementById('bill').value.trim();
+            const tipInput = document.getElementById('tip').value.trim();
+            const peopleInput = document.getElementById('people').value.trim();
+            
+            const errorDiv = document.getElementById('error');
+            const resultDiv = document.getElementById('result');
+
+            // Reset states
+            errorDiv.textContent = '';
+            resultDiv.style.display = 'none';
+            resultDiv.textContent = '';
+
+            // Check for empty inputs
+            if (billInput === '' || tipInput === '' || peopleInput === '') {
+                errorDiv.textContent = 'Please fill out all fields.';
+                return;
+            }
+
+            const bill = Number(billInput);
+            const tip = Number(tipInput);
+            const people = Number(peopleInput);
+
+            // Validation checks
+            if (isNaN(bill) || isNaN(tip) || isNaN(people)) {
+                errorDiv.textContent = 'Please enter valid numeric values.';
+                return;
+            }
+
+            if (bill < 0) {
+                errorDiv.textContent = 'Bill amount cannot be negative.';
+                return;
+            }
+
+            if (tip < 0) {
+                errorDiv.textContent = 'Tip percentage cannot be negative.';
+                return;
+            }
+
+            if (!Number.isInteger(people) || people <= 0) {
+                errorDiv.textContent = 'Number of guests must be a whole number greater than zero.';
+                return;
+            }
+
+            // Calculation
+            const totalTipAmount = bill * (tip / 100);
+            const totalAmount = bill + totalTipAmount;
+            const perPerson = totalAmount / people;
+
+            // Display result
+            resultDiv.textContent = `Per Person: $${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

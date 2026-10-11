@@ -1,0 +1,60 @@
+{
+  "run_id": "20261011-073244-f9e3",
+  "mode": "improved",
+  "template": "tip_splitter",
+  "idea": "A wedding dinner table bill splitter with service charge",
+  "success": true,
+  "attempts": 1,
+  "first_attempt_passed": true,
+  "input_tokens": 494,
+  "output_tokens": 1879,
+  "tokens": 2373,
+  "cost_usd": 0.0048457,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.000272,
+    "build": 0.0045737
+  },
+  "latency_s": 8.937,
+  "rails_fired": [],
+  "error": null,
+  "autopsy_error": null,
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 1030,
+      "tokens": 188,
+      "cost_usd": 0.000272,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 4202,
+      "tokens": 2185,
+      "cost_usd": 0.0045737,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 3702,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "awaiting_approval"
+}

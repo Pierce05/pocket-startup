@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TourPool - Tour Guide Tip Splitter</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --error-bg: #fef2f2;
+            --error-text: #dc2626;
+            --success-bg: #f0fdf4;
+            --success-text: #16a34a;
+            --border: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 480px;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix, .suffix {
+            position: absolute;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .prefix {
+            left: 0.75rem;
+        }
+
+        .suffix {
+            right: 0.75rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input.has-prefix {
+            padding-left: 2rem;
+        }
+
+        input.has-suffix {
+            padding-right: 2rem;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        #error.visible {
+            display: block;
+        }
+
+        #result-container {
+            margin-top: 1.5rem;
+            background-color: var(--success-bg);
+            border: 1px solid #bbf7d0;
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result-container.visible {
+            display: block;
+        }
+
+        .result-label {
+            font-size: 0.875rem;
+            color: #166534;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        #result {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--success-text);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>TourPool</h1>
+            <p>Effortlessly calculate and distribute tips among your tour guide team.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Tour Earnings / Base Pool ($)</label>
+            <div class="input-wrapper">
+                <span class="prefix">$</span>
+                <input type="number" id="bill" class="has-prefix" placeholder="0.00" step="0.01" min="0">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of Team Members</label>
+            <input type="number" id="people" placeholder="1" min="1" step="1">
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Additional Tip Percentage (%)</label>
+            <div class="input-wrapper">
+                <input type="number" id="tip" class="has-suffix" placeholder="0" min="0" step="0.1">
+                <span class="suffix">%</span>
+            </div>
+        </div>
+
+        <button id="calc">Calculate Distribution</button>
+
+        <div id="error"></div>
+
+        <div id="result-container">
+            <div class="result-label">Per-Person Share</div>
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const tipInput = document.getElementById('tip');
+        const calcButton = document.getElementById('calc');
+        const resultDiv = document.getElementById('result');
+        const errorDiv = document.getElementById('error');
+        const resultContainer = document.getElementById('result-container');
+
+        calcButton.addEventListener('click', () => {
+            const rawBill = billInput.value.trim();
+            const rawPeople = peopleInput.value.trim();
+            const rawTip = tipInput.value.trim();
+
+            const bill = parseFloat(rawBill);
+            const people = parseInt(rawPeople, 10);
+            const tipPercent = rawTip === '' ? 0 : parseFloat(rawTip);
+
+            // Validation checks
+            if (rawBill === '' || rawPeople === '') {
+                showError('Please enter both the total pool and the number of team members.');
+                return;
+            }
+
+            if (isNaN(bill) || isNaN(people) || isNaN(tipPercent)) {
+                showError('Please enter valid numeric values.');
+                return;
+            }
+
+            if (bill < 0) {
+                showError('Total pool amount cannot be negative.');
+                return;
+            }
+
+            if (people <= 0 || !Number.isInteger(Number(rawPeople))) {
+                showError('Number of team members must be a whole number greater than zero.');
+                return;
+            }
+
+            if (tipPercent < 0) {
+                showError('Tip percentage cannot be negative.');
+                return;
+            }
+
+            // Calculation logic
+            const tipMultiplier = 1 + (tipPercent / 100);
+            const totalPool = bill * tipMultiplier;
+            const perPerson = totalPool / people;
+
+            // Display success
+            errorDiv.classList.remove('visible');
+            errorDiv.textContent = '';
+            
+            resultDiv.textContent = `$${perPerson.toFixed(2)}`;
+            resultContainer.classList.add('visible');
+        });
+
+        function showError(message) {
+            resultContainer.classList.remove('visible');
+            resultDiv.textContent = '';
+            
+            errorDiv.textContent = message;
+            errorDiv.classList.add('visible');
+        }
+    </script>
+</body>
+</html>

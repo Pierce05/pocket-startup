@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SalonPool - Tip Splitter</title>
+    <style>
+        :root {
+            --primary: #f43f5e;
+            --primary-hover: #e11d48;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --error: #fca5a5;
+            --error-bg: #7f1d1d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .header h1 span {
+            color: var(--primary);
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix, .suffix {
+            position: absolute;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
+
+        .prefix {
+            left: 1rem;
+        }
+
+        .suffix {
+            right: 1rem;
+        }
+
+        input {
+            width: 100%;
+            background-color: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text);
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .has-prefix input {
+            padding-left: 2rem;
+        }
+
+        .has-suffix input {
+            padding-right: 2rem;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.2);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background-color: var(--error-bg);
+            border: 1px solid #991b1b;
+            color: var(--error);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            display: none;
+            text-align: center;
+        }
+
+        #result {
+            margin-top: 1.5rem;
+            padding: 1.25rem;
+            background-color: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            text-align: center;
+            display: none;
+        }
+
+        .result-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Salon<span>Pool</span></h1>
+            <p>Effortlessly split pooled tips fairly among your salon team based on hours worked.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Tip Pool ($)</label>
+            <div class="input-wrapper has-prefix">
+                <span class="prefix">$</span>
+                <input type="number" id="bill" step="0.01" min="0" placeholder="0.00">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of Staff Members</label>
+            <div class="input-wrapper">
+                <input type="number" id="people" step="1" min="1" placeholder="e.g. 4">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Bonus Adjustment (%)</label>
+            <div class="input-wrapper has-suffix">
+                <input type="number" id="tip" step="1" min="0" value="0">
+                <span class="suffix">%</span>
+            </div>
+        </div>
+
+        <button id="calc">Calculate Distribution</button>
+
+        <div id="error"></div>
+        <div id="result">
+            <div class="result-label">Per-Person Tip Amount</div>
+            <div class="result-value" id="result-amount"></div>
+        </div>
+
+        <div class="footer">
+            SalonPool Tip Calculator &bull; Team Distribution Engine
+        </div>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const tipInput = document.getElementById('tip');
+        const calcButton = document.getElementById('calc');
+        const resultContainer = document.getElementById('result');
+        const resultAmount = document.getElementById('result-amount');
+        const errorContainer = document.getElementById('error');
+
+        function calculateTipPool() {
+            const billVal = parseFloat(billInput.value);
+            const peopleVal = parseFloat(peopleInput.value);
+            const tipVal = parseFloat(tipInput.value);
+
+            // Validation checks
+            if (isNaN(billVal) || isNaN(peopleVal) || isNaN(tipVal)) {
+                showError("Please fill out all fields with valid numbers.");
+                return;
+            }
+
+            if (billVal < 0 || peopleVal <= 0 || tipVal < 0 || !Number.isInteger(peopleVal)) {
+                showError("Values must be non-negative and number of people must be a whole number greater than zero.");
+                return;
+            }
+
+            // Calculation logic
+            const adjustedTipPool = billVal * (1 + (tipVal / 100));
+            const perPersonShare = adjustedTipPool / peopleVal;
+
+            if (!isFinite(perPersonShare)) {
+                showError("Invalid input configuration for calculation.");
+                return;
+            }
+
+            // Success state
+            errorContainer.style.display = 'none';
+            resultAmount.textContent = `$${perPersonShare.toFixed(2)}`;
+            resultContainer.style.display = 'block';
+        }
+
+        function showError(message) {
+            resultContainer.style.display = 'none';
+            resultAmount.textContent = '';
+            errorContainer.textContent = message;
+            errorContainer.style.display = 'block';
+        }
+
+        calcButton.addEventListener('click', calculateTipPool);
+
+        // Allow pressing Enter key to calculate
+        [billInput, peopleInput, tipInput].forEach(element => {
+            element.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    calculateTipPool();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

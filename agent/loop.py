@@ -34,6 +34,9 @@ def builder_system(mode: str, patch: str | None) -> str:
     if mode == "baseline":
         return prompts.BUILDER_SYSTEM_V1
     if mode == "improved":
+        winner = load_winner_patch()
+        if patch and winner and patch.strip() == winner.strip():
+            return f"{prompts.BUILDER_SYSTEM_V1}\n\n{patch.strip()}"
         return prompts.build_v2(patch)
     if mode in ("candidate_a", "candidate_b") or mode.startswith("candidate_"):
         return f"{prompts.BUILDER_SYSTEM_V1}\n\n{patch}" if patch else prompts.BUILDER_SYSTEM_V1
@@ -59,7 +62,11 @@ async def run_build(idea: str, mode: str, emit=None, *, template: str | None = N
     tracer = tracing.Tracer(tags=[f"run_id:{run_id}", f"mode:{mode}"], stats=stats)
     events: list[dict] = []
     t0 = time.monotonic()
-    state = {"success": False, "attempts": 0, "first": False, "error": None, "template": template, "approved": False}
+    state = {
+        "success": False, "attempts": 0, "first": False, "error": None,
+        "template": template, "approved": False,
+        "first_attempt_failed_test": None, "failed_tests": [],
+    }
     sandbox.run_dir(run_id, runs_dir)
 
     def _emit(etype: str, data: dict | None = None):
@@ -128,6 +135,9 @@ async def run_build(idea: str, mode: str, emit=None, *, template: str | None = N
                 _emit("check_passed", {"attempt": attempt, "console_errors": result.console_errors})
                 _emit("awaiting_approval", {"run_id": run_id})
                 return
+            if attempt == 1 and not state.get("first_attempt_failed_test"):
+                state["first_attempt_failed_test"] = result.test
+            state.setdefault("failed_tests", []).append(result.test)
             _emit("check_failed", {"attempt": attempt, "test": result.test, "expected": result.expected,
                                    "actual": result.actual, "console_errors": result.console_errors})
             if autopsy and not diagnosed and path is not None:
@@ -183,6 +193,8 @@ def _finish(run_id, mode, idea, state, stats, rails, tracer, llm, t0, events, ru
         "cost_usd": cost_val, "cost_tag": cost_tag, "cost_by_stage": stats.cost_by_stage(),
         "latency_s": round(time.monotonic() - t0, 3), "rails_fired": rails.fired,
         "error": state["error"], "autopsy_error": state.get("autopsy_error"),
+        "first_attempt_failed_test": state.get("first_attempt_failed_test"),
+        "failed_tests": state.get("failed_tests", []),
         "neatlogs_trace_url": None, "spans": tracer.summary(),
         "model": llm.model, "temperature": llm.temperature, "pricing_date": PRICES["pricing_date"],
         "pricing_source": "MOCK" if is_mock else PRICES.get("source"),

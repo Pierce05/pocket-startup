@@ -1,0 +1,213 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-073657-a665",
+      "idea": "A hairdresser tip splitter for a salon team pool",
+      "mode": "baseline",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.281,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "SalonPool",
+      "one_line_pitch": "Effortlessly split pooled tips fairly among your salon team based on hours worked.",
+      "target_user": "Hairdressers and salon managers operating on a team tip-pooling system",
+      "adaptation_note": "Utilize the tip_splitter template to allow salon staff to log their hours and instantly calculate accurate tip distributions from the daily pool.",
+      "_cost": 0.0002945,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 197
+    }
+  },
+  {
+    "t": 1.281,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002945,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 197
+    }
+  },
+  {
+    "t": 6.844,
+    "type": "code_written",
+    "data": {
+      "bytes": 8589,
+      "attempt": 1,
+      "_cost": 0.0065367,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2957
+    }
+  },
+  {
+    "t": 6.844,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0065367,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2957
+    }
+  },
+  {
+    "t": 8.828,
+    "type": "check_failed",
+    "data": {
+      "attempt": 1,
+      "test": "fractional_people",
+      "expected": "#error visible with a message and #result not visible or empty",
+      "actual": "#error visible=False, #result visible_content='Tip Rate Per Hour\\n$48.00'",
+      "console_errors": [],
+      "_cost": 0.0065367,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2957
+    }
+  },
+  {
+    "t": 8.828,
+    "type": "retry",
+    "data": {
+      "next": 2,
+      "_cost": 0.0065367,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2957
+    }
+  },
+  {
+    "t": 8.828,
+    "type": "attempt_started",
+    "data": {
+      "n": 2,
+      "of": 4,
+      "_cost": 0.0065367,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2957
+    }
+  },
+  {
+    "t": 14.297,
+    "type": "code_written",
+    "data": {
+      "bytes": 8481,
+      "attempt": 2,
+      "_cost": 0.0134052,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8186
+    }
+  },
+  {
+    "t": 14.297,
+    "type": "check_started",
+    "data": {
+      "attempt": 2,
+      "_cost": 0.0134052,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8186
+    }
+  },
+  {
+    "t": 16.594,
+    "type": "check_failed",
+    "data": {
+      "attempt": 2,
+      "test": "fractional_people",
+      "expected": "#error visible with a message and #result not visible or empty",
+      "actual": "#error visible=False, #result visible_content='Tip Rate Per Hour\\n48.00'",
+      "console_errors": [],
+      "_cost": 0.0134052,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8186
+    }
+  },
+  {
+    "t": 16.594,
+    "type": "retry",
+    "data": {
+      "next": 3,
+      "_cost": 0.0134052,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8186
+    }
+  },
+  {
+    "t": 16.594,
+    "type": "attempt_started",
+    "data": {
+      "n": 3,
+      "of": 4,
+      "_cost": 0.0134052,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8186
+    }
+  },
+  {
+    "t": 22.453,
+    "type": "code_written",
+    "data": {
+      "bytes": 8549,
+      "attempt": 3,
+      "_cost": 0.0203237,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 13413
+    }
+  },
+  {
+    "t": 22.453,
+    "type": "check_started",
+    "data": {
+      "attempt": 3,
+      "_cost": 0.0203237,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 13413
+    }
+  },
+  {
+    "t": 25.359,
+    "type": "check_passed",
+    "data": {
+      "attempt": 3,
+      "console_errors": [],
+      "_cost": 0.0203237,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 13413
+    }
+  },
+  {
+    "t": 25.359,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-073657-a665",
+      "_cost": 0.0203237,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 13413
+    }
+  },
+  {
+    "t": 25.359,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-073657-a665",
+      "success": true,
+      "attempts": 3,
+      "first_attempt_passed": false,
+      "cost_usd": 0.0203237,
+      "cost_tag": "COMPUTED",
+      "tokens": 13413,
+      "latency_s": 25.359,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]
