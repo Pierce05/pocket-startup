@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrocySplit - Grocery Receipt & Tip Splitter</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #4caf50;
+            --primary-dark: #1b5e20;
+            --bg: #f4f9f4;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --text-light: #666666;
+            --error: #c62828;
+            --error-bg: #ffebee;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 480px;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            color: var(--primary-dark);
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .header p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.4rem;
+            color: var(--text);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix {
+            position: absolute;
+            left: 12px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .suffix {
+            position: absolute;
+            right: 12px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input.has-prefix {
+            padding-left: 2rem;
+        }
+
+        input.has-suffix {
+            padding-right: 2rem;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.85rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-light);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #error {
+            background-color: var(--error-bg);
+            color: var(--error);
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            margin-top: 1.5rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid #eee;
+            display: none;
+        }
+
+        .result-title {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .result-amount {
+            font-size: 2rem;
+            color: var(--primary-dark);
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .breakdown {
+            background-color: var(--bg);
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>GrocySplit</h1>
+            <p>Easily split shared grocery receipts and delivery tips</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Grocery Bill</label>
+            <div class="input-wrapper">
+                <span class="prefix">$</span>
+                <input type="number" id="bill" class="has-prefix" placeholder="0.00" step="0.01" min="0">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of Roommates</label>
+            <input type="number" id="people" placeholder="1" min="1" step="1">
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Delivery Tip Percentage</label>
+            <div class="input-wrapper">
+                <input type="number" id="tip" class="has-suffix" placeholder="15" min="0" step="0.1">
+                <span class="suffix">%</span>
+            </div>
+        </div>
+
+        <button id="calc">Calculate Split</button>
+
+        <div id="error"></div>
+
+        <div id="result">
+            <div class="result-title">Each person pays</div>
+            <div class="result-amount" id="result-amount-display">$0.00</div>
+            <div class="breakdown">
+                <span id="subtotal-share">Subtotal share: $0.00</span>
+                <span id="tip-share">Tip share: $0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const tipInput = document.getElementById('tip');
+        const calcButton = document.getElementById('calc');
+        const resultContainer = document.getElementById('result');
+        const resultAmountDisplay = document.getElementById('result-amount-display');
+        const errorDiv = document.getElementById('error');
+        const subtotalShareSpan = document.getElementById('subtotal-share');
+        const tipShareSpan = document.getElementById('tip-share');
+
+        calcButton.addEventListener('click', () => {
+            // Hide previous outputs
+            errorDiv.style.display = 'none';
+            resultContainer.style.display = 'none';
+
+            const billVal = parseFloat(billInput.value);
+            const peopleVal = parseInt(peopleInput.value, 10);
+            const tipVal = parseFloat(tipInput.value);
+
+            // Validation checks
+            if (isNaN(billVal) || billVal < 0) {
+                showError('Please enter a valid positive grocery bill amount.');
+                return;
+            }
+
+            if (isNaN(peopleVal) || peopleVal <= 0 || !Number.isInteger(peopleVal)) {
+                showError('Please enter a valid whole number of roommates (at least 1).');
+                return;
+            }
+
+            if (isNaN(tipVal) || tipVal < 0) {
+                showError('Please enter a valid tip percentage (0 or higher).');
+                return;
+            }
+
+            // Calculations
+            const subtotalPerPerson = billVal / peopleVal;
+            const totalTip = billVal * (tipVal / 100);
+            const tipPerPerson = totalTip / peopleVal;
+            const totalPerPerson = subtotalPerPerson + tipPerPerson;
+
+            // Display results
+            resultAmountDisplay.textContent = `$${totalPerPerson.toFixed(2)}`;
+            subtotalShareSpan.textContent = `Subtotal: $${subtotalPerPerson.toFixed(2)}`;
+            tipShareSpan.textContent = `Tip: $${tipPerPerson.toFixed(2)}`;
+            resultContainer.style.display = 'block';
+        });
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            resultContainer.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

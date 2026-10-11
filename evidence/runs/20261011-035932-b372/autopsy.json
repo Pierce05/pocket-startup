@@ -1,0 +1,11 @@
+{
+  "failed_span": "acceptance_check",
+  "root_cause": "The application calculated the split instead of showing an error message when the number of people was set to zero.",
+  "evidence": [
+    "test: \"zero_people\"",
+    "expected: \"#error visible with a message and #result empty\"",
+    "actual: \"#error visible=True, #result='Each person pays\\n            $0.00\\n            \\n                Subtotal share: $0.00\\n                Tip share: $0.00'\""
+  ],
+  "recommended_prompt_change": "Ensure validation checks that the number of people is strictly greater than zero, displaying an error message and keeping the result hidden if zero or negative.",
+  "confidence": "high"
+}

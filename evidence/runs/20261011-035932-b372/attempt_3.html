@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scientific Calculator</title>
+<style>
+  :root {
+    --bg-color: #0f172a;
+    --panel-color: #1e293b;
+    --text-color: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-color: #3b82f6;
+    --accent-hover: #2563eb;
+    --btn-bg: #334155;
+    --btn-hover: #475569;
+    --btn-op: #f59e0b;
+    --btn-op-hover: #d97706;
+    --btn-action: #ef4444;
+    --btn-action-hover: #dc2626;
+    --border-color: #334155;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 1rem;
+  }
+
+  .calculator-container {
+    width: 100%;
+    max-width: 420px;
+    background-color: var(--panel-color);
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+  }
+
+  .display-container {
+    padding: 1.25rem;
+    background-color: rgba(15, 23, 42, 0.6);
+    border-bottom: 1px solid var(--border-color);
+    text-align: right;
+  }
+
+  .history {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    min-height: 1.25rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    margin-bottom: 0.25rem;
+  }
+
+  #display {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-size: 2.25rem;
+    font-weight: 600;
+    text-align: right;
+    outline: none;
+    padding: 0;
+  }
+
+  .keypad {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  button {
+    background-color: var(--btn-bg);
+    color: var(--text-color);
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 0.875rem 0;
+    cursor: pointer;
+    transition: background-color 0.15s, transform 0.1s;
+    user-select: none;
+  }
+
+  button:hover {
+    background-color: var(--btn-hover);
+  }
+
+  button:active {
+    transform: scale(0.96);
+  }
+
+  .btn-op {
+    background-color: #2563eb;
+    color: white;
+  }
+  .btn-op:hover {
+    background-color: #1d4ed8;
+  }
+
+  .btn-func {
+    background-color: #475569;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+  }
+  .btn-func:hover {
+    background-color: #64748b;
+  }
+
+  .btn-clear {
+    background-color: var(--btn-action);
+    color: white;
+  }
+  .btn-clear:hover {
+    background-color: var(--btn-action-hover);
+  }
+
+  .btn-equals {
+    background-color: #10b981;
+    color: white;
+    grid-column: span 2;
+  }
+  .btn-equals:hover {
+    background-color: #059669;
+  }
+</style>
+</head>
+<body>
+
+  <div class="calculator-container">
+    <div class="display-container">
+      <div id="history" class="history"></div>
+      <input type="text" id="display" readonly value="0">
+    </div>
+
+    <div class="keypad">
+      <!-- Row 1: Scientific & Clear -->
+      <button class="btn-func" onclick="appendFunction('sin(')">sin</button>
+      <button class="btn-func" onclick="appendFunction('cos(')">cos</button>
+      <button class="btn-func" onclick="appendFunction('tan(')">tan</button>
+      <button class="btn-clear" onclick="clearDisplay()">C</button>
+
+      <!-- Row 2: Scientific & Backspace -->
+      <button class="btn-func" onclick="appendFunction('sqrt(')">√</button>
+      <button class="btn-func" onclick="appendFunction('^')">x^y</button>
+      <button class="btn-func" onclick="appendFunction('log(')">log</button>
+      <button class="btn-func" onclick="backspace()">⌫</button>
+
+      <!-- Row 3: Brackets & Division -->
+      <button class="btn-func" onclick="appendValue('(')">(</button>
+      <button class="btn-func" onclick="appendValue(')')">)</button>
+      <button class="btn-func" onclick="appendValue('pi')">π</button>
+      <button class="btn-op" onclick="appendValue('/')">÷</button>
+
+      <!-- Row 4: 7, 8, 9, Multiply -->
+      <button onclick="appendValue('7')">7</button>
+      <button onclick="appendValue('8')">8</button>
+      <button onclick="appendValue('9')">9</button>
+      <button class="btn-op" onclick="appendValue('*')">×</button>
+
+      <!-- Row 5: 4, 5, 6, Subtract -->
+      <button onclick="appendValue('4')">4</button>
+      <button onclick="appendValue('5')">5</button>
+      <button onclick="appendValue('6')">6</button>
+      <button class="btn-op" onclick="appendValue('-')">-</button>
+
+      <!-- Row 6: 1, 2, 3, Add -->
+      <button onclick="appendValue('1')">1</button>
+      <button onclick="appendValue('2')">2</button>
+      <button onclick="appendValue('3')">3</button>
+      <button class="btn-op" onclick="appendValue('+')">+</button>
+
+      <!-- Row 7: 0, Dot, Equals -->
+      <button onclick="appendValue('0')">0</button>
+      <button onclick="appendValue('.')">.</button>
+      <button id="calc" class="btn-equals" onclick="calculate()">=</button>
+    </div>
+  </div>
+
+  <script>
+    let currentInput = '0';
+    let historyInput = '';
+    let resetOnNext = false;
+
+    const display = document.getElementById('display');
+    const history = document.getElementById('history');
+
+    function updateDisplay() {
+      display.value = currentInput;
+      history.textContent = historyInput;
+    }
+
+    function clearDisplay() {
+      currentInput = '0';
+      historyInput = '';
+      resetOnNext = false;
+      updateDisplay();
+    }
+
+    function backspace() {
+      if (resetOnNext) {
+        clearDisplay();
+        return;
+      }
+      if (currentInput.length > 1) {
+        currentInput = currentInput.slice(0, -1);
+      } else {
+        currentInput = '0';
+      }
+      updateDisplay();
+    }
+
+    function appendValue(val) {
+      if (resetOnNext) {
+        if ('+-*/'.includes(val)) {
+          resetOnNext = false;
+        } else {
+          currentInput = '';
+          resetOnNext = false;
+        }
+      }
+
+      if (currentInput === '0' && val !== '.' && !'+-*/^'.includes(val)) {
+        currentInput = val;
+      } else {
+        currentInput += val;
+      }
+      updateDisplay();
+    }
+
+    function appendFunction(func) {
+      if (resetOnNext) {
+        currentInput = '';
+        resetOnNext = false;
+      }
+      if (currentInput === '0') {
+        currentInput = func;
+      } else {
+        currentInput += func;
+      }
+      updateDisplay();
+    }
+
+    function calculate() {
+      try {
+        historyInput = currentInput + ' =';
+        
+        // Sanitize and replace tokens for standard JS evaluation
+        let evalStr = currentInput
+          .replace(/pi/g, 'Math.PI')
+          .replace(/sqrt\(/g, 'Math.sqrt(')
+          .replace(/sin\(/g, 'Math.sin(Math.PI/180*') // degrees representation
+          .replace(/cos\(/g, 'Math.cos(Math.PI/180*')
+          .replace(/tan\(/g, 'Math.tan(Math.PI/180*')
+          .replace(/log\(/g, 'Math.log10(')
+          .replace(/\^/g, '**');
+
+        // Fix missing closing parentheses if straightforward
+        let openBrackets = (evalStr.match(/\(/g) || []).length;
+        let closeBrackets = (evalStr.match(/\)/g) || []).length;
+        for (let i = 0; i < openBrackets - closeBrackets; i++) {
+          evalStr += ')';
+        }
+
+        let result = Function('"use strict";return (' + evalStr + ')')();
+        
+        if (!isFinite(result)) {
+          throw new Error("Math Error");
+        }
+
+        // Round to avoid floating point anomalies
+        result = Math.round(result * 1e10) / 1e10;
+        
+        currentInput = result.toString();
+        resetOnNext = true;
+        updateDisplay();
+      } catch (error) {
+        currentInput = 'Error';
+        resetOnNext = true;
+        updateDisplay();
+      }
+    }
+
+    // Keyboard support
+    window.addEventListener('keydown', (e) => {
+      if ((e.key >= '0' && e.key <= '9') || e.key === '.' || e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/' || e.key === '(' || e.key === ')') {
+        appendValue(e.key);
+      } else if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault();
+        calculate();
+      } else if (e.key === 'Backspace') {
+        backspace();
+      } else if (e.key === 'Escape') {
+        clearDisplay();
+      }
+    });
+  </script>
+</body>
+</html>

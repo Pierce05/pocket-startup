@@ -1,0 +1,101 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-040019-661d",
+      "idea": "A bar tab splitter for a night out with coworkers",
+      "mode": "baseline",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.531,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "TabMate",
+      "one_line_pitch": "Effortlessly split bar tabs and calculate coworker drinks after a night out.",
+      "target_user": "Professionals out for after-work drinks",
+      "adaptation_note": "Adapts the core tip calculator logic to handle complex bar tabs, individual drink tracking, and coworker-friendly bill splitting.",
+      "_cost": 0.0002723,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 189
+    }
+  },
+  {
+    "t": 1.531,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002723,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 189
+    }
+  },
+  {
+    "t": 6.547,
+    "type": "code_written",
+    "data": {
+      "bytes": 5874,
+      "attempt": 1,
+      "_cost": 0.004716,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2190
+    }
+  },
+  {
+    "t": 6.547,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.004716,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2190
+    }
+  },
+  {
+    "t": 7.984,
+    "type": "check_passed",
+    "data": {
+      "attempt": 1,
+      "console_errors": [],
+      "_cost": 0.004716,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2190
+    }
+  },
+  {
+    "t": 7.984,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-040019-661d",
+      "_cost": 0.004716,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2190
+    }
+  },
+  {
+    "t": 7.984,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-040019-661d",
+      "success": true,
+      "attempts": 1,
+      "first_attempt_passed": true,
+      "cost_usd": 0.004716,
+      "cost_tag": "COMPUTED",
+      "tokens": 2190,
+      "latency_s": 7.984,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]
