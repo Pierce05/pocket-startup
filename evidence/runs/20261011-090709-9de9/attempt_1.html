@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrunchSplit</title>
+    <style>
+        :root {
+            --primary: #f59e0b;
+            --primary-dark: #d97706;
+            --bg: #fffbeb;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --error: #ef4444;
+            --border: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 420px;
+            padding: 2rem;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .header p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix {
+            position: absolute;
+            left: 1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .suffix {
+            position: absolute;
+            right: 1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+        }
+
+        .has-prefix input {
+            padding-left: 2rem;
+        }
+
+        .has-suffix input {
+            padding-right: 2rem;
+        }
+
+        .tip-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .tip-btn {
+            background-color: #f3f4f6;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tip-btn:hover {
+            background-color: #e5e7eb;
+        }
+
+        .tip-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        button#calc {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.85rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 0.5rem;
+        }
+
+        button#calc:hover {
+            background-color: var(--primary-dark);
+        }
+
+        button#calc:active {
+            transform: scale(0.98);
+        }
+
+        #error {
+            background-color: #fef2f2;
+            color: var(--error);
+            border: 1px solid #fecaca;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            margin-top: 1.5rem;
+            background-color: #fffbeb;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result .label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        #result .amount {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>BrunchSplit</h1>
+            <p>Split bills effortlessly & tip your crew right.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Bill Amount</label>
+            <div class="input-wrapper has-prefix">
+                <span class="prefix">$</span>
+                <input type="number" id="bill" placeholder="0.00" step="0.01" min="0">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Tip Percentage</label>
+            <div class="tip-buttons">
+                <button type="button" class="tip-btn" data-tip="15">15%</button>
+                <button type="button" class="tip-btn" data-tip="18">18%</button>
+                <button type="button" class="tip-btn" data-tip="20" class="active">20%</button>
+                <button type="button" class="tip-btn" data-tip="25">25%</button>
+            </div>
+            <div class="input-wrapper has-suffix">
+                <input type="number" id="tip" value="20" min="0" step="1">
+                <span class="suffix">%</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of People</label>
+            <div class="input-wrapper">
+                <input type="number" id="people" value="2" min="1" step="1">
+            </div>
+        </div>
+
+        <button id="calc">Calculate Split</button>
+
+        <div id="error"></div>
+        
+        <div id="result">
+            <div class="label">Per Person Amount</div>
+            <div class="amount" id="result-amount">$0.00</div>
+        </div>
+    </div>
+
+    <script>
+        const tipButtons = document.querySelectorAll('.tip-btn');
+        const tipInput = document.getElementById('tip');
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const calcButton = document.getElementById('calc');
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+        const resultAmount = document.getElementById('result-amount');
+
+        // Handle tip button selections
+        tipButtons.forEach(btn => {
+            if (btn.getAttribute('data-tip') === '20') {
+                btn.classList.add('active');
+            }
+            btn.addEventListener('click', () => {
+                tipButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                tipInput.value = btn.getAttribute('data-tip');
+            });
+        });
+
+        tipInput.addEventListener('input', () => {
+            tipButtons.forEach(b => {
+                if (b.getAttribute('data-tip') === tipInput.value) {
+                    b.classList.add('active');
+                } else {
+                    b.classList.remove('active');
+                }
+            });
+        });
+
+        calcButton.addEventListener('click', () => {
+            const billValue = billInput.value.trim();
+            const tipValue = tipInput.value.trim();
+            const peopleValue = peopleInput.value.trim();
+
+            // Clear previous outputs
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            resultDiv.style.display = 'none';
+
+            // Validation checks
+            if (billValue === '' || tipValue === '' || peopleValue === '') {
+                showError('Please fill out all fields.');
+                return;
+            }
+
+            const bill = parseFloat(billValue);
+            const tipPct = parseFloat(tipValue);
+            const people = Number(peopleValue);
+
+            if (isNaN(bill) || bill < 0) {
+                showError('Please enter a valid bill amount (0 or greater).');
+                return;
+            }
+
+            if (isNaN(tipPct) || tipPct < 0) {
+                showError('Please enter a valid tip percentage (0 or greater).');
+                return;
+            }
+
+            if (!Number.isInteger(Number(peopleValue)) || isNaN(people) || people <= 0) {
+                showError('Number of people must be a whole number greater than zero.');
+                return;
+            }
+
+            // Calculation
+            const totalWithTip = bill * (1 + tipPct / 100);
+            const perPerson = totalWithTip / people;
+
+            // Display Result
+            resultAmount.textContent = `$${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrunchSplit</title>
+    <style>
+        :root {
+            --primary: #f59e0b;
+            --primary-dark: #d97706;
+            --bg: #fffbeb;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --error: #ef4444;
+            --border: #fcd34d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.15), 0 8px 10px -6px rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--border);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: var(--text);
+            margin-bottom: 0.25rem;
+        }
+
+        p {
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            color: var(--text);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        #error {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: #fee2e2;
+            color: var(--error);
+            font-size: 0.875rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: var(--bg);
+            border-radius: 0.5rem;
+            text-align: center;
+            display: none;
+            border: 1px solid var(--border);
+        }
+
+        .result-label {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+        }
+
+        .result-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="logo">🥞</div>
+            <h1>BrunchSplit</h1>
+            <p>Split brunch bills effortlessly with friends</p>
+        </header>
+
+        <div class="form-group">
+            <label for="bill">Total Bill ($)</label>
+            <input type="number" id="bill" placeholder="0.00" step="0.01" min="0">
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of People</label>
+            <input type="number" id="people" placeholder="1" step="1" min="1">
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Tip Percentage (%)</label>
+            <input type="number" id="tip" placeholder="18" step="1" min="0" value="18">
+        </div>
+
+        <button id="calc">Calculate Split</button>
+
+        <div id="error"></div>
+        <div id="result">
+            <div class="result-label">Amount Per Person</div>
+            <div class="result-amount" id="result-value">$0.00</div>
+        </div>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const tipInput = document.getElementById('tip');
+        const calcButton = document.getElementById('calc');
+        const resultDiv = document.getElementById('result');
+        const resultValue = document.getElementById('result-value');
+        const errorDiv = document.getElementById('error');
+
+        calcButton.addEventListener('click', () => {
+            const rawBill = billInput.value.trim();
+            const rawPeople = peopleInput.value.trim();
+            const rawTip = tipInput.value.trim();
+
+            const billVal = parseFloat(rawBill);
+            const peopleVal = Number(rawPeople);
+            const tipVal = parseFloat(rawTip);
+
+            // Validation logic
+            if (rawBill === "" || isNaN(billVal) || billVal < 0) {
+                showError("Please enter a valid total bill amount.");
+                return;
+            }
+            if (rawPeople === "" || isNaN(peopleVal) || peopleVal <= 0 || !Number.isInteger(peopleVal) || !Number.isInteger(Number(rawPeople))) {
+                showError("Please enter a valid whole number of people (at least 1).");
+                return;
+            }
+            if (rawTip === "" || isNaN(tipVal) || tipVal < 0) {
+                showError("Please enter a valid tip percentage.");
+                return;
+            }
+
+            // Calculation logic
+            errorDiv.style.display = 'none';
+            
+            const tipAmount = billVal * (tipVal / 100);
+            const totalWithTip = billVal + tipAmount;
+            const perPerson = totalWithTip / peopleVal;
+
+            resultValue.textContent = `${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+            resultValue.textContent = '';
+        }
+    </script>
+</body>
+</html>

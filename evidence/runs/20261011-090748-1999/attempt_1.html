@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodTruckTab</title>
+    <style>
+        :root {
+            --primary: #ff5722;
+            --primary-dark: #e64a19;
+            --secondary: #ffb300;
+            --dark: #2d3748;
+            --light: #f7fafc;
+            --error: #e53e3e;
+            --success: #38a169;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #fffaf0;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            border-top: 6px solid var(--primary);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px 0;
+            color: var(--primary);
+            font-size: 1.75rem;
+        }
+
+        .header p {
+            margin: 0;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #error {
+            color: var(--error);
+            background-color: #fff5f5;
+            border: 1px solid #fed7d7;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-top: 16px;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            margin-top: 20px;
+            background-color: #f0fff4;
+            border: 1px solid #c6f6d5;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-label {
+            font-size: 0.85rem;
+            color: #2f855a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .result-amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>🚚 FoodTruckTab</h1>
+            <p>Easily split food truck bills & tips across the family.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Bill ($)</label>
+            <input type="number" id="bill" step="0.01" placeholder="e.g., 45.50">
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Tip Percentage (%)</label>
+            <input type="number" id="tip" step="0.1" placeholder="e.g., 15">
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of People</label>
+            <input type="number" id="people" step="1" placeholder="e.g., 4">
+        </div>
+
+        <button id="calc">Calculate Share</button>
+
+        <div id="error"></div>
+        <div id="result">
+            <div class="result-label">Per Person Share</div>
+            <div id="result-amount" class="result-amount">$0.00</div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calc').addEventListener('click', function() {
+            const billInput = document.getElementById('bill').value;
+            const tipInput = document.getElementById('tip').value;
+            const peopleInput = document.getElementById('people').value;
+            
+            const errorDiv = document.getElementById('error');
+            const resultDiv = document.getElementById('result');
+            const resultAmount = document.getElementById('result-amount');
+
+            // Reset views
+            errorDiv.style.display = 'none';
+            resultDiv.style.display = 'none';
+            errorDiv.textContent = '';
+
+            // Parse values
+            const bill = parseFloat(billInput);
+            const tip = parseFloat(tipInput);
+            const peopleParsed = Number(peopleInput);
+
+            // Validation checks
+            // 1. Bill: must be a valid number >= 0
+            if (billInput.trim() === '' || isNaN(bill) || bill < 0) {
+                showError('Please enter a valid bill amount (0 or greater).');
+                return;
+            }
+
+            // 2. Tip: must be a valid number >= 0
+            if (tipInput.trim() === '' || isNaN(tip) || tip < 0) {
+                showError('Please enter a valid tip percentage (0 or greater).');
+                return;
+            }
+
+            // 3. People: must be a whole number > 0
+            if (peopleInput.trim() === '' || isNaN(peopleParsed) || !Number.isInteger(peopleParsed) || peopleParsed <= 0) {
+                showError('Please enter a whole number of people greater than zero.');
+                return;
+            }
+
+            // Calculation
+            const tipAmount = bill * (tip / 100);
+            const totalCost = bill + tipAmount;
+            const perPerson = totalCost / peopleParsed;
+
+            // Display Result
+            resultAmount.textContent = `$${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

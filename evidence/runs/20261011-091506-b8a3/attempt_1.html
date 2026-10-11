@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TruckTab - Food Truck Festival Tip Splitter</title>
+    <style>
+        :root {
+            --primary: #ff6b35;
+            --secondary: #004e64;
+            --accent: #25a18e;
+            --bg: #f9f9f9;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --error: #d90429;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 440px;
+            padding: 32px;
+            box-sizing: border-box;
+            border-top: 6px solid var(--primary);
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: rgba(255, 107, 53, 0.1);
+            color: var(--primary);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
+        }
+
+        h1 {
+            margin: 0 0 8px 0;
+            font-size: 1.75rem;
+            color: var(--secondary);
+        }
+
+        p.pitch {
+            margin: 0 0 24px 0;
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--secondary);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix {
+            position: absolute;
+            left: 14px;
+            color: #888;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px 12px 32px;
+            font-size: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input.no-prefix {
+            padding-left: 14px;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        .quick-tips {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .tip-btn {
+            flex: 1;
+            background: #f0f0f0;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .tip-btn:hover, .tip-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        button#calc {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 8px;
+        }
+
+        button#calc:hover {
+            background-color: #e55a24;
+        }
+
+        #error {
+            color: var(--error);
+            background-color: rgba(217, 4, 41, 0.08);
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-top: 20px;
+            display: none;
+        }
+
+        #result {
+            margin-top: 24px;
+            background-color: rgba(37, 161, 142, 0.1);
+            border: 1px dashed var(--accent);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            display: none;
+        }
+
+        #result .label {
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        #result .amount {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--secondary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="badge">Festival Edition</div>
+        <h1>TruckTab</h1>
+        <p class="pitch">Easily split food truck festival bills and calculate tips across the whole family.</p>
+
+        <div class="input-group">
+            <label for="bill">Total Bill Amount</label>
+            <div class="input-wrapper">
+                <span class="prefix">$</span>
+                <input type="number" id="bill" placeholder="0.00" step="0.01" min="0">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="people">Number of People (Family Members)</label>
+            <div class="input-wrapper">
+                <input type="number" id="people" class="no-prefix" placeholder="1" min="1" step="1">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="tip">Tip Percentage</label>
+            <div class="input-wrapper">
+                <input type="number" id="tip" class="no-prefix" placeholder="18" min="0" step="1" value="18">
+            </div>
+            <div class="quick-tips">
+                <button type="button" class="tip-btn" onclick="setTip(15)">15%</button>
+                <button type="button" class="tip-btn active" onclick="setTip(18)">18%</button>
+                <button type="button" class="tip-btn" onclick="setTip(20)">20%</button>
+                <button type="button" class="tip-btn" onclick="setTip(25)">25%</button>
+            </div>
+        </div>
+
+        <button id="calc">Calculate Family Share</button>
+
+        <div id="error"></div>
+        <div id="result">
+            <div class="label">Per-Person Share</div>
+            <div class="amount" id="perPersonAmount">$0.00</div>
+        </div>
+    </div>
+
+    <script>
+        function setTip(val) {
+            document.getElementById('tip').value = val;
+            document.querySelectorAll('.tip-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.textContent.includes(val)) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        document.getElementById('calc').addEventListener('click', function() {
+            const billInput = document.getElementById('bill').value.trim();
+            const peopleInput = document.getElementById('people').value.trim();
+            const tipInput = document.getElementById('tip').value.trim();
+            
+            const errorEl = document.getElementById('error');
+            const resultEl = document.getElementById('result');
+            const perPersonEl = document.getElementById('perPersonAmount');
+
+            // Reset views
+            errorEl.style.display = 'none';
+            errorEl.textContent = '';
+            resultEl.style.display = 'none';
+
+            // Parse numbers
+            const bill = parseFloat(billInput);
+            const people = parseInt(peopleInput, 10);
+            const tip = tipInput === '' ? 0 : parseFloat(tipInput);
+
+            // Validation checks
+            if (billInput === '' || isNaN(bill) || bill <= 0) {
+                showError('Please enter a valid, positive bill amount.');
+                return;
+            }
+
+            if (peopleInput === '' || isNaN(people) || people <= 0 || !Number.isInteger(people)) {
+                showError('Please enter a valid whole number of people (at least 1).');
+                return;
+            }
+
+            if (isNaN(tip) || tip < 0) {
+                showError('Please enter a valid tip percentage (0 or higher).');
+                return;
+            }
+
+            // Calculation
+            const tipAmount = bill * (tip / 100);
+            const totalWithTip = bill + tipAmount;
+            const perPerson = totalWithTip / people;
+
+            // Output display
+            perPersonEl.textContent = '$' + perPerson.toFixed(2);
+            resultEl.style.display = 'block';
+        });
+
+        function showError(msg) {
+            const errorEl = document.getElementById('error');
+            errorEl.textContent = msg;
+            errorEl.style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

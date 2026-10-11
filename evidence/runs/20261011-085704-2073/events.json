@@ -1,0 +1,101 @@
+[
+  {
+    "t": 0.016,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-085704-2073",
+      "idea": "A bar tab splitter for a night out with coworkers",
+      "mode": "improved",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.078,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "TabSplitter Coworker Edition",
+      "one_line_pitch": "Easily calculate and split bar tabs and tips among coworkers after a night out.",
+      "target_user": "Professionals out for after-work drinks looking to split the bill quickly and fairly.",
+      "adaptation_note": "Focused the standard tip splitter specifically on group bar tabs and coworker dynamics.",
+      "_cost": 0.0002823,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 193
+    }
+  },
+  {
+    "t": 1.078,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002823,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 193
+    }
+  },
+  {
+    "t": 5.844,
+    "type": "code_written",
+    "data": {
+      "bytes": 6145,
+      "attempt": 1,
+      "_cost": 0.0049466,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2372
+    }
+  },
+  {
+    "t": 5.844,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0049466,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2372
+    }
+  },
+  {
+    "t": 9.453,
+    "type": "check_passed",
+    "data": {
+      "attempt": 1,
+      "console_errors": [],
+      "_cost": 0.0049466,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2372
+    }
+  },
+  {
+    "t": 9.453,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-085704-2073",
+      "_cost": 0.0049466,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2372
+    }
+  },
+  {
+    "t": 9.453,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-085704-2073",
+      "success": true,
+      "attempts": 1,
+      "first_attempt_passed": true,
+      "cost_usd": 0.0049466,
+      "cost_tag": "COMPUTED",
+      "tokens": 2372,
+      "latency_s": 9.453,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

@@ -1,0 +1,213 @@
+[
+  {
+    "t": 0.016,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-090759-b3d6",
+      "idea": "A coffee-run tip calculator for an office team",
+      "mode": "baseline",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.359,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "CoffeeRun Splitter",
+      "one_line_pitch": "Quickly calculate and split tips for office coffee runs among the team.",
+      "target_user": "Office workers who frequently pick up coffee for their colleagues",
+      "adaptation_note": "Re-themed the tip calculator UI specifically for office coffee runs, allowing users to input total order cost, tip percentage, and number of participants.",
+      "_cost": 0.0002923,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 197
+    }
+  },
+  {
+    "t": 1.359,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002923,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 197
+    }
+  },
+  {
+    "t": 7.297,
+    "type": "code_written",
+    "data": {
+      "bytes": 8724,
+      "attempt": 1,
+      "_cost": 0.0066442,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3000
+    }
+  },
+  {
+    "t": 7.297,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0066442,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3000
+    }
+  },
+  {
+    "t": 10.047,
+    "type": "check_failed",
+    "data": {
+      "attempt": 1,
+      "test": "fractional_people",
+      "expected": "#error visible with a message and #result not visible or empty",
+      "actual": "#error visible=False, #result visible_content='AMOUNT PER PERSON\\n$60.00'",
+      "console_errors": [],
+      "_cost": 0.0066442,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3000
+    }
+  },
+  {
+    "t": 10.047,
+    "type": "retry",
+    "data": {
+      "next": 2,
+      "_cost": 0.0066442,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3000
+    }
+  },
+  {
+    "t": 10.047,
+    "type": "attempt_started",
+    "data": {
+      "n": 2,
+      "of": 4,
+      "_cost": 0.0066442,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3000
+    }
+  },
+  {
+    "t": 16.281,
+    "type": "code_written",
+    "data": {
+      "bytes": 9074,
+      "attempt": 2,
+      "_cost": 0.0139165,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8431
+    }
+  },
+  {
+    "t": 16.281,
+    "type": "check_started",
+    "data": {
+      "attempt": 2,
+      "_cost": 0.0139165,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8431
+    }
+  },
+  {
+    "t": 20.453,
+    "type": "check_failed",
+    "data": {
+      "attempt": 2,
+      "test": "invalid_then_valid",
+      "expected": "#result contains 30.00",
+      "actual": "#result='AMOUNT PER PERSON\\n$0.00'",
+      "console_errors": [],
+      "_cost": 0.0139165,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8431
+    }
+  },
+  {
+    "t": 20.453,
+    "type": "retry",
+    "data": {
+      "next": 3,
+      "_cost": 0.0139165,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8431
+    }
+  },
+  {
+    "t": 20.453,
+    "type": "attempt_started",
+    "data": {
+      "n": 3,
+      "of": 4,
+      "_cost": 0.0139165,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8431
+    }
+  },
+  {
+    "t": 26.75,
+    "type": "code_written",
+    "data": {
+      "bytes": 8995,
+      "attempt": 3,
+      "_cost": 0.0211993,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 13941
+    }
+  },
+  {
+    "t": 26.75,
+    "type": "check_started",
+    "data": {
+      "attempt": 3,
+      "_cost": 0.0211993,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 13941
+    }
+  },
+  {
+    "t": 30.328,
+    "type": "check_passed",
+    "data": {
+      "attempt": 3,
+      "console_errors": [],
+      "_cost": 0.0211993,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 13941
+    }
+  },
+  {
+    "t": 30.328,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-090759-b3d6",
+      "_cost": 0.0211993,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 13941
+    }
+  },
+  {
+    "t": 30.328,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-090759-b3d6",
+      "success": true,
+      "attempts": 3,
+      "first_attempt_passed": false,
+      "cost_usd": 0.0211993,
+      "cost_tag": "COMPUTED",
+      "tokens": 13941,
+      "latency_s": 30.328,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

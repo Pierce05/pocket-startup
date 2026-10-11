@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrunchSplit</title>
+    <style>
+        :root {
+            --bg-color: #fcf8f2;
+            --card-bg: #ffffff;
+            --primary: #d97706;
+            --primary-hover: #b45309;
+            --text-main: #292524;
+            --text-muted: #78716c;
+            --border: #e7e5e4;
+            --error-bg: #fef2f2;
+            --error-text: #dc2626;
+            --success-bg: #f0fdf4;
+            --success-text: #16a34a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-prefix {
+            position: absolute;
+            left: 1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2rem;
+            font-size: 1.1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="number"].no-prefix {
+            padding-left: 1rem;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+        }
+
+        .tip-presets {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .preset-btn {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .preset-btn.active {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        #calc {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.85rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 0.5rem;
+        }
+
+        #calc:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #calc:active {
+            transform: scale(0.98);
+        }
+
+        #error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result .amount {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+            margin-top: 0.25rem;
+        }
+
+        #result .label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>BrunchSplit</h1>
+            <p>Split group brunch bills easily with suggested tips</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Bill Amount</label>
+            <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="number" id="bill" placeholder="0.00" min="0" step="0.01">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of People</label>
+            <div class="input-wrapper">
+                <input type="number" id="people" class="no-prefix" placeholder="1" min="1" step="1" value="1">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Tip Percentage</label>
+            <div class="tip-presets">
+                <button type="button" class="preset-btn" data-tip="15">15%</button>
+                <button type="button" class="preset-btn" data-tip="18">18%</button>
+                <button type="button" class="preset-btn active" data-tip="20">20%</button>
+                <button type="button" class="preset-btn" data-tip="25">25%</button>
+            </div>
+            <div class="input-wrapper">
+                <span class="input-prefix">%</span>
+                <input type="number" id="tip" placeholder="20" min="0" step="1" value="20">
+            </div>
+        </div>
+
+        <button type="button" id="calc">Calculate Split</button>
+
+        <div id="error"></div>
+        <div id="result">
+            <span class="label">Amount Per Person</span>
+            <span class="amount" id="result-amount">$0.00</span>
+        </div>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const tipInput = document.getElementById('tip');
+        const calcBtn = document.getElementById('calc');
+        const resultDiv = document.getElementById('result');
+        const resultAmount = document.getElementById('result-amount');
+        const errorDiv = document.getElementById('error');
+        const presetButtons = document.querySelectorAll('.preset-btn');
+
+        // Handle preset buttons
+        presetButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                presetButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                tipInput.value = btn.getAttribute('data-tip');
+            });
+        });
+
+        // Clear active preset if user manually types tip
+        tipInput.addEventListener('input', () => {
+            const val = tipInput.value;
+            presetButtons.forEach(btn => {
+                if (btn.getAttribute('data-tip') === val) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        });
+
+        calcBtn.addEventListener('click', () => {
+            const billStr = billInput.value.trim();
+            const peopleStr = peopleInput.value.trim();
+            const tipStr = tipInput.value.trim();
+
+            const billVal = parseFloat(billStr);
+            const peopleVal = parseFloat(peopleStr);
+            const tipVal = parseFloat(tipStr);
+
+            // Validation checks
+            if (billStr === '' || isNaN(billVal) || billVal <= 0) {
+                showError("Please enter a valid bill amount greater than $0.");
+                return;
+            }
+
+            if (peopleStr === '' || isNaN(peopleVal) || peopleVal <= 0 || !Number.isInteger(peopleVal) || !Number.isInteger(Number(peopleStr))) {
+                showError("Please enter a valid whole number of people (at least 1).");
+                return;
+            }
+
+            if (tipStr === '' || isNaN(tipVal) || tipVal < 0) {
+                showError("Please enter a valid tip percentage (0 or greater).");
+                return;
+            }
+
+            // Hide error, compute split
+            errorDiv.style.display = 'none';
+
+            const totalTip = billVal * (tipVal / 100);
+            const grandTotal = billVal + totalTip;
+            const perPerson = grandTotal / peopleVal;
+
+            resultAmount.textContent = `$${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+            resultAmount.textContent = '';
+        }
+    </script>
+</body>
+</html>

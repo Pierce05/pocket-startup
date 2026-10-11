@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TourPool - Tour Guide Tip Splitter</title>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --bg-color: #f0f9ff;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --error-bg: #fef2f2;
+            --error-text: #dc2626;
+            --success-bg: #f0fdf4;
+            --success-text: #16a34a;
+            --border-radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.875rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-prefix {
+            position: absolute;
+            left: 1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input.has-prefix {
+            padding-left: 2rem;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        .tip-presets {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .preset-btn {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .preset-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        #calc {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+        }
+
+        #calc:hover {
+            background: var(--primary-hover);
+        }
+
+        #error {
+            display: none;
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-top: 1.25rem;
+            text-align: center;
+            border: 1px solid #fecaca;
+        }
+
+        #result {
+            display: none;
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-top: 1.25rem;
+            text-align: center;
+            border: 1px solid #bbf7d0;
+        }
+
+        #result .label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        #result .amount {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>TourPool</h1>
+            <p>Effortlessly calculate and distribute tips among your tour guide team.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Tip Pool ($)</label>
+            <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="number" id="bill" class="has-prefix" placeholder="0.00" step="0.01" min="0">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="people">Contributing Staff Members</label>
+            <input type="number" id="people" placeholder="e.g. 3" min="1" step="1">
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Additional Bonus Pool (%)</label>
+            <input type="number" id="tip" placeholder="0" min="0" value="0">
+            <div class="tip-presets">
+                <button type="button" class="preset-btn active" data-val="0">0%</button>
+                <button type="button" class="preset-btn" data-val="10">10%</button>
+                <button type="button" class="preset-btn" data-val="15">15%</button>
+                <button type="button" class="preset-btn" data-val="20">20%</button>
+            </div>
+        </div>
+
+        <button type="button" id="calc">Calculate Distribution</button>
+
+        <div id="error"></div>
+        <div id="result">
+            <div class="label">Per Staff Member Share</div>
+            <div class="amount" id="perPersonAmount">$0.00</div>
+        </div>
+    </div>
+
+    <script>
+        const presetButtons = document.querySelectorAll('.preset-btn');
+        const tipInput = document.getElementById('tip');
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const calcButton = document.getElementById('calc');
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+        const perPersonAmountDiv = document.getElementById('perPersonAmount');
+
+        presetButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                presetButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                tipInput.value = btn.getAttribute('data-val');
+            });
+        });
+
+        tipInput.addEventListener('input', () => {
+            const val = parseFloat(tipInput.value);
+            presetButtons.forEach(b => {
+                if (parseFloat(b.getAttribute('data-val')) === val) {
+                    b.classList.add('active');
+                } else {
+                    b.classList.remove('active');
+                }
+            });
+        });
+
+        calcButton.addEventListener('click', () => {
+            const billVal = parseFloat(billInput.value);
+            const peopleVal = parseInt(peopleInput.value, 10);
+            const tipVal = parseFloat(tipInput.value);
+
+            // Validation checks
+            if (isNaN(billVal) || billVal < 0) {
+                showError("Please enter a valid total tip pool amount.");
+                return;
+            }
+
+            if (isNaN(peopleVal) || peopleVal <= 0 || !Number.isInteger(peopleVal)) {
+                showError("Please enter a valid number of contributing staff members (at least 1).");
+                return;
+            }
+
+            if (isNaN(tipVal) || tipVal < 0) {
+                showError("Please enter a valid bonus percentage.");
+                return;
+            }
+
+            // Calculation
+            const totalWithBonus = billVal * (1 + (tipVal / 100));
+            const perPerson = totalWithBonus / peopleVal;
+
+            if (!isFinite(perPerson)) {
+                showError("Unable to compute a meaningful distribution with current values.");
+                return;
+            }
+
+            // Success state
+            errorDiv.style.display = 'none';
+            perPersonAmountDiv.textContent = `$${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+
+        function showError(message) {
+            resultDiv.style.display = 'none';
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

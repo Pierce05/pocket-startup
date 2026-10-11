@@ -1,0 +1,83 @@
+{
+  "run_id": "20261011-085744-8e3e",
+  "mode": "baseline",
+  "template": "tip_splitter",
+  "idea": "A tip splitter for friends sharing a restaurant bill",
+  "success": true,
+  "attempts": 2,
+  "first_attempt_passed": false,
+  "input_tokens": 2653,
+  "output_tokens": 3943,
+  "tokens": 6596,
+  "cost_usd": 0.0106534,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.000282,
+    "build": 0.0048757,
+    "retry": 0.0054957
+  },
+  "latency_s": 17.437,
+  "rails_fired": [],
+  "error": null,
+  "autopsy_error": null,
+  "first_attempt_failed_test": "fractional_people",
+  "failed_tests": [
+    "fractional_people"
+  ],
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 1593,
+      "tokens": 192,
+      "cost_usd": 0.000282,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 4827,
+      "tokens": 2209,
+      "cost_usd": 0.0048757,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 2437,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_2",
+      "type": "CHAIN",
+      "duration_ms": 4766,
+      "tokens": 4195,
+      "cost_usd": 0.0054957,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 3797,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "awaiting_approval"
+}

@@ -1,0 +1,102 @@
+{
+  "run_id": "20261011-090956-5f75",
+  "mode": "baseline",
+  "template": "tip_splitter",
+  "idea": "A coffee-run tip calculator for an office team",
+  "success": true,
+  "attempts": 3,
+  "first_attempt_passed": false,
+  "input_tokens": 4998,
+  "output_tokens": 6007,
+  "tokens": 11005,
+  "cost_usd": 0.0165169,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.0002723,
+    "build": 0.004822,
+    "retry": 0.0114226
+  },
+  "latency_s": 24.844,
+  "rails_fired": [],
+  "error": null,
+  "autopsy_error": null,
+  "first_attempt_failed_test": "fractional_people",
+  "failed_tests": [
+    "fractional_people",
+    "invalid_then_valid"
+  ],
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 1218,
+      "tokens": 189,
+      "cost_usd": 0.0002723,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 4281,
+      "tokens": 2184,
+      "cost_usd": 0.004822,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 2561,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_2",
+      "type": "CHAIN",
+      "duration_ms": 4859,
+      "tokens": 4245,
+      "cost_usd": 0.0056471,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 3344,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_3",
+      "type": "CHAIN",
+      "duration_ms": 5000,
+      "tokens": 4387,
+      "cost_usd": 0.0057755,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 3516,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "awaiting_approval"
+}

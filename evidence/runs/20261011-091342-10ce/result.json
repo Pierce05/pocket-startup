@@ -1,0 +1,128 @@
+{
+  "run_id": "20261011-091342-10ce",
+  "mode": "baseline",
+  "template": "tip_splitter",
+  "idea": "A tour guide tip pool calculator for a travel group",
+  "success": false,
+  "attempts": 4,
+  "first_attempt_passed": false,
+  "input_tokens": 9425,
+  "output_tokens": 10625,
+  "tokens": 20050,
+  "cost_usd": 0.02939,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.0002898,
+    "build": 0.0066341,
+    "retry": 0.0224661
+  },
+  "latency_s": 34.172,
+  "rails_fired": [
+    {
+      "rail": "attempt_cap",
+      "detail": "gave up after 4 attempts",
+      "t": 34.17
+    }
+  ],
+  "error": null,
+  "autopsy_error": null,
+  "first_attempt_failed_test": "split_basic",
+  "failed_tests": [
+    "split_basic",
+    "split_basic",
+    "split_basic",
+    "split_basic"
+  ],
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 1452,
+      "tokens": 196,
+      "cost_usd": 0.0002898,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 6047,
+      "tokens": 2915,
+      "cost_usd": 0.0066341,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 1312,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_2",
+      "type": "CHAIN",
+      "duration_ms": 9577,
+      "tokens": 5622,
+      "cost_usd": 0.007444,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 1250,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_3",
+      "type": "CHAIN",
+      "duration_ms": 6094,
+      "tokens": 5651,
+      "cost_usd": 0.0074901,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 1125,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_4",
+      "type": "CHAIN",
+      "duration_ms": 6030,
+      "tokens": 5666,
+      "cost_usd": 0.007532,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 1264,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "failed"
+}

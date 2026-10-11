@@ -1,0 +1,280 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-091342-10ce",
+      "idea": "A tour guide tip pool calculator for a travel group",
+      "mode": "baseline",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.453,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "TourPool",
+      "one_line_pitch": "Effortlessly calculate and distribute tips among tour guides and staff at the end of a trip.",
+      "target_user": "Tour guides, travel group leaders, and excursion organizers",
+      "adaptation_note": "Reframe the standard bill-splitting terminology to accommodate tour groups, currency inputs, and multiple staff members sharing a pooled tip.",
+      "_cost": 0.0002898,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 196
+    }
+  },
+  {
+    "t": 1.453,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002898,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 196
+    }
+  },
+  {
+    "t": 7.5,
+    "type": "code_written",
+    "data": {
+      "bytes": 9085,
+      "attempt": 1,
+      "_cost": 0.0069239,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3111
+    }
+  },
+  {
+    "t": 7.5,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0069239,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3111
+    }
+  },
+  {
+    "t": 8.813,
+    "type": "check_failed",
+    "data": {
+      "attempt": 1,
+      "test": "split_basic",
+      "expected": "#result contains 30.00",
+      "actual": "#result='PER-PERSON SHARE\\n$5.00\\nTotal Tip Pool: $20.00 split among 4 staff member(s).'",
+      "console_errors": [],
+      "_cost": 0.0069239,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3111
+    }
+  },
+  {
+    "t": 8.813,
+    "type": "retry",
+    "data": {
+      "next": 2,
+      "_cost": 0.0069239,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3111
+    }
+  },
+  {
+    "t": 8.813,
+    "type": "attempt_started",
+    "data": {
+      "n": 2,
+      "of": 4,
+      "_cost": 0.0069239,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3111
+    }
+  },
+  {
+    "t": 18.391,
+    "type": "code_written",
+    "data": {
+      "bytes": 9115,
+      "attempt": 2,
+      "_cost": 0.0143679,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8733
+    }
+  },
+  {
+    "t": 18.391,
+    "type": "check_started",
+    "data": {
+      "attempt": 2,
+      "_cost": 0.0143679,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8733
+    }
+  },
+  {
+    "t": 19.641,
+    "type": "check_failed",
+    "data": {
+      "attempt": 2,
+      "test": "split_basic",
+      "expected": "#result contains 30.00",
+      "actual": "#result='PER-PERSON SHARE\\n$5.00\\nTotal Tip Pool: $20.00 split among 4 staff member(s).'",
+      "console_errors": [],
+      "_cost": 0.0143679,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8733
+    }
+  },
+  {
+    "t": 19.641,
+    "type": "retry",
+    "data": {
+      "next": 3,
+      "_cost": 0.0143679,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8733
+    }
+  },
+  {
+    "t": 19.641,
+    "type": "attempt_started",
+    "data": {
+      "n": 3,
+      "of": 4,
+      "_cost": 0.0143679,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8733
+    }
+  },
+  {
+    "t": 25.735,
+    "type": "code_written",
+    "data": {
+      "bytes": 9114,
+      "attempt": 3,
+      "_cost": 0.021858,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 14384
+    }
+  },
+  {
+    "t": 25.735,
+    "type": "check_started",
+    "data": {
+      "attempt": 3,
+      "_cost": 0.021858,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 14384
+    }
+  },
+  {
+    "t": 26.86,
+    "type": "check_failed",
+    "data": {
+      "attempt": 3,
+      "test": "split_basic",
+      "expected": "#result contains 30.00",
+      "actual": "#result='PER-PERSON SHARE\\n5.00\\nTotal Tip Pool: $20.00 split among 4 staff member(s).'",
+      "console_errors": [],
+      "_cost": 0.021858,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 14384
+    }
+  },
+  {
+    "t": 26.86,
+    "type": "retry",
+    "data": {
+      "next": 4,
+      "_cost": 0.021858,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 14384
+    }
+  },
+  {
+    "t": 26.86,
+    "type": "attempt_started",
+    "data": {
+      "n": 4,
+      "of": 4,
+      "_cost": 0.021858,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 14384
+    }
+  },
+  {
+    "t": 32.907,
+    "type": "code_written",
+    "data": {
+      "bytes": 9114,
+      "attempt": 4,
+      "_cost": 0.02939,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 20050
+    }
+  },
+  {
+    "t": 32.907,
+    "type": "check_started",
+    "data": {
+      "attempt": 4,
+      "_cost": 0.02939,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 20050
+    }
+  },
+  {
+    "t": 34.172,
+    "type": "check_failed",
+    "data": {
+      "attempt": 4,
+      "test": "split_basic",
+      "expected": "#result contains 30.00",
+      "actual": "#result='PER-PERSON SHARE\\n5.00\\nTotal Tip Pool: $20.00 split among 4 staff member(s).'",
+      "console_errors": [],
+      "_cost": 0.02939,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 20050
+    }
+  },
+  {
+    "t": 34.172,
+    "type": "rail_fired",
+    "data": {
+      "rail": "attempt_cap",
+      "detail": "gave up after 4 attempts",
+      "t": 34.17,
+      "_cost": 0.02939,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 20050
+    }
+  },
+  {
+    "t": 34.172,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-091342-10ce",
+      "success": false,
+      "attempts": 4,
+      "first_attempt_passed": false,
+      "cost_usd": 0.02939,
+      "cost_tag": "COMPUTED",
+      "tokens": 20050,
+      "latency_s": 34.172,
+      "rails_fired": [
+        {
+          "rail": "attempt_cap",
+          "detail": "gave up after 4 attempts",
+          "t": 34.17
+        }
+      ],
+      "error": null,
+      "mock": false
+    }
+  }
+]

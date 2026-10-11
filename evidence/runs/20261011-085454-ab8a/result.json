@@ -1,0 +1,62 @@
+{
+  "run_id": "20261011-085454-ab8a",
+  "mode": "improved",
+  "template": "tip_splitter",
+  "idea": "A taxi fare and tip splitter for a group airport ride",
+  "success": true,
+  "attempts": 1,
+  "first_attempt_passed": true,
+  "input_tokens": 439,
+  "output_tokens": 2112,
+  "tokens": 2551,
+  "cost_usd": 0.0054117,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.0002601,
+    "build": 0.0051516
+  },
+  "latency_s": 10.094,
+  "rails_fired": [],
+  "error": null,
+  "autopsy_error": null,
+  "first_attempt_failed_test": null,
+  "failed_tests": [],
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 1422,
+      "tokens": 185,
+      "cost_usd": 0.0002601,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 4844,
+      "tokens": 2366,
+      "cost_usd": 0.0051516,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 3827,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "awaiting_approval"
+}

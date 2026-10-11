@@ -1,0 +1,128 @@
+{
+  "run_id": "20261011-090412-05dc",
+  "mode": "baseline",
+  "template": "tip_splitter",
+  "idea": "A hairdresser tip splitter for a salon team pool",
+  "success": false,
+  "attempts": 4,
+  "first_attempt_passed": false,
+  "input_tokens": 7908,
+  "output_tokens": 8852,
+  "tokens": 16760,
+  "cost_usd": 0.0245024,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.0002445,
+    "build": 0.0057187,
+    "retry": 0.0185392
+  },
+  "latency_s": 27.86,
+  "rails_fired": [
+    {
+      "rail": "attempt_cap",
+      "detail": "gave up after 4 attempts",
+      "t": 27.86
+    }
+  ],
+  "error": null,
+  "autopsy_error": null,
+  "first_attempt_failed_test": "split_basic",
+  "failed_tests": [
+    "split_basic",
+    "split_basic",
+    "split_basic",
+    "split_basic"
+  ],
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 1343,
+      "tokens": 177,
+      "cost_usd": 0.0002445,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 5531,
+      "tokens": 2533,
+      "cost_usd": 0.0057187,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 1297,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_2",
+      "type": "CHAIN",
+      "duration_ms": 4875,
+      "tokens": 4707,
+      "cost_usd": 0.0060805,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 1344,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_3",
+      "type": "CHAIN",
+      "duration_ms": 5686,
+      "tokens": 4669,
+      "cost_usd": 0.0062231,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 1156,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_4",
+      "type": "CHAIN",
+      "duration_ms": 5234,
+      "tokens": 4674,
+      "cost_usd": 0.0062356,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 1359,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "failed"
+}

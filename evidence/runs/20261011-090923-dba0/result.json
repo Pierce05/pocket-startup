@@ -1,0 +1,83 @@
+{
+  "run_id": "20261011-090923-dba0",
+  "mode": "baseline",
+  "template": "tip_splitter",
+  "idea": "A food-truck festival tab splitter for a family",
+  "success": true,
+  "attempts": 2,
+  "first_attempt_passed": false,
+  "input_tokens": 3192,
+  "output_tokens": 4960,
+  "tokens": 8152,
+  "cost_usd": 0.0133576,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.0002823,
+    "build": 0.0062157,
+    "retry": 0.0068596
+  },
+  "latency_s": 18.734,
+  "rails_fired": [],
+  "error": null,
+  "autopsy_error": null,
+  "first_attempt_failed_test": "fractional_people",
+  "failed_tests": [
+    "fractional_people"
+  ],
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 1358,
+      "tokens": 193,
+      "cost_usd": 0.0002823,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 5797,
+      "tokens": 2745,
+      "cost_usd": 0.0062157,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 2608,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_2",
+      "type": "CHAIN",
+      "duration_ms": 5625,
+      "tokens": 5214,
+      "cost_usd": 0.0068596,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 3327,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "awaiting_approval"
+}

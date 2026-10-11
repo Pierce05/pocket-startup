@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SalonPool Splitter</title>
+    <style>
+        :root {
+            --primary: #8e44ad;
+            --primary-hover: #732d91;
+            --bg: #fdfbf7;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --text-light: #7f8c8d;
+            --error: #c0392b;
+            --success: #27ae60;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 480px;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-light);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+            background: #fff;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            background-color: var(--primary);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #error {
+            margin-top: 16px;
+            padding: 12px;
+            background-color: #fadbd8;
+            color: var(--error);
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #e8f8f5;
+            color: var(--success);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            display: none;
+            border: 1px solid #a3e4d7;
+        }
+        
+        #result span {
+            display: block;
+            font-size: 13px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>SalonPool Splitter</h1>
+            <p>Easily calculate and distribute pooled tips fairly among salon team members.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Service Bill ($)</label>
+            <input type="number" id="bill" step="0.01" min="0" placeholder="0.00">
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Tip Percentage (%)</label>
+            <input type="number" id="tip" step="0.1" min="0" placeholder="20">
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of Team Members</label>
+            <input type="number" id="people" step="1" min="1" placeholder="1">
+        </div>
+
+        <button id="calc">Calculate Pool Split</button>
+
+        <div id="error"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('calc').addEventListener('click', function() {
+            const billInput = document.getElementById('bill').value.trim();
+            const tipInput = document.getElementById('tip').value.trim();
+            const peopleInput = document.getElementById('people').value.trim();
+
+            const errorDiv = document.getElementById('error');
+            const resultDiv = document.getElementById('result');
+
+            // Reset view
+            errorDiv.style.display = 'none';
+            resultDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            resultDiv.innerHTML = '';
+
+            // Parse inputs
+            const bill = parseFloat(billInput);
+            const tip = parseFloat(tipInput);
+            const people = Number(peopleInput);
+
+            // Validation checks
+            if (billInput === '' || isNaN(bill) || bill < 0) {
+                showError('Please enter a valid bill amount greater than or equal to 0.');
+                return;
+            }
+
+            if (tipInput === '' || isNaN(tip) || tip < 0) {
+                showError('Please enter a valid tip percentage greater than or equal to 0.');
+                return;
+            }
+
+            if (peopleInput === '' || isNaN(people) || !Number.isInteger(people) || people <= 0) {
+                showError('Please enter a whole number of team members greater than 0.');
+                return;
+            }
+
+            // Calculation
+            const totalTip = bill * (tip / 100);
+            const totalAmount = bill + totalTip;
+            const perPerson = totalAmount / people;
+
+            // Display results
+            resultDiv.innerHTML = `
+                <span>Per-Person Distribution</span>
+                $${perPerson.toFixed(2)}
+            `;
+            resultDiv.style.display = 'block';
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

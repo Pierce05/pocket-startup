@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TabSplitter Coworker</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --error-bg: #fef2f2;
+            --error-text: #dc2626;
+            --success-bg: #f0fdf4;
+            --success-text: #16a34a;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: var(--text);
+            margin-bottom: 0.25rem;
+        }
+
+        .header p {
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix, .suffix {
+            position: absolute;
+            color: var(--text-light);
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
+
+        .prefix {
+            left: 0.875rem;
+        }
+
+        .suffix {
+            right: 0.875rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 0.875rem;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fff;
+            color: var(--text);
+        }
+
+        input.has-prefix {
+            padding-left: 2rem;
+        }
+
+        input.has-suffix {
+            padding-right: 2rem;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.875rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-top: 1.25rem;
+            text-align: center;
+            border: 1px solid #fecaca;
+            display: none;
+        }
+
+        #result {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-top: 1.25rem;
+            text-align: center;
+            border: 1px solid #bbf7d0;
+            display: none;
+        }
+
+        #result .label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        #result .amount {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>TabSplitter Coworker</h1>
+            <p>Easily split bar tabs and calculate tips after a night out with coworkers.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Bill Amount</label>
+            <div class="input-wrapper">
+                <span class="prefix">$</span>
+                <input type="number" id="bill" class="has-prefix" placeholder="0.00" step="0.01" min="0">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Tip Percentage</label>
+            <div class="input-wrapper">
+                <input type="number" id="tip" class="has-suffix" placeholder="18" step="1" min="0" value="18">
+                <span class="suffix">%</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of Coworkers</label>
+            <div class="input-wrapper">
+                <input type="number" id="people" placeholder="1" step="1" min="1" value="1">
+            </div>
+        </div>
+
+        <button id="calc">Calculate Share</button>
+
+        <div id="error"></div>
+        
+        <div id="result">
+            <div class="label">Amount Per Person</div>
+            <div class="amount" id="result-amount">$0.00</div>
+        </div>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const tipInput = document.getElementById('tip');
+        const peopleInput = document.getElementById('people');
+        const calcBtn = document.getElementById('calc');
+        const resultDiv = document.getElementById('result');
+        const resultAmount = document.getElementById('result-amount');
+        const errorDiv = document.getElementById('error');
+
+        calcBtn.addEventListener('click', () => {
+            // Hide outputs initially
+            errorDiv.style.display = 'none';
+            resultDiv.style.display = 'none';
+            errorDiv.textContent = '';
+
+            // Read values as strings first to check empty states
+            const billStr = billInput.value.trim();
+            const tipStr = tipInput.value.trim();
+            const peopleStr = peopleInput.value.trim();
+
+            if (billStr === '' || tipStr === '' || peopleStr === '') {
+                showError('Please fill out all fields.');
+                return;
+            }
+
+            const bill = Number(billStr);
+            const tip = Number(tipStr);
+            const people = Number(peopleStr);
+
+            // Validation checks according to prompt requirements
+            if (isNaN(bill) || bill < 0) {
+                showError('Please enter a valid bill amount (0 or greater).');
+                return;
+            }
+
+            if (isNaN(tip) || tip < 0) {
+                showError('Please enter a valid tip percentage (0 or greater).');
+                return;
+            }
+
+            if (isNaN(people) || !Number.isInteger(people) || people <= 0) {
+                showError('Number of coworkers must be a whole number greater than zero.');
+                return;
+            }
+
+            // Calculation
+            const totalWithTip = bill * (1 + tip / 100);
+            const perPerson = totalWithTip / people;
+
+            // Display result
+            resultAmount.textContent = `$${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

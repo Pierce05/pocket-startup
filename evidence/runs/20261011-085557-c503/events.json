@@ -1,0 +1,101 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-085557-c503",
+      "idea": "A taxi fare and tip splitter for a group airport ride",
+      "mode": "improved",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.016,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "CabSplit",
+      "one_line_pitch": "Easily split taxi fares and tips among friends after a group airport ride.",
+      "target_user": "Frequent travelers who share airport cabs and rideshares.",
+      "adaptation_note": "Replaced restaurant item-based terminology with cab fare and distance/rider splits while keeping the core bill-and-tip calculation logic.",
+      "_cost": 0.0002826,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 194
+    }
+  },
+  {
+    "t": 1.016,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002826,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 194
+    }
+  },
+  {
+    "t": 6.469,
+    "type": "code_written",
+    "data": {
+      "bytes": 7860,
+      "attempt": 1,
+      "_cost": 0.0059669,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2781
+    }
+  },
+  {
+    "t": 6.469,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0059669,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2781
+    }
+  },
+  {
+    "t": 10.047,
+    "type": "check_passed",
+    "data": {
+      "attempt": 1,
+      "console_errors": [],
+      "_cost": 0.0059669,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2781
+    }
+  },
+  {
+    "t": 10.047,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-085557-c503",
+      "_cost": 0.0059669,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2781
+    }
+  },
+  {
+    "t": 10.047,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-085557-c503",
+      "success": true,
+      "attempts": 1,
+      "first_attempt_passed": true,
+      "cost_usd": 0.0059669,
+      "cost_tag": "COMPUTED",
+      "tokens": 2781,
+      "latency_s": 10.047,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

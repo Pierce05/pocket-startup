@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeddingTab - Wedding Dinner Bill Splitter</title>
+    <style>
+        :root {
+            --primary: #2c4a3e;
+            --primary-light: #e8edea;
+            --accent: #c5a059;
+            --accent-hover: #b08d46;
+            --text: #333333;
+            --error: #a83232;
+            --error-bg: #fdf2f2;
+            --bg: #f9fbf9;
+            --card-bg: #ffffff;
+            --border: #d0d7d3;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 440px;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(44, 74, 62, 0.08);
+            border: 1px solid var(--border);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .symbol {
+            position: absolute;
+            left: 14px;
+            color: #777;
+            font-size: 16px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px 12px 36px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            color: var(--text);
+            background: #fff;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.15);
+        }
+
+        input.no-symbol {
+            padding-left: 16px;
+        }
+
+        button#calc {
+            width: 100%;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            margin-top: 8px;
+        }
+
+        button#calc:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button#calc:active {
+            transform: scale(0.98);
+        }
+
+        #error {
+            display: none;
+            background-color: var(--error-bg);
+            color: var(--error);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 20px;
+            text-align: center;
+            border: 1px solid #f5c6c6;
+        }
+
+        #result {
+            display: none;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            border: 1px solid #d4dfd7;
+        }
+
+        #result .label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        #result .amount {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>WeddingTab</h1>
+            <p>Split wedding dinner bills & service charges</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Dinner Bill</label>
+            <div class="input-wrapper">
+                <span class="symbol">$</span>
+                <input type="number" id="bill" placeholder="0.00" step="0.01" min="0">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of Guests</label>
+            <div class="input-wrapper">
+                <input type="number" id="people" class="no-symbol" placeholder="1" min="1" step="1">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Service Charge / Tip</label>
+            <div class="input-wrapper">
+                <span class="symbol">%</span>
+                <input type="number" id="tip" placeholder="18" value="18" min="0" step="0.1">
+            </div>
+        </div>
+
+        <button id="calc">Calculate Share</button>
+
+        <div id="error"></div>
+        <div id="result">
+            <div class="label">Per-Person Share</div>
+            <div class="amount" id="result-amount">$0.00</div>
+        </div>
+
+        <div class="footer">
+            Designed for seamless table settlements.
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calc').addEventListener('click', function() {
+            const billInput = document.getElementById('bill').value.trim();
+            const peopleInput = document.getElementById('people').value.trim();
+            const tipInput = document.getElementById('tip').value.trim();
+            
+            const errorEl = document.getElementById('error');
+            const resultEl = document.getElementById('result');
+            const resultAmountEl = document.getElementById('result-amount');
+
+            // Reset views
+            errorEl.style.display = 'none';
+            resultEl.style.display = 'none';
+            errorEl.textContent = '';
+
+            // Parse values
+            const bill = parseFloat(billInput);
+            const people = parseInt(peopleInput, 10);
+            const tip = tipInput === '' ? 0 : parseFloat(tipInput);
+
+            // Validation checks
+            if (billInput === '' || isNaN(bill) || bill < 0) {
+                showError('Please enter a valid total bill amount.');
+                return;
+            }
+
+            if (peopleInput === '' || isNaN(people) || people <= 0 || !Number.isInteger(people)) {
+                showError('Please enter a valid number of guests (at least 1).');
+                return;
+            }
+
+            if (tipInput !== '' && (isNaN(tip) || tip < 0)) {
+                showError('Please enter a valid service charge percentage.');
+                return;
+            }
+
+            // Calculation
+            const tipAmount = bill * (tip / 100);
+            const totalWithTip = bill + tipAmount;
+            const perPerson = totalWithTip / people;
+
+            // Display valid output
+            resultAmountEl.textContent = '$' + perPerson.toFixed(2);
+            resultEl.style.display = 'block';
+        });
+
+        function showError(message) {
+            const errorEl = document.getElementById('error');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

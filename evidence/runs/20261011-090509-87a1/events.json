@@ -1,0 +1,157 @@
+[
+  {
+    "t": 0.016,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-090509-87a1",
+      "idea": "A group brunch bill splitter with a suggested tip percentage",
+      "mode": "baseline",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.532,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "BrunchSplit",
+      "one_line_pitch": "Split brunch bills effortlessly with friends and calculate suggested tips in seconds.",
+      "target_user": "Social diners and brunch-goers who frequently share group meals.",
+      "adaptation_note": "Focused the standard tip splitter template specifically on group dining scenarios and bill sharing.",
+      "_cost": 0.0002548,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 182
+    }
+  },
+  {
+    "t": 1.532,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002548,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 182
+    }
+  },
+  {
+    "t": 6.672,
+    "type": "code_written",
+    "data": {
+      "bytes": 6537,
+      "attempt": 1,
+      "_cost": 0.0052697,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2437
+    }
+  },
+  {
+    "t": 6.672,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0052697,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2437
+    }
+  },
+  {
+    "t": 9.157,
+    "type": "check_failed",
+    "data": {
+      "attempt": 1,
+      "test": "fractional_people",
+      "expected": "#error visible with a message and #result not visible or empty",
+      "actual": "#error visible=False, #result visible_content='Amount Per Person\\n$60.00'",
+      "console_errors": [],
+      "_cost": 0.0052697,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2437
+    }
+  },
+  {
+    "t": 9.157,
+    "type": "retry",
+    "data": {
+      "next": 2,
+      "_cost": 0.0052697,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2437
+    }
+  },
+  {
+    "t": 9.157,
+    "type": "attempt_started",
+    "data": {
+      "n": 2,
+      "of": 4,
+      "_cost": 0.0052697,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2437
+    }
+  },
+  {
+    "t": 14.032,
+    "type": "code_written",
+    "data": {
+      "bytes": 6810,
+      "attempt": 2,
+      "_cost": 0.0110097,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 6779
+    }
+  },
+  {
+    "t": 14.032,
+    "type": "check_started",
+    "data": {
+      "attempt": 2,
+      "_cost": 0.0110097,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 6779
+    }
+  },
+  {
+    "t": 17.547,
+    "type": "check_passed",
+    "data": {
+      "attempt": 2,
+      "console_errors": [],
+      "_cost": 0.0110097,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 6779
+    }
+  },
+  {
+    "t": 17.547,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-090509-87a1",
+      "_cost": 0.0110097,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 6779
+    }
+  },
+  {
+    "t": 17.547,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-090509-87a1",
+      "success": true,
+      "attempts": 2,
+      "first_attempt_passed": false,
+      "cost_usd": 0.0110097,
+      "cost_tag": "COMPUTED",
+      "tokens": 6779,
+      "latency_s": 17.547,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

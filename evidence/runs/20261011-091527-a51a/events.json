@@ -1,0 +1,101 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-091527-a51a",
+      "idea": "A food-truck festival tab splitter for a family",
+      "mode": "improved",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 0.938,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "TruckTab",
+      "one_line_pitch": "Easily split food truck festival bills and calculate tips across the whole family.",
+      "target_user": "Families visiting food truck festivals together",
+      "adaptation_note": "Adapts the tip splitter to handle multiple distinct food truck purchases and assign them to different family members.",
+      "_cost": 0.0002573,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 183
+    }
+  },
+  {
+    "t": 0.938,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002573,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 183
+    }
+  },
+  {
+    "t": 5.156,
+    "type": "code_written",
+    "data": {
+      "bytes": 4796,
+      "attempt": 1,
+      "_cost": 0.0046736,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2254
+    }
+  },
+  {
+    "t": 5.156,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0046736,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2254
+    }
+  },
+  {
+    "t": 8.766,
+    "type": "check_passed",
+    "data": {
+      "attempt": 1,
+      "console_errors": [],
+      "_cost": 0.0046736,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2254
+    }
+  },
+  {
+    "t": 8.766,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-091527-a51a",
+      "_cost": 0.0046736,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2254
+    }
+  },
+  {
+    "t": 8.766,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-091527-a51a",
+      "success": true,
+      "attempts": 1,
+      "first_attempt_passed": true,
+      "cost_usd": 0.0046736,
+      "cost_tag": "COMPUTED",
+      "tokens": 2254,
+      "latency_s": 8.766,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

@@ -1,0 +1,101 @@
+[
+  {
+    "t": 0.015,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-085803-edbd",
+      "idea": "A tip splitter for friends sharing a restaurant bill",
+      "mode": "improved",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.109,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "BillSplit",
+      "one_line_pitch": "The easiest way for groups to split restaurant bills and calculate tips fairly.",
+      "target_user": "Friends dining out together who need to calculate individual shares and tips without the hassle.",
+      "adaptation_note": "Utilize the default tip_splitter template as-is to handle itemized or equal bill splitting, tax, and tip calculations for group dinners.",
+      "_cost": 0.0002995,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 199
+    }
+  },
+  {
+    "t": 1.109,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002995,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 199
+    }
+  },
+  {
+    "t": 6.328,
+    "type": "code_written",
+    "data": {
+      "bytes": 6726,
+      "attempt": 1,
+      "_cost": 0.0052759,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2509
+    }
+  },
+  {
+    "t": 6.328,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0052759,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2509
+    }
+  },
+  {
+    "t": 9.89,
+    "type": "check_passed",
+    "data": {
+      "attempt": 1,
+      "console_errors": [],
+      "_cost": 0.0052759,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2509
+    }
+  },
+  {
+    "t": 9.89,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-085803-edbd",
+      "_cost": 0.0052759,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2509
+    }
+  },
+  {
+    "t": 9.89,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-085803-edbd",
+      "success": true,
+      "attempts": 1,
+      "first_attempt_passed": true,
+      "cost_usd": 0.0052759,
+      "cost_tag": "COMPUTED",
+      "tokens": 2509,
+      "latency_s": 9.89,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

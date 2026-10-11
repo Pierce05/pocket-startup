@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BillSplit - The Easiest Way to Split Bills</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --error-bg: #fee2e2;
+            --error-text: #991b1b;
+            --success-bg: #f0fdf4;
+            --success-text: #166534;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        p.pitch {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            background-color: var(--primary);
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            margin-top: 1.25rem;
+            padding: 1rem;
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            border-radius: 0.5rem;
+            text-align: center;
+            font-size: 1.15rem;
+            font-weight: 700;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>BillSplit</h1>
+            <p class="pitch">The easiest way to calculate restaurant bills and split tips fairly.</p>
+        </header>
+
+        <main>
+            <div class="form-group">
+                <label for="bill">Total Bill Amount ($)</label>
+                <input type="number" id="bill" placeholder="0.00" step="0.01" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="people">Number of People</label>
+                <input type="number" id="people" placeholder="1" step="1" min="1">
+            </div>
+
+            <div class="form-group">
+                <label for="tip">Tip Percentage (%)</label>
+                <input type="number" id="tip" placeholder="15" step="any" min="0">
+            </div>
+
+            <button id="calc">Calculate Split</button>
+
+            <div id="error"></div>
+            <div id="result"></div>
+        </main>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const tipInput = document.getElementById('tip');
+        const calcButton = document.getElementById('calc');
+        const resultDiv = document.getElementById('result');
+        const errorDiv = document.getElementById('error');
+
+        calcButton.addEventListener('click', () => {
+            const billValue = parseFloat(billInput.value);
+            const peopleValue = parseInt(peopleInput.value, 10);
+            const tipValue = parseFloat(tipInput.value);
+
+            // Validation checks
+            if (isNaN(billValue) || billValue < 0) {
+                showError('Please enter a valid positive number for the bill amount.');
+                return;
+            }
+
+            if (isNaN(peopleValue) || peopleValue <= 0 || !Number.isInteger(peopleValue)) {
+                showError('Please enter a valid integer greater than zero for the number of people.');
+                return;
+            }
+
+            if (isNaN(tipValue) || tipValue < 0) {
+                showError('Please enter a valid non-negative tip percentage.');
+                return;
+            }
+
+            // Clear errors and compute calculation
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+
+            const totalTip = billValue * (tipValue / 100);
+            const grandTotal = billValue + totalTip;
+            const perPerson = grandTotal / peopleValue;
+
+            resultDiv.textContent = `Each person owes: $${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+
+        function showError(message) {
+            resultDiv.style.display = 'none';
+            resultDiv.textContent = '';
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

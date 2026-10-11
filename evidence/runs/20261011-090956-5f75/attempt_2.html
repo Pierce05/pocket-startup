@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoffeeRun Split</title>
+    <style>
+        :root {
+            --primary: #6F4E37;
+            --primary-hover: #563B2A;
+            --bg: #FDFBF7;
+            --card-bg: #FFFFFF;
+            --text: #2C221E;
+            --text-muted: #7E7068;
+            --error: #D9534F;
+            --error-bg: #FDF2F2;
+            --border: #E6DFD5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 420px;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(111, 78, 55, 0.08);
+            border: 1px solid var(--border);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            color: var(--text);
+            background-color: #FAFAFA;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #FFFFFF;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            margin-top: 16px;
+            padding: 12px;
+            background-color: var(--error-bg);
+            color: var(--error);
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #F4ECE1;
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+        }
+
+        #result .label {
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        #result .amount {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>☕ CoffeeRun Split</h1>
+            <p>Easily calculate and split tips and totals for the daily office coffee run.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Coffee Run Subtotal ($)</label>
+            <input type="number" id="bill" step="0.01" min="0" placeholder="e.g. 24.50">
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of People</label>
+            <input type="number" id="people" min="1" step="1" placeholder="e.g. 3">
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Tip Percentage (%)</label>
+            <input type="number" id="tip" step="1" min="0" placeholder="e.g. 15">
+        </div>
+
+        <button id="calc">Calculate Split</button>
+
+        <div id="error"></div>
+        <div id="result">
+            <div class="label">Amount Per Person</div>
+            <div class="amount" id="amountDisplay">$0.00</div>
+        </div>
+    </div>
+
+    <script>
+        const calcBtn = document.getElementById('calc');
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const tipInput = document.getElementById('tip');
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+        const amountDisplay = document.getElementById('amountDisplay');
+
+        calcBtn.addEventListener('click', () => {
+            const rawBill = billInput.value.trim();
+            const rawPeople = peopleInput.value.trim();
+            const rawTip = tipInput.value.trim();
+
+            const billVal = parseFloat(rawBill);
+            const peopleVal = Number(rawPeople);
+            const tipVal = parseFloat(rawTip);
+
+            // Validation checks
+            if (rawBill === "" || isNaN(billVal) || billVal < 0) {
+                showError("Please enter a valid positive amount for the coffee bill.");
+                return;
+            }
+
+            if (rawPeople === "" || isNaN(peopleVal) || peopleVal <= 0 || !Number.isInteger(peopleVal) || rawPeople.includes('.')) {
+                showError("Please enter a valid whole number of people (at least 1).");
+                return;
+            }
+
+            if (rawTip === "" || isNaN(tipVal) || tipVal < 0) {
+                showError("Please enter a valid tip percentage (0 or greater).");
+                return;
+            }
+
+            // Calculation
+            errorDiv.style.display = 'none';
+            const totalWithTip = billVal * (1 + tipVal / 100);
+            const perPerson = totalWithTip / peopleVal;
+
+            amountDisplay.textContent = `$${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+            resultDiv.textContent = '';
+            // Re-append inner result structure if cleared
+            resultDiv.innerHTML = `
+                <div class="label">Amount Per Person</div>
+                <div class="amount" id="amountDisplay">$0.00</div>
+            `;
+        }
+    </script>
+</body>
+</html>

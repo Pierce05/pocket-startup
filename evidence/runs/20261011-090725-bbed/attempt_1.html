@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TruckTab - Food Truck Festival Bill & Tip Splitter</title>
+    <style>
+        :root {
+            --primary: #ff6b35;
+            --primary-dark: #e85a24;
+            --secondary: #004e64;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #2b2d42;
+            --text-light: #8d99ae;
+            --error: #d90429;
+            --success: #2b9348;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .tagline {
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: var(--secondary);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix, .suffix {
+            position: absolute;
+            color: var(--text-light);
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        .prefix { left: 14px; }
+        .suffix { right: 14px; }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 1.1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input.has-prefix { padding-left: 32px; }
+        input.has-suffix { padding-right: 32px; }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        .tip-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .tip-btn {
+            padding: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 2px solid #e2e8f0;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tip-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .tip-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        button#calc {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            margin-top: 10px;
+        }
+
+        button#calc:hover {
+            background: var(--primary-dark);
+        }
+
+        button#calc:active {
+            transform: scale(0.98);
+        }
+
+        #error {
+            margin-top: 16px;
+            padding: 12px;
+            background-color: #fdf2f2;
+            color: var(--error);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            margin-top: 24px;
+            padding: 20px;
+            background-color: #f0fdf4;
+            border: 2px solid #bbf7d0;
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #166534;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .result-amount {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--success);
+        }
+        
+        .result-breakdown {
+            font-size: 0.85rem;
+            color: #4b5563;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="logo">🚚 TruckTab</div>
+            <p class="tagline">Easily split food truck festival bills across the family.</p>
+        </header>
+
+        <main>
+            <div class="form-group">
+                <label for="bill">Total Food Truck Bill</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="bill" class="has-prefix" placeholder="0.00" step="0.01" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="people">Number of People (Family Members)</label>
+                <input type="number" id="people" placeholder="1" min="1" step="1" value="1">
+            </div>
+
+            <div class="form-group">
+                <label for="tip">Tip Percentage</label>
+                <div class="input-wrapper">
+                    <input type="number" id="tip" class="has-suffix" placeholder="18" min="0" value="18">
+                    <span class="suffix">%</span>
+                </div>
+                <div class="tip-buttons">
+                    <button type="button" class="tip-btn" data-tip="10">10%</button>
+                    <button type="button" class="tip-btn" data-tip="15">15%</button>
+                    <button type="button" class="tip-btn active" data-tip="18">18%</button>
+                    <button type="button" class="tip-btn" data-tip="20">20%</button>
+                </div>
+            </div>
+
+            <button id="calc">Calculate Split</button>
+
+            <div id="error"></div>
+            <div id="result">
+                <div class="result-label">Per-Person Share</div>
+                <div class="result-amount" id="result-amount-display">$0.00</div>
+                <div class="result-breakdown" id="result-breakdown-display"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const tipInput = document.getElementById('tip');
+        const calcBtn = document.getElementById('calc');
+        const resultDiv = document.getElementById('result');
+        const errorDiv = document.getElementById('error');
+        const resultAmountDisplay = document.getElementById('result-amount-display');
+        const resultBreakdownDisplay = document.getElementById('result-breakdown-display');
+        const tipBtns = document.querySelectorAll('.tip-btn');
+
+        // Tip preset button handling
+        tipBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tipBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                tipInput.value = btn.getAttribute('data-tip');
+            });
+        });
+
+        tipInput.addEventListener('input', () => {
+            const val = tipInput.value;
+            tipBtns.forEach(btn => {
+                if (btn.getAttribute('data-tip') === val) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        });
+
+        calcBtn.addEventListener('click', () => {
+            const billVal = parseFloat(billInput.value);
+            const peopleVal = parseInt(peopleInput.value, 10);
+            const tipVal = parseFloat(tipInput.value);
+
+            // Validation logic
+            let errorMessage = '';
+
+            if (isNaN(billVal) || billVal < 0) {
+                errorMessage = 'Please enter a valid positive amount for the total bill.';
+            } else if (isNaN(peopleVal) || peopleVal <= 0 || !Number.isInteger(peopleVal)) {
+                errorMessage = 'Number of people must be a whole number of at least 1.';
+            } else if (isNaN(tipVal) || tipVal < 0) {
+                errorMessage = 'Please enter a valid tip percentage (0 or greater).';
+            }
+
+            if (errorMessage) {
+                errorDiv.textContent = errorMessage;
+                errorDiv.style.display = 'block';
+                resultDiv.style.display = 'none';
+                return;
+            }
+
+            // Valid Input Calculation
+            errorDiv.style.display = 'none';
+
+            const tipAmount = billVal * (tipVal / 100);
+            const totalWithTip = billVal + tipAmount;
+            const perPerson = totalWithTip / peopleVal;
+
+            resultAmountDisplay.textContent = `$${perPerson.toFixed(2)}`;
+            resultBreakdownDisplay.textContent = `Total: $${totalWithTip.toFixed(2)} (Bill: $${billVal.toFixed(2)} + Tip: $${tipAmount.toFixed(2)}) split among ${peopleVal} ${peopleVal === 1 ? 'person' : 'people'}`;
+            resultDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

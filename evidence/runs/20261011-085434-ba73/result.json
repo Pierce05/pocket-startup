@@ -1,0 +1,83 @@
+{
+  "run_id": "20261011-085434-ba73",
+  "mode": "baseline",
+  "template": "tip_splitter",
+  "idea": "A taxi fare and tip splitter for a group airport ride",
+  "success": true,
+  "attempts": 2,
+  "first_attempt_passed": false,
+  "input_tokens": 3116,
+  "output_tokens": 4886,
+  "tokens": 8002,
+  "cost_usd": 0.0131498,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.0002776,
+    "build": 0.0059901,
+    "retry": 0.0068821
+  },
+  "latency_s": 18.047,
+  "rails_fired": [],
+  "error": null,
+  "autopsy_error": null,
+  "first_attempt_failed_test": "fractional_people",
+  "failed_tests": [
+    "fractional_people"
+  ],
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 1062,
+      "tokens": 192,
+      "cost_usd": 0.0002776,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 5625,
+      "tokens": 2653,
+      "cost_usd": 0.0059901,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 2375,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_2",
+      "type": "CHAIN",
+      "duration_ms": 5422,
+      "tokens": 5157,
+      "cost_usd": 0.0068821,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 3546,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "awaiting_approval"
+}

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrocySplit</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #4caf50;
+            --bg: #f4f9f4;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --error-bg: #ffebee;
+            --error-text: #c62828;
+            --border: #c8e6c9;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(46, 125, 50, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            box-sizing: border-box;
+            border: 1px solid var(--border);
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 24px;
+            margin-top: 0;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .pitch {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #444;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #1b5e20;
+        }
+
+        #error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-top: 16px;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            background-color: #e8f5e9;
+            color: var(--primary);
+            padding: 16px;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 16px;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>GrocySplit</h1>
+        <div class="pitch">Easily split shared grocery receipts and delivery tips among roommates.</div>
+
+        <div class="input-group">
+            <label for="bill">Total Grocery Bill ($)</label>
+            <input type="number" id="bill" step="0.01" min="0" placeholder="0.00">
+        </div>
+
+        <div class="input-group">
+            <label for="tip">Delivery Tip (%)</label>
+            <input type="number" id="tip" step="1" min="0" placeholder="15">
+        </div>
+
+        <div class="input-group">
+            <label for="people">Number of People</label>
+            <input type="number" id="people" step="1" min="1" placeholder="1">
+        </div>
+
+        <button id="calc">Calculate Split</button>
+
+        <div id="error"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('calc').addEventListener('click', function() {
+            const billInput = document.getElementById('bill').value;
+            const tipInput = document.getElementById('tip').value;
+            const peopleInput = document.getElementById('people').value;
+
+            const errorEl = document.getElementById('error');
+            const resultEl = document.getElementById('result');
+
+            // Reset view state
+            errorEl.style.display = 'none';
+            errorEl.textContent = '';
+            resultEl.style.display = 'none';
+            resultEl.textContent = '';
+
+            // Parse numeric values
+            const bill = parseFloat(billInput);
+            const tip = parseFloat(tipInput);
+            const people = parseFloat(peopleInput);
+
+            // Validation checks
+            let errorMessage = '';
+
+            if (billInput === '' || isNaN(bill) || bill < 0) {
+                errorMessage = 'Please enter a valid grocery bill (0 or greater).';
+            } else if (tipInput === '' || isNaN(tip) || tip < 0) {
+                errorMessage = 'Please enter a valid tip percentage (0 or greater).';
+            } else if (peopleInput === '' || isNaN(people) || !Number.isInteger(people) || people <= 0) {
+                errorMessage = 'Please enter a valid whole number of people greater than zero.';
+            }
+
+            if (errorMessage) {
+                errorEl.textContent = errorMessage;
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            // Calculation
+            const totalWithTip = bill * (1 + (tip / 100));
+            const perPerson = totalWithTip / people;
+
+            // Display result
+            resultEl.textContent = `Each person pays: $${perPerson.toFixed(2)}`;
+            resultEl.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

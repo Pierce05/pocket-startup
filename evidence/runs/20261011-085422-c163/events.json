@@ -1,0 +1,101 @@
+[
+  {
+    "t": 0.016,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-085422-c163",
+      "idea": "A wedding dinner table bill splitter with service charge",
+      "mode": "improved",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.703,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "WeddingTab",
+      "one_line_pitch": "Easily split wedding dinner bills and custom service charges among guests.",
+      "target_user": "Wedding guests and organizers splitting group meal costs.",
+      "adaptation_note": "Utilize the bill splitting and tip calculation logic to handle large group dinner totals and tiered service charges specific to wedding receptions.",
+      "_cost": 0.000267,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 186
+    }
+  },
+  {
+    "t": 1.703,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.000267,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 186
+    }
+  },
+  {
+    "t": 6.797,
+    "type": "code_written",
+    "data": {
+      "bytes": 7564,
+      "attempt": 1,
+      "_cost": 0.0058845,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2741
+    }
+  },
+  {
+    "t": 6.797,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0058845,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2741
+    }
+  },
+  {
+    "t": 10.641,
+    "type": "check_passed",
+    "data": {
+      "attempt": 1,
+      "console_errors": [],
+      "_cost": 0.0058845,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2741
+    }
+  },
+  {
+    "t": 10.641,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-085422-c163",
+      "_cost": 0.0058845,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2741
+    }
+  },
+  {
+    "t": 10.641,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-085422-c163",
+      "success": true,
+      "attempts": 1,
+      "first_attempt_passed": true,
+      "cost_usd": 0.0058845,
+      "cost_tag": "COMPUTED",
+      "tokens": 2741,
+      "latency_s": 10.641,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

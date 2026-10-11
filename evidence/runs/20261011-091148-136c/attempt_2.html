@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoffeeRun Splitter</title>
+    <style>
+        :root {
+            --primary: #6f4e37;
+            --primary-dark: #4b3220;
+            --secondary: #d7ccc8;
+            --accent: #d4a373;
+            --bg: #fdfbf7;
+            --card-bg: #ffffff;
+            --text: #2c221e;
+            --error: #d9534f;
+            --success: #388e3c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 480px;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(111, 78, 55, 0.1);
+            border: 1px solid var(--secondary);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .header p {
+            color: #665c54;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--primary-dark);
+        }
+
+        .input-with-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-with-icon span {
+            position: absolute;
+            left: 12px;
+            color: #887b72;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 0.75rem 0.75rem 2rem;
+            border: 2px solid var(--secondary);
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        input.no-icon {
+            padding-left: 0.75rem;
+        }
+
+        .quick-tips {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tip-btn {
+            flex: 1;
+            padding: 0.4rem;
+            background: var(--bg);
+            border: 1px solid var(--secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            transition: all 0.2s;
+        }
+
+        .tip-btn:hover, .tip-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        button#calc {
+            width: 100%;
+            padding: 0.85rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button#calc:hover {
+            background-color: var(--primary-dark);
+        }
+
+        #error {
+            background-color: #fde8e8;
+            color: var(--error);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+            border: 1px solid #f8d7da;
+        }
+
+        #result {
+            margin-top: 1.5rem;
+            padding: 1.25rem;
+            background-color: #f4ece1;
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+            border: 1px dashed var(--primary);
+        }
+
+        #result h3 {
+            font-size: 0.9rem;
+            color: var(--primary-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        #result .amount {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        #result .details {
+            font-size: 0.8rem;
+            color: #665c54;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>☕ CoffeeRun Splitter</h1>
+            <p>Quickly calculate and split tips and totals for office coffee runs.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Coffee Bill</label>
+            <div class="input-with-icon">
+                <span>$</span>
+                <input type="number" id="bill" placeholder="0.00" step="0.01" min="0">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of Coworkers</label>
+            <div class="input-with-icon">
+                <span>👥</span>
+                <input type="number" id="people" class="no-icon" style="padding-left: 2rem;" placeholder="1" min="1" step="1" value="1">
+            </div>
+            <div style="padding-left: 2rem; font-size: 0.75rem; color: #887b72; margin-top: 0.25rem;">(Including yourself if partaking)</div>
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Barista Tip Percentage</label>
+            <div class="input-with-icon">
+                <span>%</span>
+                <input type="number" id="tip" placeholder="15" value="15" min="0" step="1">
+            </div>
+            <div class="quick-tips">
+                <button type="button" class="tip-btn" data-tip="10">10%</button>
+                <button type="button" class="tip-btn active" data-tip="15">15%</button>
+                <button type="button" class="tip-btn" data-tip="18">18%</button>
+                <button type="button" class="tip-btn" data-tip="20">20%</button>
+            </div>
+        </div>
+
+        <button id="calc">Calculate Split</button>
+
+        <div id="error"></div>
+
+        <div id="result">
+            <h3>Per-Person Total</h3>
+            <div class="amount" id="perPersonAmount">$0.00</div>
+            <div class="details" id="perPersonDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const tipInput = document.getElementById('tip');
+        const calcBtn = document.getElementById('calc');
+        const resultDiv = document.getElementById('result');
+        const errorDiv = document.getElementById('error');
+        const perPersonAmount = document.getElementById('perPersonAmount');
+        const perPersonDetails = document.getElementById('perPersonDetails');
+        const tipButtons = document.querySelectorAll('.tip-btn');
+
+        // Handle quick tip selection
+        tipButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tipButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                tipInput.value = btn.getAttribute('data-tip');
+            });
+        });
+
+        // Clear active status on manual tip entry
+        tipInput.addEventListener('input', () => {
+            tipButtons.forEach(b => b.classList.remove('active'));
+        });
+
+        calcBtn.addEventListener('click', () => {
+            const billRaw = billInput.value.trim();
+            const peopleRaw = peopleInput.value.trim();
+            const tipRaw = tipInput.value.trim();
+
+            const billVal = parseFloat(billRaw);
+            const peopleVal = Number(peopleRaw);
+            const tipVal = parseFloat(tipRaw);
+
+            // Validation checks
+            if (billRaw === '' || isNaN(billVal) || billVal <= 0) {
+                showError('Please enter a valid total coffee bill amount greater than $0.');
+                return;
+            }
+
+            if (peopleRaw === '' || isNaN(peopleVal) || peopleVal <= 0 || !Number.isInteger(peopleVal)) {
+                showError('Please enter a valid whole number of coworkers (at least 1).');
+                return;
+            }
+
+            if (tipRaw === '' || isNaN(tipVal) || tipVal < 0) {
+                showError('Please enter a valid tip percentage (0 or higher).');
+                return;
+            }
+
+            // Valid calculation path
+            hideError();
+
+            const tipAmount = billVal * (tipVal / 100);
+            const totalBill = billVal + tipAmount;
+            const perPerson = totalBill / peopleVal;
+
+            perPersonAmount.textContent = `$${perPerson.toFixed(2)}`;
+            perPersonDetails.textContent = `Subtotal: $${billVal.toFixed(2)} + Tip (${tipVal}%): $${tipAmount.toFixed(2)} (Total: $${totalBill.toFixed(2)} split among ${peopleVal})`;
+            
+            resultDiv.style.display = 'block';
+        });
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+            resultDiv.innerHTML = '<h3>Per-Person Total</h3><div class="amount" id="perPersonAmount">$0.00</div><div class="details" id="perPersonDetails"></div>';
+        }
+
+        function hideError() {
+            errorDiv.textContent = '';
+            errorDiv.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

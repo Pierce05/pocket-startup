@@ -1,0 +1,157 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-091109-56c7",
+      "idea": "A tour guide tip pool calculator for a travel group",
+      "mode": "baseline",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.234,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "TourPool",
+      "one_line_pitch": "Easily calculate and distribute tips evenly among your tour guide and support crew.",
+      "target_user": "Tour guides and group travel organizers",
+      "adaptation_note": "Rebranded bill splitting terminology to tour guide and crew payout roles.",
+      "_cost": 0.0002398,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 176
+    }
+  },
+  {
+    "t": 1.234,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002398,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 176
+    }
+  },
+  {
+    "t": 7.578,
+    "type": "code_written",
+    "data": {
+      "bytes": 8665,
+      "attempt": 1,
+      "_cost": 0.0064454,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2902
+    }
+  },
+  {
+    "t": 7.578,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0064454,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2902
+    }
+  },
+  {
+    "t": 11.171,
+    "type": "check_failed",
+    "data": {
+      "attempt": 1,
+      "test": "fractional_people",
+      "expected": "#error visible with a message and #result not visible or empty",
+      "actual": "#error visible=False, #result visible_content='PER-PERSON PAYOUT\\n$60.00'",
+      "console_errors": [],
+      "_cost": 0.0064454,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2902
+    }
+  },
+  {
+    "t": 11.171,
+    "type": "retry",
+    "data": {
+      "next": 2,
+      "_cost": 0.0064454,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2902
+    }
+  },
+  {
+    "t": 11.171,
+    "type": "attempt_started",
+    "data": {
+      "n": 2,
+      "of": 4,
+      "_cost": 0.0064454,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2902
+    }
+  },
+  {
+    "t": 16.687,
+    "type": "code_written",
+    "data": {
+      "bytes": 8771,
+      "attempt": 2,
+      "_cost": 0.0133919,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8149
+    }
+  },
+  {
+    "t": 16.687,
+    "type": "check_started",
+    "data": {
+      "attempt": 2,
+      "_cost": 0.0133919,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8149
+    }
+  },
+  {
+    "t": 20.296,
+    "type": "check_passed",
+    "data": {
+      "attempt": 2,
+      "console_errors": [],
+      "_cost": 0.0133919,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8149
+    }
+  },
+  {
+    "t": 20.296,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-091109-56c7",
+      "_cost": 0.0133919,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 8149
+    }
+  },
+  {
+    "t": 20.296,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-091109-56c7",
+      "success": true,
+      "attempts": 2,
+      "first_attempt_passed": false,
+      "cost_usd": 0.0133919,
+      "cost_tag": "COMPUTED",
+      "tokens": 8149,
+      "latency_s": 20.296,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

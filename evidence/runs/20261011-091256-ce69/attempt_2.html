@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SalonPool Tips</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --error-bg: #fef2f2;
+            --error-text: #dc2626;
+            --success-bg: #f0fdf4;
+            --success-text: #16a34a;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            display: none;
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            margin-top: 1.25rem;
+            border: 1px solid #fecaca;
+            text-align: center;
+        }
+
+        #result {
+            display: none;
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1.25rem;
+            border: 1px solid #bbf7d0;
+            text-align: center;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>SalonPool Tips</h1>
+            <p>Easily split and distribute pooled tips among your salon team fairly and transparently.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Pooled Tips ($)</label>
+            <input type="number" id="bill" placeholder="e.g. 250.00" step="0.01" min="0">
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of Staff / Shift Count</label>
+            <input type="number" id="people" placeholder="e.g. 4" min="1" step="1">
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Bonus / Extra Addition (%)</label>
+            <input type="number" id="tip" placeholder="e.g. 0" value="0" min="0" step="1">
+        </div>
+
+        <button id="calc">Calculate Distribution</button>
+
+        <div id="error"></div>
+        <div id="result"></div>
+    </div>
+
+    <div class="footer">
+        SalonPool Tips &bull; Transparent Team Distributions
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const tipInput = document.getElementById('tip');
+        const calcBtn = document.getElementById('calc');
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+
+        calcBtn.addEventListener('click', () => {
+            const billStr = billInput.value.trim();
+            const peopleStr = peopleInput.value.trim();
+            const tipStr = tipInput.value.trim();
+
+            const billVal = parseFloat(billStr);
+            const peopleVal = parseFloat(peopleStr);
+            const tipVal = parseFloat(tipStr);
+
+            // Validation checks
+            if (billStr === '' || peopleStr === '' || tipStr === '' || isNaN(billVal) || isNaN(peopleVal) || isNaN(tipVal)) {
+                showError("Please fill in all fields with valid numbers.");
+                return;
+            }
+
+            if (billVal < 0) {
+                showError("Total pooled tips cannot be negative.");
+                return;
+            }
+
+            if (!Number.isInteger(peopleVal) || peopleVal <= 0) {
+                showError("Number of staff must be a whole number greater than zero.");
+                return;
+            }
+
+            if (tipVal < 0) {
+                showError("Percentage addition cannot be negative.");
+                return;
+            }
+
+            // Calculation including tip percentage component
+            const adjustedTotal = billVal * (1 + tipVal / 100);
+            const perPerson = adjustedTotal / peopleVal;
+
+            if (!isFinite(perPerson)) {
+                showError("Could not calculate a valid distribution.");
+                return;
+            }
+
+            // Success state
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = `Per Person Amount: $${perPerson.toFixed(2)}`;
+        });
+
+        function showError(message) {
+            resultDiv.style.display = 'none';
+            resultDiv.textContent = '';
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = message;
+        }
+    </script>
+</body>
+</html>

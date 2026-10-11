@@ -1,0 +1,62 @@
+{
+  "run_id": "20261011-085704-2073",
+  "mode": "improved",
+  "template": "tip_splitter",
+  "idea": "A bar tab splitter for a night out with coworkers",
+  "success": true,
+  "attempts": 1,
+  "first_attempt_passed": true,
+  "input_tokens": 447,
+  "output_tokens": 1925,
+  "tokens": 2372,
+  "cost_usd": 0.0049466,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.0002823,
+    "build": 0.0046643
+  },
+  "latency_s": 9.453,
+  "rails_fired": [],
+  "error": null,
+  "autopsy_error": null,
+  "first_attempt_failed_test": null,
+  "failed_tests": [],
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 1061,
+      "tokens": 193,
+      "cost_usd": 0.0002823,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 4750,
+      "tokens": 2179,
+      "cost_usd": 0.0046643,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 3608,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "awaiting_approval"
+}

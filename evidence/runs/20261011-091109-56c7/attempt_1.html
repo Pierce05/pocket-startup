@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TourPool - Tour Guide & Crew Tip Splitter</title>
+    <style>
+        :root {
+            --primary: #0d9488;
+            --primary-hover: #0f766e;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --error-bg: #fef2f2;
+            --error-text: #dc2626;
+            --success-bg: #f0fdf4;
+            --success-text: #166534;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        p.pitch {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix, .suffix {
+            position: absolute;
+            color: var(--text-muted);
+            font-size: 1rem;
+            pointer-events: none;
+        }
+
+        .prefix {
+            left: 1rem;
+        }
+
+        .suffix {
+            right: 1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fff;
+            color: var(--text-main);
+        }
+
+        input.has-prefix {
+            padding-left: 2rem;
+        }
+
+        input.has-suffix {
+            padding-right: 2.2rem;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.875rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            color: white;
+        }
+
+        #error {
+            display: none;
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            text-align: center;
+            border: 1px solid #fecaca;
+        }
+
+        #result {
+            display: none;
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            text-align: center;
+            border: 1px solid #bbf7d0;
+        }
+
+        #result .label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        #result .amount {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>TourPool</h1>
+            <p class="pitch">Easily calculate and distribute tips evenly among your tour guide and support crew.</p>
+        </header>
+
+        <main>
+            <div class="form-group">
+                <label for="bill">Total Tour Pot / Base Amount ($)</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="bill" class="has-prefix" placeholder="0.00" step="0.01" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="people">Number of Crew Members (Guides & Support)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="people" placeholder="1" min="1" step="1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="tip">Additional Tip Percentage (%)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="tip" class="has-suffix" placeholder="15" min="0" step="any">
+                    <span class="suffix">%</span>
+                </div>
+            </div>
+
+            <button id="calc">Calculate Payouts</button>
+
+            <div id="error"></div>
+            <div id="result">
+                <div class="label">Per-Person Payout</div>
+                <div class="amount" id="amount-display">$0.00</div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const tipInput = document.getElementById('tip');
+        const calcButton = document.getElementById('calc');
+        const resultDiv = document.getElementById('result');
+        const errorDiv = document.getElementById('error');
+        const amountDisplay = document.getElementById('amount-display');
+
+        function calculateSplit() {
+            const billVal = billInput.value.trim();
+            const peopleVal = peopleInput.value.trim();
+            const tipVal = tipInput.value.trim();
+
+            const bill = parseFloat(billVal);
+            const people = parseInt(peopleVal, 10);
+            const tipPercentage = tipVal === '' ? 0 : parseFloat(tipVal);
+
+            // Validation checks
+            if (billVal === '' || peopleVal === '') {
+                showError('Please enter both the total amount and the number of crew members.');
+                return;
+            }
+
+            if (isNaN(bill) || isNaN(people) || isNaN(tipPercentage)) {
+                showError('Please enter valid numeric values for all fields.');
+                return;
+            }
+
+            if (bill < 0 || people <= 0 || tipPercentage < 0) {
+                showError('Amount and tip percentage cannot be negative, and crew count must be at least 1.');
+                return;
+            }
+
+            if (!Number.isInteger(people)) {
+                showError('Number of crew members must be a whole number.');
+                return;
+            }
+
+            // Calculation logic
+            const tipAmount = bill * (tipPercentage / 100);
+            const totalPot = bill + tipAmount;
+            const perPerson = totalPot / people;
+
+            // Display results
+            errorDiv.style.display = 'none';
+            amountDisplay.textContent = `$${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        }
+
+        function showError(message) {
+            resultDiv.style.display = 'none';
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        calcButton.addEventListener('click', calculateSplit);
+
+        // Allow pressing Enter key to calculate
+        [billInput, peopleInput, tipInput].forEach(element => {
+            element.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    calculateSplit();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

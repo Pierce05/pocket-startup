@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrocySplit - Grocery Bill & Tip Splitter</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #4caf50;
+            --background: #f1f8e9;
+            --surface: #ffffff;
+            --text: #1b5e20;
+            --text-main: #333333;
+            --error: #c62828;
+            --error-bg: #ffebee;
+            --border: #c8e6c9;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--background);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--surface);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.15);
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .pitch {
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background-color: #1b5e20;
+        }
+
+        #error {
+            background-color: var(--error-bg);
+            color: var(--error);
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-top: 16px;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            background-color: var(--background);
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 16px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>GrocySplit</h1>
+        <div class="pitch">Easily split shared grocery bills and delivery tips among roommates.</div>
+
+        <div class="input-group">
+            <label for="bill">Grocery Subtotal ($)</label>
+            <input type="number" id="bill" step="0.01" min="0" placeholder="0.00">
+        </div>
+
+        <div class="input-group">
+            <label for="people">Number of Roommates</label>
+            <input type="number" id="people" step="1" min="1" placeholder="1">
+        </div>
+
+        <div class="input-group">
+            <label for="tip">Delivery Fee & Tip (%)</label>
+            <input type="number" id="tip" step="0.1" min="0" placeholder="15">
+        </div>
+
+        <button id="calc">Calculate Share</button>
+
+        <div id="error"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('calc').addEventListener('click', function() {
+            const billInput = document.getElementById('bill').value.trim();
+            const peopleInput = document.getElementById('people').value.trim();
+            const tipInput = document.getElementById('tip').value.trim();
+
+            const errorEl = document.getElementById('error');
+            const resultEl = document.getElementById('result');
+
+            // Reset views
+            errorEl.style.display = 'none';
+            resultEl.style.display = 'none';
+            errorEl.textContent = '';
+            resultEl.textContent = '';
+
+            // Parse numbers
+            const bill = parseFloat(billInput);
+            const people = parseInt(peopleInput, 10);
+            const tipPercent = tipInput === '' ? 0 : parseFloat(tipInput);
+
+            // Validation checks
+            if (billInput === '' || peopleInput === '') {
+                errorEl.textContent = 'Please fill out both the grocery subtotal and number of roommates.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            if (isNaN(bill) || isNaN(people) || isNaN(tipPercent) || bill < 0 || people <= 0 || tipPercent < 0) {
+                errorEl.textContent = 'Please enter valid positive numbers. Roommates must be at least 1.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            // Calculation
+            const tipMultiplier = 1 + (tipPercent / 100);
+            const totalCost = bill * tipMultiplier;
+            const perPerson = totalCost / people;
+
+            // Display valid output
+            resultEl.textContent = `Each roommate owes: $${perPerson.toFixed(2)}`;
+            resultEl.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

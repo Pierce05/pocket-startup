@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeddingTab - Wedding Dinner & Tip Splitter</title>
+    <style>
+        :root {
+            --primary: #831843;
+            --primary-light: #fce7f3;
+            --primary-hover: #9f1239;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --bg-color: #fff1f2;
+            --card-bg: #ffffff;
+            --error-bg: #fef2f2;
+            --error-text: #991b1b;
+            --error-border: #fecaca;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(131, 24, 67, 0.1), 0 8px 10px -6px rgba(131, 24, 67, 0.1);
+            padding: 2.5rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            margin-bottom: 0.75rem;
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        p.pitch {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(131, 24, 67, 0.15);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.875rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            display: none;
+            background-color: var(--error-bg);
+            border: 1px solid var(--error-border);
+            color: var(--error-text);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            margin-top: 1.25rem;
+            text-align: center;
+        }
+
+        #result {
+            display: none;
+            background-color: var(--primary-light);
+            border: 1px solid rgba(131, 24, 67, 0.2);
+            color: var(--primary);
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            margin-top: 1.25rem;
+            text-align: center;
+        }
+
+        #result .label-result {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        #result .amount-result {
+            font-size: 2.25rem;
+            font-weight: 800;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <span class="badge">WeddingTab</span>
+            <h1>Table Expense Splitter</h1>
+            <p class="pitch">Split wedding dinner bills and service charges effortlessly among guests.</p>
+        </header>
+
+        <main>
+            <div class="form-group">
+                <label for="bill">Dinner Bill Total ($)</label>
+                <input type="number" id="bill" step="0.01" min="0" placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+                <label for="tip">Service Charge / Tip (%)</label>
+                <input type="number" id="tip" step="0.1" min="0" placeholder="18">
+            </div>
+
+            <div class="form-group">
+                <label for="people">Number of Guests</label>
+                <input type="number" id="people" step="1" min="1" placeholder="1">
+            </div>
+
+            <button id="calc">Calculate Split</button>
+
+            <div id="error"></div>
+            <div id="result">
+                <div class="label-result">Per Person Share</div>
+                <div id="result-amount" class="amount-result">$0.00</div>
+            </div>
+        </main>
+
+        <footer>
+            Designed for wedding dinners and festive celebrations.
+        </footer>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const tipInput = document.getElementById('tip');
+        const calcBtn = document.getElementById('calc');
+        const resultDiv = document.getElementById('result');
+        const resultAmountDiv = document.getElementById('result-amount');
+        const errorDiv = document.getElementById('error');
+
+        function handleCalculation() {
+            const rawBill = billInput.value.trim();
+            const rawPeople = peopleInput.value.trim();
+            const rawTip = tipInput.value.trim();
+
+            // Clear previous states
+            errorDiv.style.display = 'none';
+            resultDiv.style.display = 'none';
+            errorDiv.textContent = '';
+
+            // Check if any field is completely empty
+            if (rawBill === '' || rawPeople === '' || rawTip === '') {
+                showError('Please fill out all fields before calculating.');
+                return;
+            }
+
+            const bill = Number(rawBill);
+            const people = Number(rawPeople);
+            const tip = Number(rawTip);
+
+            // Validation logic checks:
+            // 1. Bill must be >= 0 and a valid finite number
+            // 2. Tip percentage must be >= 0 and a valid finite number
+            // 3. Number of people must be a whole number strictly > 0
+            if (isNaN(bill) || bill < 0) {
+                showError('Please enter a valid bill amount greater than or equal to 0.');
+                return;
+            }
+
+            if (isNaN(tip) || tip < 0) {
+                showError('Please enter a valid tip percentage greater than or equal to 0.');
+                return;
+            }
+
+            if (!Number.isInteger(people) || people <= 0) {
+                showError('Number of guests must be a whole number greater than zero.');
+                return;
+            }
+
+            // Computation
+            const totalWithTip = bill * (1 + (tip / 100));
+            const perPerson = totalWithTip / people;
+
+            // Display result
+            resultAmountDiv.textContent = `$${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        }
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        calcBtn.addEventListener('click', handleCalculation);
+    </script>
+</body>
+</html>

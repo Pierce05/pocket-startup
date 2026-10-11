@@ -9,8 +9,8 @@
 - **Temperature:** `0.2` `[CONFIG]`
 - **Pricing Date & Source:** `2026-10-11` (Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)) `[CONFIG]`
 - **Ideas per Set:** `5` `[CONFIG]`
-- **Repeats per Idea:** `2` `[CONFIG]`
-- **Generated At:** `2026-10-11T07:40:20.349946+00:00` `[MEASURED]`
+- **Repeats per Idea:** `4` `[CONFIG]`
+- **Generated At:** `2026-10-11T09:15:38.121197+00:00` `[MEASURED]`
 - **Frozen Winner Patch (SHA-256):** `49156a5318072806...` `[CONFIG]`
 
 ### Frozen Winner Patch Text
@@ -27,48 +27,60 @@ Before performing any calculation, check every numeric input. Verify that the bi
 | Metric | Tag | Baseline | Improved | Delta / Impact |
 | :--- | :---: | :---: | :---: | :---: |
 | Ideas evaluated | `[MEASURED]` | 5 | 5 | Identical cohort |
-| Total runs (N) | `[MEASURED]` | 10 | 10 | - |
-| First-attempt passes | `[MEASURED]` | 0/10 (0.0%) | 10/10 (100.0%) | +100.0% |
-| Eventual successes | `[MEASURED]` | 9/10 (90.0%) | 10/10 (100.0%) | +10.0% |
-| Avg attempts per run | `[MEASURED]` | 2.60 | 1.00 | -1.60 |
-| Total tokens | `[MEASURED]` | 118,307 | 25,921 | -92,386 |
-| Avg tokens per run | `[MEASURED]` | 11,830.7 | 2,592.1 | -9,238.6 |
-| Total cost | `[COMPUTED]` | $0.182351 | $0.053963 | $-0.128388 |
-| Cost per success | `[COMPUTED]` | $0.020261 | $0.005396 | $-0.014865 (-73.4%) |
-| Retry tax | `[COMPUTED]` | 63.37% | 0.00% | -63.37% |
-| Median latency | `[MEASURED]` | 19.38s | 9.38s | -10.01s |
+| Total runs (N) | `[MEASURED]` | 20 | 20 | - |
+| First-attempt passes | `[MEASURED]` | 1/20 (5.0%) [CI95: 0.9%–23.6%] | 20/20 (100.0%) [CI95: 83.9%–100.0%] | +95.0% |
+| Fisher exact test (first-pass) | `[COMPUTED]` | n = 20 | n = 20 |  (p < 0.001) |
+| Eventual successes | `[MEASURED]` | 20/20 (100.0%) | 20/20 (100.0%) | +0.0% |
+| Failures by test name | `[MEASURED]` | fractional_people: 19 | None | - |
+| Avg attempts per run | `[MEASURED]` | 2.00 | 1.00 | -1.00 |
+| Input tokens (total / avg) | `[MEASURED]` | 59,215 (2,960.8/run) | 8,896 (444.8/run) | -50,319 (-2,516.0/run) |
+| Output tokens (total / avg) | `[MEASURED]` | 89,319 (4,465.9/run) | 42,174 (2,108.7/run) | -47,145 (-2,357.2/run) |
+| Total tokens (in + out) | `[MEASURED]` | 148,534 (7,426.7/run) | 51,070 (2,553.5/run) | -97,464 (-4,873.2/run) |
+| Total cost | `[COMPUTED]` | $0.241062 | $0.108104 | $-0.132958 |
+| Cost per success | `[COMPUTED]` | $0.012053 | $0.005405 | $-0.006648 (-55.2%) |
+| Retry tax (incl. autopsy) | `[COMPUTED]` | 51.60% | 0.00% | -51.60% |
+| Retry tax (excl. autopsy) | `[COMPUTED]` | 51.60% | 0.00% | -51.60% |
+| Median latency | `[MEASURED]` | 17.48s | 10.07s | -7.41s |
 
 ### Cohort 2: Held-Out Set (Genuinely Unseen)
 
 | Metric | Tag | Baseline | Improved | Delta / Impact |
 | :--- | :---: | :---: | :---: | :---: |
 | Ideas evaluated | `[MEASURED]` | 5 | 5 | Identical cohort |
-| Total runs (N) | `[MEASURED]` | 10 | 10 | - |
-| First-attempt passes | `[MEASURED]` | 2/10 (20.0%) | 8/10 (80.0%) | +60.0% |
-| Eventual successes | `[MEASURED]` | 9/10 (90.0%) | 9/10 (90.0%) | +0.0% |
-| Avg attempts per run | `[MEASURED]` | 2.30 | 1.50 | -0.80 |
-| Total tokens | `[MEASURED]` | 105,531 | 48,152 | -57,379 |
-| Avg tokens per run | `[MEASURED]` | 10,553.1 | 4,815.2 | -5,737.9 |
-| Total cost | `[COMPUTED]` | $0.167806 | $0.083805 | $-0.084001 |
-| Cost per success | `[COMPUTED]` | $0.018645 | $0.009312 | $-0.009333 (-50.1%) |
-| Retry tax | `[COMPUTED]` | 58.88% | 32.08% | -26.80% |
-| Median latency | `[MEASURED]` | 20.21s | 9.60s | -10.61s |
+| Total runs (N) | `[MEASURED]` | 20 | 20 | - |
+| First-attempt passes | `[MEASURED]` | 1/20 (5.0%) [CI95: 0.9%–23.6%] | 16/20 (80.0%) [CI95: 58.4%–91.9%] | +75.0% |
+| Fisher exact test (first-pass) | `[COMPUTED]` | n = 20 | n = 20 |  (p < 0.001) |
+| Eventual successes | `[MEASURED]` | 15/20 (75.0%) | 19/20 (95.0%) | +20.0% |
+| Failures by test name | `[MEASURED]` | fractional_people: 14, split_basic: 5 | split_basic: 4 | - |
+| Avg attempts per run | `[MEASURED]` | 2.60 | 1.45 | -1.15 |
+| Input tokens (total / avg) | `[MEASURED]` | 95,255 (4,762.8/run) | 29,643 (1,482.2/run) | -65,612 (-3,280.6/run) |
+| Output tokens (total / avg) | `[MEASURED]` | 127,459 (6,372.9/run) | 60,262 (3,013.1/run) | -67,197 (-3,359.8/run) |
+| Total tokens (in + out) | `[MEASURED]` | 222,714 (11,135.7/run) | 89,905 (4,495.2/run) | -132,809 (-6,640.5/run) |
+| Total cost | `[COMPUTED]` | $0.347224 | $0.159548 | $-0.187676 |
+| Cost per success | `[COMPUTED]` | $0.023148 | $0.008397 | $-0.014751 (-63.7%) |
+| Retry tax (incl. autopsy) | `[COMPUTED]` | 62.90% | 30.76% | -32.14% |
+| Retry tax (excl. autopsy) | `[COMPUTED]` | 62.90% | 30.76% | -32.14% |
+| Median latency | `[MEASURED]` | 20.55s | 10.68s | -9.87s |
 
 ### Combined Overall Totals
 
 | Metric | Tag | Baseline | Improved | Delta / Impact |
 | :--- | :---: | :---: | :---: | :---: |
 | Ideas evaluated | `[MEASURED]` | 10 | 10 | Identical cohort |
-| Total runs (N) | `[MEASURED]` | 20 | 20 | - |
-| First-attempt passes | `[MEASURED]` | 2/20 (10.0%) | 18/20 (90.0%) | +80.0% |
-| Eventual successes | `[MEASURED]` | 18/20 (90.0%) | 19/20 (95.0%) | +5.0% |
-| Avg attempts per run | `[MEASURED]` | 2.45 | 1.25 | -1.20 |
-| Total tokens | `[MEASURED]` | 223,838 | 74,073 | -149,765 |
-| Avg tokens per run | `[MEASURED]` | 11,191.9 | 3,703.7 | -7,488.2 |
-| Total cost | `[COMPUTED]` | $0.350157 | $0.137768 | $-0.212389 |
-| Cost per success | `[COMPUTED]` | $0.019453 | $0.007251 | $-0.012202 (-62.7%) |
-| Retry tax | `[COMPUTED]` | 61.22% | 19.52% | -41.70% |
-| Median latency | `[MEASURED]` | 20.09s | 9.48s | -10.60s |
+| Total runs (N) | `[MEASURED]` | 40 | 40 | - |
+| First-attempt passes | `[MEASURED]` | 2/40 (5.0%) [CI95: 1.4%–16.5%] | 36/40 (90.0%) [CI95: 77.0%–96.0%] | +85.0% |
+| Fisher exact test (first-pass) | `[COMPUTED]` | n = 40 | n = 40 |  (p < 0.001) |
+| Eventual successes | `[MEASURED]` | 35/40 (87.5%) | 39/40 (97.5%) | +10.0% |
+| Failures by test name | `[MEASURED]` | fractional_people: 33, split_basic: 5 | split_basic: 4 | - |
+| Avg attempts per run | `[MEASURED]` | 2.30 | 1.23 | -1.07 |
+| Input tokens (total / avg) | `[MEASURED]` | 154,470 (3,861.8/run) | 38,539 (963.5/run) | -115,931 (-2,898.3/run) |
+| Output tokens (total / avg) | `[MEASURED]` | 216,778 (5,419.4/run) | 102,436 (2,560.9/run) | -114,342 (-2,858.5/run) |
+| Total tokens (in + out) | `[MEASURED]` | 371,248 (9,281.2/run) | 140,975 (3,524.4/run) | -230,273 (-5,756.8/run) |
+| Total cost | `[COMPUTED]` | $0.588286 | $0.267652 | $-0.320634 |
+| Cost per success | `[COMPUTED]` | $0.016808 | $0.006863 | $-0.009945 (-59.2%) |
+| Retry tax (incl. autopsy) | `[COMPUTED]` | 58.27% | 18.33% | -39.94% |
+| Retry tax (excl. autopsy) | `[COMPUTED]` | 58.27% | 18.33% | -39.94% |
+| Median latency | `[MEASURED]` | 18.98s | 10.22s | -8.77s |
 
 ---
 

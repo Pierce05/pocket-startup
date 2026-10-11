@@ -1,0 +1,102 @@
+{
+  "run_id": "20261011-085146-cf2d",
+  "mode": "baseline",
+  "template": "tip_splitter",
+  "idea": "A wedding dinner table bill splitter with service charge",
+  "success": true,
+  "attempts": 3,
+  "first_attempt_passed": false,
+  "input_tokens": 7117,
+  "output_tokens": 8144,
+  "tokens": 15261,
+  "cost_usd": 0.0224951,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.000257,
+    "build": 0.0077002,
+    "retry": 0.0145379
+  },
+  "latency_s": 33.531,
+  "rails_fired": [],
+  "error": null,
+  "autopsy_error": null,
+  "first_attempt_failed_test": "fractional_people",
+  "failed_tests": [
+    "fractional_people",
+    "blank_bill"
+  ],
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 4516,
+      "tokens": 182,
+      "cost_usd": 0.000257,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 7358,
+      "tokens": 3330,
+      "cost_usd": 0.0077002,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 3391,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_2",
+      "type": "CHAIN",
+      "duration_ms": 6233,
+      "tokens": 6374,
+      "cost_usd": 0.0084572,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 2828,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_3",
+      "type": "CHAIN",
+      "duration_ms": 4484,
+      "tokens": 5375,
+      "cost_usd": 0.0060807,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 4718,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "awaiting_approval"
+}

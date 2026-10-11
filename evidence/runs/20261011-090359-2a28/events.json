@@ -1,0 +1,101 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-090359-2a28",
+      "idea": "A hairdresser tip splitter for a salon team pool",
+      "mode": "improved",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.406,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "SalonPool Tips",
+      "one_line_pitch": "Easily split and track pooled tips fairly among your salon team.",
+      "target_user": "Hairdressers and salon managers",
+      "adaptation_note": "Adapts the tip splitter template to handle salon team pools, allowing hours worked or service percentages to determine fair tip distribution.",
+      "_cost": 0.0002645,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 185
+    }
+  },
+  {
+    "t": 1.406,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002645,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 185
+    }
+  },
+  {
+    "t": 6.718,
+    "type": "code_written",
+    "data": {
+      "bytes": 7136,
+      "attempt": 1,
+      "_cost": 0.0055942,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2624
+    }
+  },
+  {
+    "t": 6.718,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0055942,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2624
+    }
+  },
+  {
+    "t": 11.047,
+    "type": "check_passed",
+    "data": {
+      "attempt": 1,
+      "console_errors": [],
+      "_cost": 0.0055942,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2624
+    }
+  },
+  {
+    "t": 11.047,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-090359-2a28",
+      "_cost": 0.0055942,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2624
+    }
+  },
+  {
+    "t": 11.047,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-090359-2a28",
+      "success": true,
+      "attempts": 1,
+      "first_attempt_passed": true,
+      "cost_usd": 0.0055942,
+      "cost_tag": "COMPUTED",
+      "tokens": 2624,
+      "latency_s": 11.047,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

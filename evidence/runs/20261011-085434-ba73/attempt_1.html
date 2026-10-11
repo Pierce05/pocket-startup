@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CabSplit - Airport Ride & Tip Splitter</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #334155;
+            --text-light: #64748b;
+            --border: #cbd5e1;
+            --error: #dc2626;
+            --error-bg: #fef2f2;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 480px;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 1.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        p.pitch {
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            color: var(--text);
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        .tip-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tip-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+
+        .tip-btn:hover, .tip-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        button#calc {
+            width: 100%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button#calc:hover {
+            background: var(--accent-hover);
+        }
+
+        #error {
+            display: none;
+            background-color: var(--error-bg);
+            color: var(--error);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            text-align: center;
+            margin-top: 1rem;
+            border: 1px solid #fecaca;
+        }
+
+        #result {
+            display: none;
+            background-color: #f0fdf4;
+            color: #166534;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            margin-top: 1rem;
+            border: 1px solid #bbf7d0;
+        }
+
+        #result .amount {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>CabSplit</h1>
+            <p class="pitch">Effortlessly split taxi fares and tips among groups sharing airport rides.</p>
+        </header>
+
+        <main>
+            <div class="form-group">
+                <label for="bill">Total Fare & Tolls ($)</label>
+                <input type="number" id="bill" placeholder="0.00" step="0.01" min="0">
+            </div>
+
+            <div class="form-group">
+                <label>Tip Percentage</label>
+                <div class="tip-buttons">
+                    <button type="button" class="tip-btn" data-tip="10">10%</button>
+                    <button type="button" class="tip-btn" data-tip="15">15%</button>
+                    <button type="button" class="tip-btn" data-tip="20">20%</button>
+                    <button type="button" class="tip-btn" data-tip="25">25%</button>
+                </div>
+                <input type="number" id="tip" placeholder="Custom tip %" step="1" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="people">Number of Passengers</label>
+                <input type="number" id="people" placeholder="1" step="1" min="1" value="1">
+            </div>
+
+            <button id="calc">Calculate Split</button>
+
+            <div id="error"></div>
+            <div id="result">
+                <div>Per Person Share</div>
+                <div class="amount" id="result-amount">$0.00</div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const tipInput = document.getElementById('tip');
+        const peopleInput = document.getElementById('people');
+        const calcBtn = document.getElementById('calc');
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+        const resultAmount = document.getElementById('result-amount');
+        const tipButtons = document.querySelectorAll('.tip-btn');
+
+        // Handle preset tip buttons
+        tipButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tipButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                tipInput.value = btn.getAttribute('data-tip');
+            });
+        });
+
+        tipInput.addEventListener('input', () => {
+            tipButtons.forEach(b => {
+                if (b.getAttribute('data-tip') !== tipInput.value) {
+                    b.classList.remove('active');
+                }
+            });
+        });
+
+        calcBtn.addEventListener('click', () => {
+            const billVal = parseFloat(billInput.value);
+            const tipVal = parseFloat(tipInput.value);
+            const peopleVal = parseInt(peopleInput.value, 10);
+
+            // Validation logic
+            let errorMessage = '';
+
+            if (isNaN(billVal) || billVal < 0) {
+                errorMessage = 'Please enter a valid total fare amount.';
+            } else if (isNaN(tipVal) || tipVal < 0) {
+                errorMessage = 'Please enter a valid tip percentage (0 or more).';
+            } else if (isNaN(peopleVal) || peopleVal <= 0 || !Number.isInteger(peopleVal)) {
+                errorMessage = 'Number of passengers must be at least 1.';
+            }
+
+            if (errorMessage) {
+                errorDiv.textContent = errorMessage;
+                errorDiv.style.display = 'block';
+                resultDiv.style.display = 'none';
+                return;
+            }
+
+            // Hide error and compute calculation
+            errorDiv.style.display = 'none';
+
+            const totalTip = billVal * (tipVal / 100);
+            const grandTotal = billVal + totalTip;
+            const perPerson = grandTotal / peopleVal;
+
+            resultAmount.textContent = `$${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SalonPool Tips</title>
+    <style>
+        :root {
+            --primary: #8e44ad;
+            --primary-hover: #732d91;
+            --bg: #fdfbfd;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --text-light: #777777;
+            --error: #c0392b;
+            --border: #e0d0e0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(142, 68, 173, 0.1);
+            width: 100%;
+            max-width: 420px;
+            padding: 30px;
+            box-sizing: border-box;
+            border: 1px solid var(--border);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin: 0 0 8px 0;
+        }
+
+        p.pitch {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            box-sizing: border-box;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            color: var(--error);
+            font-size: 0.85rem;
+            margin-top: 12px;
+            text-align: center;
+            font-weight: 500;
+            min-height: 20px;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #fcf5fd;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px dashed var(--primary);
+            display: none;
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        #result.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>SalonPool Tips</h1>
+            <p class="pitch">Easily split and distribute pooled tips fairly among your salon team.</p>
+        </header>
+
+        <div class="form-group">
+            <label for="bill">Total Bill Amount ($)</label>
+            <input type="number" id="bill" step="0.01" placeholder="e.g. 150.00">
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Tip Percentage (%)</label>
+            <input type="number" id="tip" step="0.1" placeholder="e.g. 20">
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of Team Members</label>
+            <input type="number" id="people" step="1" placeholder="e.g. 3">
+        </div>
+
+        <button id="calc">Calculate Pool Split</button>
+
+        <div id="error"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('calc').addEventListener('click', function() {
+            const billInput = document.getElementById('bill').value.trim();
+            const tipInput = document.getElementById('tip').value.trim();
+            const peopleInput = document.getElementById('people').value.trim();
+            
+            const errorEl = document.getElementById('error');
+            const resultEl = document.getElementById('result');
+
+            // Clear previous states
+            errorEl.textContent = '';
+            resultEl.textContent = '';
+            resultEl.classList.remove('visible');
+
+            // Parse inputs
+            const bill = Number(billInput);
+            const tip = Number(tipInput);
+            const people = Number(peopleInput);
+
+            // Validation checks
+            if (billInput === '' || isNaN(bill) || bill < 0) {
+                errorEl.textContent = 'Please enter a valid bill amount (0 or greater).';
+                return;
+            }
+
+            if (tipInput === '' || isNaN(tip) || tip < 0) {
+                errorEl.textContent = 'Please enter a valid tip percentage (0 or greater).';
+                return;
+            }
+
+            if (peopleInput === '' || isNaN(people) || !Number.isInteger(people) || people <= 0) {
+                errorEl.textContent = 'Please enter a valid whole number of people greater than zero.';
+                return;
+            }
+
+            // Calculation (Total Bill + Total Tip) / Number of People
+            const totalTip = bill * (tip / 100);
+            const totalAmount = bill + totalTip;
+            const perPerson = totalAmount / people;
+
+            // Display results directly inside #result to satisfy automated selectors
+            resultEl.textContent = perPerson.toFixed(2);
+            resultEl.classList.add('visible');
+        });
+    </script>
+</body>
+</html>

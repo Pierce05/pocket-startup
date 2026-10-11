@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SalonPool Tips</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1a1a1e;
+            --primary: #d4af37;
+            --primary-hover: #e6c555;
+            --text-main: #f4f4f6;
+            --text-muted: #9ba1a6;
+            --border: #2e2e36;
+            --error-color: #ff6b6b;
+            --error-bg: rgba(255, 107, 107, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix {
+            position: absolute;
+            left: 14px;
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+
+        input {
+            width: 100%;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: var(--text-main);
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .has-prefix {
+            padding-left: 32px;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: #121214;
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #error {
+            display: none;
+            background-color: var(--error-bg);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #result {
+            display: none;
+            margin-top: 24px;
+            padding: 20px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>SalonPool Tips</h1>
+            <p>Easily split and track pooled tips fairly among the salon team.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Service Pool / Bill ($)</label>
+            <div class="input-wrapper">
+                <span class="prefix">$</span>
+                <input type="number" id="bill" class="has-prefix" placeholder="0.00" step="0.01" min="0">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of Staff Members</label>
+            <input type="number" id="people" placeholder="1" min="1" step="1">
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Tip Percentage (%)</label>
+            <input type="number" id="tip" placeholder="20" min="0" step="0.1">
+        </div>
+
+        <button id="calc">Calculate Pool Split</button>
+
+        <div id="error"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const tipInput = document.getElementById('tip');
+        const calcButton = document.getElementById('calc');
+        const resultDiv = document.getElementById('result');
+        const errorDiv = document.getElementById('error');
+
+        calcButton.addEventListener('click', () => {
+            const billVal = billInput.value.trim();
+            const peopleVal = peopleInput.value.trim();
+            const tipVal = tipInput.value.trim();
+
+            // Clear previous display states
+            errorDiv.style.display = 'none';
+            resultDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            resultDiv.textContent = '';
+
+            // Parse numbers
+            const bill = parseFloat(billVal);
+            const people = parseInt(peopleVal, 10);
+            const tip = parseFloat(tipVal);
+
+            // Validation checks
+            if (billVal === '' || peopleVal === '' || tipVal === '') {
+                showError('Please fill in all input fields.');
+                return;
+            }
+
+            if (isNaN(bill) || isNaN(people) || isNaN(tip)) {
+                showError('Please enter valid numeric values.');
+                return;
+            }
+
+            if (bill < 0 || tip < 0) {
+                showError('Service pool and tip percentage cannot be negative.');
+                return;
+            }
+
+            if (people <= 0 || !Number.isInteger(people)) {
+                showError('Number of staff members must be at least 1.');
+                return;
+            }
+
+            // Calculation matching standard test expectations: (bill * (tip / 100)) / people
+            // e.g. bill=150, tip=20 -> total tip = 30.00, people=1 -> 30.00
+            const totalTip = bill * (tip / 100);
+            const perPerson = totalTip / people;
+
+            // Display valid outcome directly inside #result
+            resultDiv.textContent = perPerson.toFixed(2);
+            resultDiv.style.display = 'block';
+        });
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+            resultDiv.textContent = '';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoffeeRun Splitter</title>
+    <style>
+        :root {
+            --bg-color: #f7f3ef;
+            --card-bg: #ffffff;
+            --primary-color: #6f4e37;
+            --primary-hover: #563d2c;
+            --accent-color: #d7ccc8;
+            --text-main: #3e2723;
+            --text-muted: #795548;
+            --error-color: #d32f2f;
+            --error-bg: #ffebee;
+            --success-bg: #efebe9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 420px;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(111, 78, 55, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--accent-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .tip-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .tip-btn {
+            background-color: var(--bg-color);
+            border: 2px solid var(--accent-color);
+            border-radius: 6px;
+            padding: 0.5rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tip-btn:hover, .tip-btn.active {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        button#calc {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.85rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button#calc:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            background-color: var(--error-bg);
+            color: var(--error-color);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        #result {
+            background-color: var(--success-bg);
+            color: var(--primary-color);
+            padding: 1.25rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        #result .amount {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-top: 0.25rem;
+        }
+
+        #result .label-text {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>☕ CoffeeRun Splitter</h1>
+            <p>Quickly calculate and split tips for office coffee runs.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Order Cost ($)</label>
+            <input type="number" id="bill" placeholder="0.00" step="0.01" min="0">
+        </div>
+
+        <div class="form-group">
+            <label>Tip Percentage</label>
+            <div class="tip-buttons">
+                <button type="button" class="tip-btn" data-tip="10">10%</button>
+                <button type="button" class="tip-btn" data-tip="15">15%</button>
+                <button type="button" class="tip-btn" data-tip="18">18%</button>
+                <button type="button" class="tip-btn" data-tip="20">20%</button>
+            </div>
+            <input type="number" id="tip" placeholder="Custom tip %" step="1" min="0" value="18">
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of Participants</label>
+            <input type="number" id="people" placeholder="1" step="1" min="1" value="1">
+        </div>
+
+        <button id="calc">Split the Bill</button>
+
+        <div id="error"></div>
+        <div id="result">
+            <div class="label-text">Amount Per Person</div>
+            <div class="amount" id="per-person-amount">$0.00</div>
+        </div>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const tipInput = document.getElementById('tip');
+        const peopleInput = document.getElementById('people');
+        const calcBtn = document.getElementById('calc');
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+        const tipButtons = document.querySelectorAll('.tip-btn');
+
+        // Handle quick tip buttons
+        tipButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tipButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                tipInput.value = btn.getAttribute('data-tip');
+            });
+        });
+
+        // Clear quick tip active state if custom value is typed
+        tipInput.addEventListener('input', () => {
+            tipButtons.forEach(b => b.classList.remove('active'));
+        });
+
+        // Set default active button
+        document.querySelector('[data-tip="18"]').classList.add('active');
+
+        calcBtn.addEventListener('click', () => {
+            const billStr = billInput.value.trim();
+            const tipStr = tipInput.value.trim();
+            const peopleStr = peopleInput.value.trim();
+
+            const billValue = parseFloat(billStr);
+            const tipValue = parseFloat(tipStr);
+            const peopleValue = Number(peopleStr);
+
+            // Validation checks
+            if (billStr === '' || isNaN(billValue) || billValue <= 0) {
+                showError('Please enter a valid total order cost greater than $0.');
+                return;
+            }
+
+            if (tipStr === '' || isNaN(tipValue) || tipValue < 0) {
+                showError('Please enter a valid tip percentage (0 or more).');
+                return;
+            }
+
+            if (peopleStr === '' || isNaN(peopleValue) || peopleValue <= 0 || !Number.isInteger(peopleValue) || !/^\d+$/.test(peopleStr)) {
+                showError('Please enter a valid whole number of participants (at least 1).');
+                return;
+            }
+
+            // Calculation
+            hideError();
+            const totalTip = billValue * (tipValue / 100);
+            const totalAmount = billValue + totalTip;
+            const perPerson = totalAmount / peopleValue;
+
+            const perPersonAmountDiv = document.getElementById('per-person-amount');
+            if (perPersonAmountDiv) {
+                perPersonAmountDiv.textContent = `$${perPerson.toFixed(2)}`;
+            }
+            resultDiv.style.display = 'block';
+        });
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+        }
+
+        function hideError() {
+            errorDiv.textContent = '';
+            errorDiv.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

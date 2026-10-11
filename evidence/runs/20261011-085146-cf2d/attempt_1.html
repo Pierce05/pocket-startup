@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeddingTab - Wedding Dinner Bill & Service Splitter</title>
+    <style>
+        :root {
+            --primary: #8a4f7d;
+            --primary-hover: #733e68;
+            --bg-color: #fdfbfd;
+            --card-bg: #ffffff;
+            --text-color: #2c2c2c;
+            --border-color: #e2d7e0;
+            --error-color: #c93b3b;
+            --success-color: #388a44;
+            --radius: 12px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px rgba(138, 79, 125, 0.08);
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        header h1 {
+            margin: 0 0 8px 0;
+            color: var(--primary);
+            font-size: 26px;
+        }
+
+        header p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .items-section {
+            margin-bottom: 20px;
+            background: #faf7f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .items-section h3 {
+            margin: 0 0 10px 0;
+            font-size: 15px;
+            color: var(--primary);
+        }
+
+        .item-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .item-row input {
+            flex: 2;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .item-row input.item-price {
+            flex: 1;
+        }
+
+        button {
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px dashed var(--primary);
+            color: var(--primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #f4edf3;
+        }
+
+        .btn-danger {
+            background: transparent;
+            border: none;
+            color: var(--error-color);
+            font-size: 16px;
+            padding: 0 8px;
+        }
+
+        #calc {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+
+        #calc:hover {
+            background: var(--primary-hover);
+        }
+
+        #error {
+            margin-top: 15px;
+            color: var(--error-color);
+            background: #fdf2f2;
+            border: 1px solid #f8d7da;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            margin-top: 20px;
+            background: #f4edf3;
+            border: 1px solid #e1cce0;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        #result h2 {
+            margin: 0 0 5px 0;
+            color: var(--primary);
+            font-size: 28px;
+        }
+
+        #result p {
+            margin: 0;
+            color: #555;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>WeddingTab</h1>
+        <p>Easily split wedding dinner bills and custom service charges among guests.</p>
+    </header>
+
+    <div class="items-section">
+        <h3>Shared Table Orders</h3>
+        <div id="items-container">
+            <div class="item-row">
+                <input type="text" placeholder="Item name (e.g. Champagne)" value="Main Course" />
+                <input type="number" class="item-price" placeholder="Price" value="120.00" min="0" step="0.01" />
+                <button type="button" class="btn-danger" onclick="removeItem(this)">×</button>
+            </div>
+        </div>
+        <button type="button" class="btn-secondary" onclick="addItem()">+ Add another item</button>
+    </div>
+
+    <div class="form-group">
+        <label for="bill">Or Base Bill Amount ($)</label>
+        <input type="number" id="bill" placeholder="0.00" min="0" step="0.01" value="" />
+    </div>
+
+    <div class="form-group">
+        <label for="tip">Venue Service Charge / Tip (%)</label>
+        <input type="number" id="tip" placeholder="18" value="18" min="0" step="0.1" />
+    </div>
+
+    <div class="form-group">
+        <label for="people">Number of Guests</label>
+        <input type="number" id="people" placeholder="2" value="2" min="1" step="1" />
+    </div>
+
+    <button id="calc" type="button" onclick="calculateSplit()">Calculate Split</button>
+
+    <div id="error"></div>
+    <div id="result">
+        <h2 id="result-amount">$0.00</h2>
+        <p>per guest</p>
+    </div>
+</div>
+
+<script>
+    function addItem() {
+        const container = document.getElementById('items-container');
+        const row = document.createElement('div');
+        row.className = 'item-row';
+        row.innerHTML = `
+            <input type="text" placeholder="Item name" />
+            <input type="number" class="item-price" placeholder="Price" min="0" step="0.01" />
+            <button type="button" class="btn-danger" onclick="removeItem(this)">×</button>
+        `;
+        container.appendChild(row);
+    }
+
+    function removeItem(btn) {
+        const rows = document.querySelectorAll('.item-row');
+        if (rows.length > 1) {
+            btn.parentElement.remove();
+        } else {
+            // Clear inputs instead of deleting last row
+            btn.parentElement.querySelector('input[type="text"]').value = '';
+            btn.parentElement.querySelector('.item-price').value = '';
+        }
+    }
+
+    function calculateSplit() {
+        const errorEl = document.getElementById('error');
+        const resultEl = document.getElementById('result');
+        const resultAmountEl = document.getElementById('result-amount');
+
+        errorEl.style.display = 'none';
+        resultEl.style.display = 'none';
+        errorEl.textContent = '';
+
+        // Gather input values
+        const billInput = document.getElementById('bill').value.trim();
+        const tipInput = document.getElementById('tip').value.trim();
+        const peopleInput = document.getElementById('people').value.trim();
+
+        // Calculate total from itemized rows
+        let itemizedTotal = 0;
+        let hasItemErrors = false;
+        const priceInputs = document.querySelectorAll('.item-price');
+        priceInputs.forEach(input => {
+            const val = input.value.trim();
+            if (val !== '') {
+                const num = parseFloat(val);
+                if (isNaN(num) || num < 0) {
+                    hasItemErrors = true;
+                } else {
+                    itemizedTotal += num;
+                }
+            }
+        });
+
+        if (hasItemErrors) {
+            errorEl.textContent = "Please enter valid positive numbers for all item prices.";
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        // Base bill logic: if explicit base bill is entered, use it; otherwise use itemized total
+        let baseAmount = 0;
+        if (billInput !== '') {
+            const parsedBill = parseFloat(billInput);
+            if (isNaN(parsedBill) || parsedBill < 0) {
+                errorEl.textContent = "Please enter a valid positive base bill amount.";
+                errorEl.style.display = 'block';
+                return;
+            }
+            baseAmount = parsedBill;
+        } else {
+            baseAmount = itemizedTotal;
+        }
+
+        // Parse Tip %
+        let tipPercent = 0;
+        if (tipInput !== '') {
+            tipPercent = parseFloat(tipInput);
+            if (isNaN(tipPercent) || tipPercent < 0) {
+                errorEl.textContent = "Please enter a valid service charge percentage.";
+                errorEl.style.display = 'block';
+                return;
+            }
+        }
+
+        // Parse People
+        if (peopleInput === '') {
+            errorEl.textContent = "Please enter the number of guests.";
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        const peopleCount = parseInt(peopleInput, 10);
+        if (isNaN(peopleCount) || peopleCount <= 0) {
+            errorEl.textContent = "Number of guests must be at least 1.";
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        // Final calculation
+        const tipAmount = baseAmount * (tipPercent / 100);
+        const totalAmount = baseAmount + tipAmount;
+        const perPerson = totalAmount / peopleCount;
+
+        if (!isFinite(perPerson) || perPerson < 0) {
+            errorEl.textContent = "Could not compute a valid split amount with current inputs.";
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        // Display success result
+        resultAmountEl.textContent = `$${perPerson.toFixed(2)}`;
+        resultEl.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
