@@ -1,0 +1,10 @@
+{
+  "failed_span": "acceptance_check",
+  "root_cause": "The application failed to validate fractional people inputs, resulting in a successful calculation output instead of displaying an error message.",
+  "evidence": [
+    "Test 'fractional_people' expected '#error visible with a message and #result not visible or empty'",
+    "Actual result showed '#error visible=False, #result visible_content='$60.00''"
+  ],
+  "recommended_prompt_change": "Ensure validation logic checks that the number of people input is a whole integer and displays an error message for fractional values.",
+  "confidence": "high"
+}

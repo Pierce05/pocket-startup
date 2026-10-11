@@ -1,0 +1,11 @@
+{
+  "failed_span": "acceptance_check",
+  "root_cause": "The validation logic failed to check if the number of roommates input contains fractional values, allowing invalid non-integer inputs to calculate results instead of triggering an error.",
+  "evidence": [
+    "test: \"fractional_people\"",
+    "expected: \"#error visible with a message and #result not visible or empty\"",
+    "actual: \"#error visible=False, #result visible_content='Each roommate owes:\\n$60.00'\""
+  ],
+  "recommended_prompt_change": "Ensure validation checks that the number of roommates input is a whole number using Number.isInteger() and displays an error message if fractional people are entered.",
+  "confidence": "high"
+}

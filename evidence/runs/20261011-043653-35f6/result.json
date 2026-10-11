@@ -1,0 +1,88 @@
+{
+  "run_id": "20261011-043653-35f6",
+  "mode": "baseline",
+  "template": "tip_splitter",
+  "idea": "A bar tab splitter for a night out with coworkers",
+  "success": true,
+  "attempts": 2,
+  "first_attempt_passed": false,
+  "input_tokens": 6175,
+  "output_tokens": 6275,
+  "tokens": 12450,
+  "cost_usd": 0.01754,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.0002723,
+    "build": 0.007547,
+    "autopsy": 0.0012106,
+    "retry": 0.0085101
+  },
+  "latency_s": 21.047,
+  "rails_fired": [],
+  "error": null,
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 922,
+      "tokens": 189,
+      "cost_usd": 0.0002723,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 6905,
+      "tokens": 3274,
+      "cost_usd": 0.007547,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 1875,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "autopsy",
+      "type": "CHAIN",
+      "duration_ms": 1531,
+      "tokens": 2642,
+      "cost_usd": 0.0012106,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_2",
+      "type": "CHAIN",
+      "duration_ms": 6827,
+      "tokens": 6345,
+      "cost_usd": 0.0085101,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 2984,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "awaiting_approval"
+}

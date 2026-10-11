@@ -1,0 +1,174 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-043853-7760",
+      "idea": "A taxi fare and tip splitter for a group airport ride",
+      "mode": "baseline",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 8.531,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "CabSplit",
+      "one_line_pitch": "Easily split taxi fares and tips among friends after a group airport ride.",
+      "target_user": "Frequent travelers who share cabs to and from the airport.",
+      "adaptation_note": "Repurposed the tip and bill calculation logic to account for a shared base taxi fare plus driver tip divided among multiple passengers.",
+      "_cost": 0.0002801,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 193
+    }
+  },
+  {
+    "t": 8.531,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002801,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 193
+    }
+  },
+  {
+    "t": 13.25,
+    "type": "code_written",
+    "data": {
+      "bytes": 6716,
+      "attempt": 1,
+      "_cost": 0.0053805,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2491
+    }
+  },
+  {
+    "t": 13.25,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0053805,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2491
+    }
+  },
+  {
+    "t": 15.641,
+    "type": "check_failed",
+    "data": {
+      "attempt": 1,
+      "test": "fractional_people",
+      "expected": "#error visible with a message and #result not visible or empty",
+      "actual": "#error visible=False, #result visible_content='PER PERSON SHARE\\n$60.00'",
+      "console_errors": [],
+      "_cost": 0.0053805,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2491
+    }
+  },
+  {
+    "t": 17.844,
+    "type": "autopsy",
+    "data": {
+      "failed_span": "acceptance_check",
+      "root_cause": "The application failed to display an error message and instead calculated a result when fractional or invalid people values were provided.",
+      "evidence": [
+        "expected: '#error visible with a message and #result not visible or empty'",
+        "actual: '#error visible=False, #result visible_content=\\'PER PERSON SHARE\\\\n$60.00\\''"
+      ],
+      "recommended_prompt_change": "Ensure validation logic correctly detects and handles non-integer or fractional values for the number of passengers by checking if the value is an integer.",
+      "confidence": "high",
+      "_cost": 0.0064617,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 4995
+    }
+  },
+  {
+    "t": 17.844,
+    "type": "retry",
+    "data": {
+      "next": 2,
+      "_cost": 0.0064617,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 4995
+    }
+  },
+  {
+    "t": 17.844,
+    "type": "attempt_started",
+    "data": {
+      "n": 2,
+      "of": 4,
+      "_cost": 0.0064617,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 4995
+    }
+  },
+  {
+    "t": 22.203,
+    "type": "code_written",
+    "data": {
+      "bytes": 6705,
+      "attempt": 2,
+      "_cost": 0.0121195,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 9349
+    }
+  },
+  {
+    "t": 22.203,
+    "type": "check_started",
+    "data": {
+      "attempt": 2,
+      "_cost": 0.0121195,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 9349
+    }
+  },
+  {
+    "t": 28.859,
+    "type": "check_passed",
+    "data": {
+      "attempt": 2,
+      "console_errors": [],
+      "_cost": 0.0121195,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 9349
+    }
+  },
+  {
+    "t": 28.859,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-043853-7760",
+      "_cost": 0.0121195,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 9349
+    }
+  },
+  {
+    "t": 28.859,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-043853-7760",
+      "success": true,
+      "attempts": 2,
+      "first_attempt_passed": false,
+      "cost_usd": 0.0121195,
+      "cost_tag": "COMPUTED",
+      "tokens": 9349,
+      "latency_s": 28.859,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

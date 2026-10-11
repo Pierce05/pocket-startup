@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CabSplit - Airport Ride & Fare Splitter</title>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --bg: #f0f9ff;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-light: #64748b;
+            --error: #dc2626;
+            --error-bg: #fef2f2;
+            --success: #16a34a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            color: var(--primary-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .header p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix {
+            position: absolute;
+            left: 1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .has-prefix {
+            padding-left: 2rem;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        .row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .row .form-group {
+            flex: 1;
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.85rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        #error {
+            display: none;
+            background-color: var(--error-bg);
+            color: var(--error);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 1rem;
+            border: 1px solid #fecaca;
+        }
+
+        #result-container {
+            display: none;
+            margin-top: 1.5rem;
+            background: var(--bg);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #e0f2fe;
+        }
+
+        #result-container h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+        }
+
+        #result {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>🚖 CabSplit</h1>
+            <p>Easily split taxi fares and tips among friends</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Fare & Tolls ($)</label>
+            <div class="input-wrapper">
+                <span class="prefix">$</span>
+                <input type="number" id="bill" class="has-prefix" placeholder="0.00" step="0.01" min="0">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label for="tip">Tip Percentage (%)</label>
+                <input type="number" id="tip" placeholder="15" step="1" min="0" value="15">
+            </div>
+            <div class="form-group">
+                <label for="people">Passengers</label>
+                <input type="number" id="people" placeholder="2" step="1" min="1" value="2">
+            </div>
+        </div>
+
+        <button id="calc">Calculate Split</button>
+
+        <div id="error"></div>
+
+        <div id="result-container">
+            <h3>Per Person Total</h3>
+            <div id="result"></div>
+        </div>
+
+        <div class="footer-note">
+            Airport Group Rides • Base Fare + Tolls + Tip
+        </div>
+    </div>
+
+    <script>
+        const calcBtn = document.getElementById('calc');
+        const billInput = document.getElementById('bill');
+        const tipInput = document.getElementById('tip');
+        const peopleInput = document.getElementById('people');
+        const resultDiv = document.getElementById('result');
+        const errorDiv = document.getElementById('error');
+        const resultContainer = document.getElementById('result-container');
+
+        calcBtn.addEventListener('click', () => {
+            const billStr = billInput.value.trim();
+            const tipStr = tipInput.value.trim();
+            const peopleStr = peopleInput.value.trim();
+
+            const billVal = parseFloat(billStr);
+            const tipVal = parseFloat(tipStr);
+            const peopleVal = Number(peopleStr);
+
+            // Validation checks
+            if (billStr === '' || isNaN(billVal) || billVal < 0) {
+                showError('Please enter a valid total fare amount.');
+                return;
+            }
+            if (tipStr === '' || isNaN(tipVal) || tipVal < 0) {
+                showError('Please enter a valid tip percentage.');
+                return;
+            }
+            if (peopleStr === '' || isNaN(peopleVal) || !Number.isInteger(peopleVal) || peopleVal < 1) {
+                showError('Number of passengers must be at least 1 whole person.');
+                return;
+            }
+
+            // Calculation
+            const tipAmount = billVal * (tipVal / 100);
+            const totalAmount = billVal + tipAmount;
+            const perPerson = totalAmount / peopleVal;
+
+            // Display results
+            errorDiv.style.display = 'none';
+            resultContainer.style.display = 'block';
+            resultDiv.textContent = `$${perPerson.toFixed(2)}`;
+        });
+
+        function showError(message) {
+            resultContainer.style.display = 'none';
+            resultDiv.textContent = '';
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "failed_span": "acceptance_check",
+  "root_cause": "The application allowed fractional or invalid people input because the validation logic was truncated or missing from the implementation.",
+  "evidence": [
+    "Test name: \"fractional_people\"",
+    "Expected: \"#error visible with a message and #result not visible or empty\"",
+    "Actual: \"#error visible=False, #result visible_content='PER PERSON SHARE\\n$60.00'\""
+  ],
+  "recommended_prompt_change": "Ensure integer validation is explicitly implemented for the number of people input field so that fractional values trigger the error display instead of calculating a result.",
+  "confidence": "high"
+}

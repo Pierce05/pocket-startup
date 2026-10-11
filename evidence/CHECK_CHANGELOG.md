@@ -27,3 +27,31 @@
 All runs executed before this changelog (including Gate G1 smoke runs such as `20261011-035932-b372`):
 - **Retained as Evidence:** The run artifacts (`result.json`, `events.json`, `index.html`, `attempt_*.html`, `autopsy.json`) are preserved under `evidence/runs/` as permanent records of system behavior, check semantics, and drift patterns.
 - **Excluded from A/B Statistics:** Because these runs were evaluated under the pre-fix check semantics (hidden DOM text counted as non-empty result) and experienced stateless retry drift, they MUST be excluded from all baseline and improved A/B statistical comparisons.
+
+---
+
+## 2026-10-11 10:05 IST: Stage 1e Spec-Derived Acceptance Suite Hardening
+
+### 1. Spec Extension in Template Notes (`agent/templates.py`)
+- **Change:** Extended `tip_splitter` template notes with general sentences only:
+  > "Invalid input (anything for which a per-person amount cannot be meaningfully computed) must show a message in #error and leave #result empty or hidden. Valid input must show the per-person amount in #result with two decimals and hide #error."
+- **Reason:** Every acceptance check must trace directly to a specification sentence in the template notes, without listing specific edge cases or secretly making the spec harder than what a careful human reviewer expects.
+
+### 2. Broadened Playwright Acceptance Suite (`agent/checks.py`)
+- **Change:** Expanded `check_tip_splitter` to cover:
+  - **Invalid inputs:** empty bill (`blank_bill`), negative bill (`negative_bill`), negative tip (`negative_tip`), zero people (`zero_people`), negative people (`negative_people`), fractional people (`fractional_people`, e.g. 2.5), and non-numeric bill (`non_numeric_bill`).
+  - **Valid inputs:** basic split (`split_basic`: 100 / 4 / 20 -> 30.00), zero tip fractional (`split_zero_tip_fractional`: 100 / 3 / 0 -> 33.33), valid after invalid (`invalid_then_valid`: invalid calculation followed by valid calculation hides #error and shows correct #result), and consecutive valid updates (`two_valid_in_a_row`: sequential valid calculations update #result).
+  - Added helper `_expect_valid` ensuring valid calculations show the two-decimal amount in `#result`, `#result` is visible, and `#error` is hidden.
+- **Reason:** Hardens the acceptance suite against common arithmetic edge cases (fractional and negative denominators) and ensures state transitions (invalid-to-valid and valid-to-valid) update DOM state cleanly.
+
+### 3. Fixtures for New Invalid Cases (`tests/fixtures/`)
+- **Fixtures added:**
+  - `bad_negative_bill.html`: omits negative bill check (verifies failure on `negative_bill`).
+  - `bad_negative_people.html`: checks only `people === 0` (verifies failure on `negative_people`).
+  - `bad_fractional_people.html`: omits integer check (verifies failure on `fractional_people`).
+- **Good fixture verification:** Confirmed that `tests/fixtures/good_tip.html` passes all new and existing tests in the suite.
+
+### 4. Statistical Exclusion Notice
+All runs executed before this change (including Gate G1 runs and any runs prior to 2026-10-11 10:05 IST):
+- **Retained as Evidence:** Run artifacts remain in `evidence/runs/`.
+- **Excluded from A/B Statistics:** Excluded from A/B metrics because they were evaluated against the narrower acceptance suite before Stage 1e hardening.

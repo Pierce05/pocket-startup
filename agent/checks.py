@@ -105,24 +105,70 @@ def _expect_invalid(page, url, test, bill, people, tip):
         )
 
 
+def _expect_valid(page, test, expected_val):
+    if _err_visible(page):
+        raise _Fail(test, f"#error hidden and #result contains {expected_val}", f"#error visible: {_text(page, '#error')!r}")
+    if not page.is_visible("#result"):
+        raise _Fail(test, f"#result visible and contains {expected_val}", "#result is not visible")
+    got = _text(page, "#result")
+    if expected_val not in got:
+        raise _Fail(test, f"#result contains {expected_val}", f"#result={got!r}")
+
+
 def check_tip_splitter(page, url):
-    with _step("split_basic", "#result contains 30.00 (bill 100, 4 people, 20% tip)"):
+    with _step("split_basic", "#result contains 30.00 and #error hidden (bill 100, 4 people, 20% tip)"):
         _tip_case(page, url, 100, 4, 20)
-        got = _text(page, "#result")
-        if "30.00" not in got:
-            raise _Fail("split_basic", "#result contains 30.00 (bill 100, 4 people, 20% tip)", f"#result={got!r}")
+        _expect_valid(page, "split_basic", "30.00")
+
+    with _step("split_zero_tip_fractional", "#result contains 33.33 and #error hidden (bill 100, 3 people, 0% tip)"):
+        _tip_case(page, url, 100, 3, 0)
+        _expect_valid(page, "split_zero_tip_fractional", "33.33")
 
     with _step("zero_people", "#error visible with message and #result not visible or empty"):
         _expect_invalid(page, url, "zero_people", 100, 0, 20)
 
+    with _step("negative_bill", "#error visible with message and #result not visible or empty"):
+        _expect_invalid(page, url, "negative_bill", -10, 4, 20)
+
     with _step("negative_tip", "#error visible with message and #result not visible or empty"):
         _expect_invalid(page, url, "negative_tip", 100, 4, -5)
+
+    with _step("negative_people", "#error visible with message and #result not visible or empty"):
+        _expect_invalid(page, url, "negative_people", 100, -2, 20)
+
+    with _step("fractional_people", "#error visible with message and #result not visible or empty"):
+        _expect_invalid(page, url, "fractional_people", 100, 2.5, 20)
 
     with _step("blank_bill", "#error visible with message and #result not visible or empty"):
         _expect_invalid(page, url, "blank_bill", "", 4, 10)
 
     with _step("non_numeric_bill", "#error visible with message and #result not visible or empty"):
         _expect_invalid(page, url, "non_numeric_bill", "abc", 4, 10)
+
+    with _step("invalid_then_valid", "valid calculation after invalid hides #error and shows 30.00 in #result"):
+        page.goto(url)
+        _set(page, "#bill", 100)
+        _set(page, "#people", 0)
+        _set(page, "#tip", 20)
+        _click(page, "#calc")
+        if not _err_visible(page):
+            raise _Fail("invalid_then_valid", "invalid input shows #error", f"#error visible={_err_visible(page)}")
+        _set(page, "#people", 4)
+        _click(page, "#calc")
+        _expect_valid(page, "invalid_then_valid", "30.00")
+
+    with _step("two_valid_in_a_row", "two valid calculations in a row update #result"):
+        page.goto(url)
+        _set(page, "#bill", 100)
+        _set(page, "#people", 4)
+        _set(page, "#tip", 20)
+        _click(page, "#calc")
+        _expect_valid(page, "two_valid_in_a_row", "30.00")
+        _set(page, "#bill", 50)
+        _set(page, "#people", 2)
+        _set(page, "#tip", 0)
+        _click(page, "#calc")
+        _expect_valid(page, "two_valid_in_a_row", "25.00")
 
 
 # ---- T2 Habit Tracker --------------------------------------------------------------------------------

@@ -1,0 +1,88 @@
+{
+  "run_id": "20261011-043610-3f24",
+  "mode": "baseline",
+  "template": "tip_splitter",
+  "idea": "A tip splitter for friends sharing a restaurant bill",
+  "success": true,
+  "attempts": 2,
+  "first_attempt_passed": false,
+  "input_tokens": 5853,
+  "output_tokens": 5660,
+  "tokens": 11513,
+  "cost_usd": 0.0159059,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.0002545,
+    "build": 0.0069899,
+    "autopsy": 0.0010837,
+    "retry": 0.0075778
+  },
+  "latency_s": 22.406,
+  "rails_fired": [],
+  "error": null,
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 3297,
+      "tokens": 181,
+      "cost_usd": 0.0002545,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 5625,
+      "tokens": 3045,
+      "cost_usd": 0.0069899,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 2280,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "autopsy",
+      "type": "CHAIN",
+      "duration_ms": 1594,
+      "tokens": 2549,
+      "cost_usd": 0.0010837,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_2",
+      "type": "CHAIN",
+      "duration_ms": 6561,
+      "tokens": 5738,
+      "cost_usd": 0.0075778,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 3047,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "awaiting_approval"
+}

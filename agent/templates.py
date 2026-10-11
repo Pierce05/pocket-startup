@@ -15,7 +15,8 @@ TEMPLATES = {
         "Split a bill plus tip between several people.",
         ("#bill", "#people", "#tip", "#calc", "#result", "#error"),
         "#tip is a percentage. Clicking #calc shows the per-person amount with two decimals in #result. "
-        "Invalid input must show a message in #error and leave #result empty.",
+        "Invalid input (anything for which a per-person amount cannot be meaningfully computed) must show a message in #error and leave #result empty or hidden. "
+        "Valid input must show the per-person amount in #result with two decimals and hide #error.",
     ),
     "habit_tracker": Template(
         "habit_tracker",

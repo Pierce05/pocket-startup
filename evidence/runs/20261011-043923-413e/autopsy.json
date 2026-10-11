@@ -1,0 +1,11 @@
+{
+  "failed_span": "acceptance_check",
+  "root_cause": "The validation logic failed to check if the number of guests is a whole integer, allowing fractional people values to calculate a result instead of showing an error.",
+  "evidence": [
+    "Test: fractional_people",
+    "Expected: #error visible with a message and #result not visible or empty",
+    "Actual: #error visible=False, #result visible_content='AMOUNT PER GUEST\\n$60.00'"
+  ],
+  "recommended_prompt_change": "Ensure validation logic checks that the number of guests is a whole integer (e.g., using Number.isInteger) and displays an error if fractional values are provided.",
+  "confidence": "high"
+}

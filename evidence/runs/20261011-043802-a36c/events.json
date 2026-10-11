@@ -1,0 +1,175 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-043802-a36c",
+      "idea": "A tool for roommates to split a shared grocery receipt including a tip for delivery",
+      "mode": "baseline",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.188,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "GrocySplit",
+      "one_line_pitch": "Easily split shared grocery receipts and delivery tips among roommates.",
+      "target_user": "Roommates sharing grocery orders and delivery services",
+      "adaptation_note": "Adapted the tip calculator and bill-splitting mechanics to handle grocery items and delivery service fees among multiple roommates.",
+      "_cost": 0.0002613,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 189
+    }
+  },
+  {
+    "t": 1.188,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002613,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 189
+    }
+  },
+  {
+    "t": 6.094,
+    "type": "code_written",
+    "data": {
+      "bytes": 6909,
+      "attempt": 1,
+      "_cost": 0.0053393,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2471
+    }
+  },
+  {
+    "t": 6.094,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0053393,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2471
+    }
+  },
+  {
+    "t": 8.078,
+    "type": "check_failed",
+    "data": {
+      "attempt": 1,
+      "test": "fractional_people",
+      "expected": "#error visible with a message and #result not visible or empty",
+      "actual": "#error visible=False, #result visible_content='Each roommate owes:\\n$60.00'",
+      "console_errors": [],
+      "_cost": 0.0053393,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2471
+    }
+  },
+  {
+    "t": 9.797,
+    "type": "autopsy",
+    "data": {
+      "failed_span": "acceptance_check",
+      "root_cause": "The validation logic failed to check if the number of roommates input contains fractional values, allowing invalid non-integer inputs to calculate results instead of triggering an error.",
+      "evidence": [
+        "test: \"fractional_people\"",
+        "expected: \"#error visible with a message and #result not visible or empty\"",
+        "actual: \"#error visible=False, #result visible_content='Each roommate owes:\\n$60.00'\""
+      ],
+      "recommended_prompt_change": "Ensure validation checks that the number of roommates input is a whole number using Number.isInteger() and displays an error message if fractional people are entered.",
+      "confidence": "high",
+      "_cost": 0.006464,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 4944
+    }
+  },
+  {
+    "t": 9.797,
+    "type": "retry",
+    "data": {
+      "next": 2,
+      "_cost": 0.006464,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 4944
+    }
+  },
+  {
+    "t": 9.797,
+    "type": "attempt_started",
+    "data": {
+      "n": 2,
+      "of": 4,
+      "_cost": 0.006464,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 4944
+    }
+  },
+  {
+    "t": 14.828,
+    "type": "code_written",
+    "data": {
+      "bytes": 7318,
+      "attempt": 2,
+      "_cost": 0.0122938,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 9336
+    }
+  },
+  {
+    "t": 14.828,
+    "type": "check_started",
+    "data": {
+      "attempt": 2,
+      "_cost": 0.0122938,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 9336
+    }
+  },
+  {
+    "t": 17.782,
+    "type": "check_passed",
+    "data": {
+      "attempt": 2,
+      "console_errors": [],
+      "_cost": 0.0122938,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 9336
+    }
+  },
+  {
+    "t": 17.782,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-043802-a36c",
+      "_cost": 0.0122938,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 9336
+    }
+  },
+  {
+    "t": 17.782,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-043802-a36c",
+      "success": true,
+      "attempts": 2,
+      "first_attempt_passed": false,
+      "cost_usd": 0.0122938,
+      "cost_tag": "COMPUTED",
+      "tokens": 9336,
+      "latency_s": 17.782,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

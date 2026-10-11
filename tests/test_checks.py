@@ -38,6 +38,27 @@ async def test_visible_zero_result_fails():
 
 
 @needs_browser
+async def test_bad_negative_bill_fails():
+    r = await checks.run(T1, FIX / "bad_negative_bill.html")
+    assert not r.passed
+    assert r.test == "negative_bill"
+
+
+@needs_browser
+async def test_bad_negative_people_fails():
+    r = await checks.run(T1, FIX / "bad_negative_people.html")
+    assert not r.passed
+    assert r.test == "negative_people"
+
+
+@needs_browser
+async def test_bad_fractional_people_fails():
+    r = await checks.run(T1, FIX / "bad_fractional_people.html")
+    assert not r.passed
+    assert r.test == "fractional_people"
+
+
+@needs_browser
 async def test_missing_required_ids_fails(tmp_path):
     p = tmp_path / "index.html"
     p.write_text(

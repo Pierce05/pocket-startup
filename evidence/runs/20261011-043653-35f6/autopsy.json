@@ -1,0 +1,11 @@
+{
+  "failed_span": "acceptance_check",
+  "root_cause": "The application failed to validate fractional people inputs, incorrectly calculating and displaying the results instead of showing an error message.",
+  "evidence": [
+    "test: fractional_people",
+    "expected: #error visible with a message and #result not visible or empty",
+    "actual: #error visible=False, #result visible_content='AMOUNT PER PERSON\\n$60.00\\nTab: $100.00 + Tip (20%): $20.00 = Total: $120.00'"
+  ],
+  "recommended_prompt_change": "Ensure validation is implemented to check that the number of people input is a positive integer, displaying an error message if fractional values are entered.",
+  "confidence": "high"
+}

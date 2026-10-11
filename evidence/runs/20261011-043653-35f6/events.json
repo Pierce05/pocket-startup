@@ -1,0 +1,175 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-043653-35f6",
+      "idea": "A bar tab splitter for a night out with coworkers",
+      "mode": "baseline",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 0.922,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "TabSync",
+      "one_line_pitch": "Effortlessly split bar tabs and tips after a night out with coworkers.",
+      "target_user": "Young professionals navigating team happy hours and social drinking events.",
+      "adaptation_note": "Focused the standard tip calculation template specifically on handling complex bar tabs, shared rounds, and tip distribution among colleagues.",
+      "_cost": 0.0002723,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 189
+    }
+  },
+  {
+    "t": 0.922,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002723,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 189
+    }
+  },
+  {
+    "t": 7.828,
+    "type": "code_written",
+    "data": {
+      "bytes": 10281,
+      "attempt": 1,
+      "_cost": 0.0078193,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3463
+    }
+  },
+  {
+    "t": 7.828,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0078193,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3463
+    }
+  },
+  {
+    "t": 9.703,
+    "type": "check_failed",
+    "data": {
+      "attempt": 1,
+      "test": "fractional_people",
+      "expected": "#error visible with a message and #result not visible or empty",
+      "actual": "#error visible=False, #result visible_content='AMOUNT PER PERSON\\n$60.00\\nTab: $100.00 + Tip (20%): $20.00 = Total: $120.00'",
+      "console_errors": [],
+      "_cost": 0.0078193,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3463
+    }
+  },
+  {
+    "t": 11.234,
+    "type": "autopsy",
+    "data": {
+      "failed_span": "acceptance_check",
+      "root_cause": "The application failed to validate fractional people inputs, incorrectly calculating and displaying the results instead of showing an error message.",
+      "evidence": [
+        "test: fractional_people",
+        "expected: #error visible with a message and #result not visible or empty",
+        "actual: #error visible=False, #result visible_content='AMOUNT PER PERSON\\n$60.00\\nTab: $100.00 + Tip (20%): $20.00 = Total: $120.00'"
+      ],
+      "recommended_prompt_change": "Ensure validation is implemented to check that the number of people input is a positive integer, displaying an error message if fractional values are entered.",
+      "confidence": "high",
+      "_cost": 0.0090299,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 6105
+    }
+  },
+  {
+    "t": 11.234,
+    "type": "retry",
+    "data": {
+      "next": 2,
+      "_cost": 0.0090299,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 6105
+    }
+  },
+  {
+    "t": 11.234,
+    "type": "attempt_started",
+    "data": {
+      "n": 2,
+      "of": 4,
+      "_cost": 0.0090299,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 6105
+    }
+  },
+  {
+    "t": 18.062,
+    "type": "code_written",
+    "data": {
+      "bytes": 10607,
+      "attempt": 2,
+      "_cost": 0.01754,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 12450
+    }
+  },
+  {
+    "t": 18.062,
+    "type": "check_started",
+    "data": {
+      "attempt": 2,
+      "_cost": 0.01754,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 12450
+    }
+  },
+  {
+    "t": 21.047,
+    "type": "check_passed",
+    "data": {
+      "attempt": 2,
+      "console_errors": [],
+      "_cost": 0.01754,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 12450
+    }
+  },
+  {
+    "t": 21.047,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-043653-35f6",
+      "_cost": 0.01754,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 12450
+    }
+  },
+  {
+    "t": 21.047,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-043653-35f6",
+      "success": true,
+      "attempts": 2,
+      "first_attempt_passed": false,
+      "cost_usd": 0.01754,
+      "cost_tag": "COMPUTED",
+      "tokens": 12450,
+      "latency_s": 21.047,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

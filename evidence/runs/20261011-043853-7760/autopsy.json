@@ -1,0 +1,10 @@
+{
+  "failed_span": "acceptance_check",
+  "root_cause": "The application failed to display an error message and instead calculated a result when fractional or invalid people values were provided.",
+  "evidence": [
+    "expected: '#error visible with a message and #result not visible or empty'",
+    "actual: '#error visible=False, #result visible_content=\\'PER PERSON SHARE\\\\n$60.00\\''"
+  ],
+  "recommended_prompt_change": "Ensure validation logic correctly detects and handles non-integer or fractional values for the number of passengers by checking if the value is an integer.",
+  "confidence": "high"
+}

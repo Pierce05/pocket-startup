@@ -1,0 +1,11 @@
+{
+  "failed_span": "acceptance_check",
+  "root_cause": "The application fails to validate whether the number of passengers is an integer, calculating a result instead of showing an error message for fractional people.",
+  "evidence": [
+    "test: fractional_people",
+    "expected: #error visible with a message and #result not visible or empty",
+    "actual: #error visible=False, #result visible_content='$60.00'"
+  ],
+  "recommended_prompt_change": "Ensure validation checks that the number of passengers input is a whole number (integer) and displays an error if fractional values are entered.",
+  "confidence": "high"
+}

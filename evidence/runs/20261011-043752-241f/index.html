@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BillSplit - Easy Restaurant Bill & Tip Calculator</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #cbd5e1;
+            --error-bg: #fee2e2;
+            --error-text: #991b1b;
+            --success-bg: #f0fdf4;
+            --success-text: #166534;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        p.pitch {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .currency-symbol, .percent-symbol {
+            position: absolute;
+            left: 1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.25rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input.plain {
+            padding-left: 1rem;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            margin-top: 1.25rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            margin-top: 1.25rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result .amount {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-top: 0.25rem;
+        }
+
+        #result .label-text {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>BillSplit</h1>
+            <p class="pitch">The easiest way for friends to calculate restaurant bills and split tips fairly.</p>
+        </header>
+
+        <main>
+            <div class="form-group">
+                <label for="bill">Total Bill Amount</label>
+                <div class="input-wrapper">
+                    <span class="currency-symbol">$</span>
+                    <input type="number" id="bill" placeholder="0.00" step="0.01" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="people">Number of People</label>
+                <div class="input-wrapper">
+                    <input type="number" id="people" class="plain" placeholder="1" min="1" step="1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="tip">Tip Percentage</label>
+                <div class="input-wrapper">
+                    <input type="number" id="tip" class="plain" placeholder="15" min="0" step="0.1">
+                    <span class="percent-symbol" style="left: auto; right: 1rem;">%</span>
+                </div>
+            </div>
+
+            <button id="calc">Calculate Split</button>
+
+            <div id="error"></div>
+            <div id="result">
+                <div class="label-text">Amount Per Person</div>
+                <div class="amount" id="result-amount">$0.00</div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('calc').addEventListener('click', function() {
+            const billInput = document.getElementById('bill').value.trim();
+            const peopleInput = document.getElementById('people').value.trim();
+            const tipInput = document.getElementById('tip').value.trim();
+            
+            const errorEl = document.getElementById('error');
+            const resultEl = document.getElementById('result');
+            const resultAmountEl = document.getElementById('result-amount');
+
+            // Reset view states
+            errorEl.style.display = 'none';
+            resultEl.style.display = 'none';
+            errorEl.textContent = '';
+
+            // Parse values
+            const bill = parseFloat(billInput);
+            const people = parseInt(peopleInput, 10);
+            const tip = tipInput === '' ? 0 : parseFloat(tipInput);
+
+            // Validation checks
+            if (billInput === '' || peopleInput === '') {
+                showError("Please enter both the bill amount and the number of people.");
+                return;
+            }
+
+            if (isNaN(bill) || isNaN(people) || isNaN(tip)) {
+                showError("Please enter valid numeric values for all fields.");
+                return;
+            }
+
+            if (bill < 0) {
+                showError("Bill amount cannot be negative.");
+                return;
+            }
+
+            if (people <= 0 || !Number.isInteger(Number(peopleInput))) {
+                showError("Number of people must be a whole number greater than zero.");
+                return;
+            }
+
+            if (tip < 0) {
+                showError("Tip percentage cannot be negative.");
+                return;
+            }
+
+            // Calculation
+            const tipAmount = bill * (tip / 100);
+            const totalWithTip = bill + tipAmount;
+            const perPerson = totalWithTip / people;
+
+            // Display valid outcome
+            resultAmountEl.textContent = '$' + perPerson.toFixed(2);
+            resultEl.style.display = 'block';
+        });
+
+        function showError(message) {
+            const errorEl = document.getElementById('error');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

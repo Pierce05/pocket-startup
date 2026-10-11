@@ -1,0 +1,174 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-043633-7471",
+      "idea": "A tool for roommates to split a shared grocery receipt including a tip for delivery",
+      "mode": "baseline",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.266,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "GrocySplit",
+      "one_line_pitch": "Easily split shared grocery bills and delivery tips among roommates.",
+      "target_user": "Roommates who order groceries together and need to split itemized costs and delivery tips fairly.",
+      "adaptation_note": "Adapting the tip_splitter UI to handle itemized grocery lists alongside the final delivery tip percentage.",
+      "_cost": 0.0002813,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 197
+    }
+  },
+  {
+    "t": 1.266,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002813,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 197
+    }
+  },
+  {
+    "t": 7.453,
+    "type": "code_written",
+    "data": {
+      "bytes": 9327,
+      "attempt": 1,
+      "_cost": 0.0070167,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3149
+    }
+  },
+  {
+    "t": 7.453,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0070167,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3149
+    }
+  },
+  {
+    "t": 9.297,
+    "type": "check_failed",
+    "data": {
+      "attempt": 1,
+      "test": "fractional_people",
+      "expected": "#error visible with a message and #result not visible or empty",
+      "actual": "#error visible=False, #result visible_content='PER PERSON TOTAL\\n$60.00'",
+      "console_errors": [],
+      "_cost": 0.0070167,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 3149
+    }
+  },
+  {
+    "t": 10.813,
+    "type": "autopsy",
+    "data": {
+      "failed_span": "acceptance_check",
+      "root_cause": "The application failed to validate fractional numbers of people, allowing calculation and showing results instead of displaying an error message.",
+      "evidence": [
+        "expected: #error visible with a message and #result not visible or empty",
+        "actual: #error visible=False, #result visible_content='PER PERSON TOTAL\\n$60.00'"
+      ],
+      "recommended_prompt_change": "Ensure validation logic explicitly checks that the number of people input is a whole integer and shows an error message if fractional values are entered.",
+      "confidence": "high",
+      "_cost": 0.0081002,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 5690
+    }
+  },
+  {
+    "t": 10.813,
+    "type": "retry",
+    "data": {
+      "next": 2,
+      "_cost": 0.0081002,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 5690
+    }
+  },
+  {
+    "t": 10.813,
+    "type": "attempt_started",
+    "data": {
+      "n": 2,
+      "of": 4,
+      "_cost": 0.0081002,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 5690
+    }
+  },
+  {
+    "t": 16.766,
+    "type": "code_written",
+    "data": {
+      "bytes": 9349,
+      "attempt": 2,
+      "_cost": 0.0155473,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 11315
+    }
+  },
+  {
+    "t": 16.766,
+    "type": "check_started",
+    "data": {
+      "attempt": 2,
+      "_cost": 0.0155473,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 11315
+    }
+  },
+  {
+    "t": 19.75,
+    "type": "check_passed",
+    "data": {
+      "attempt": 2,
+      "console_errors": [],
+      "_cost": 0.0155473,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 11315
+    }
+  },
+  {
+    "t": 19.75,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-043633-7471",
+      "_cost": 0.0155473,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 11315
+    }
+  },
+  {
+    "t": 19.75,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-043633-7471",
+      "success": true,
+      "attempts": 2,
+      "first_attempt_passed": false,
+      "cost_usd": 0.0155473,
+      "cost_tag": "COMPUTED",
+      "tokens": 11315,
+      "latency_s": 19.75,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]
