@@ -1,0 +1,60 @@
+{
+  "run_id": "20261011-054551-dd9a",
+  "mode": "candidate_b",
+  "template": "tip_splitter",
+  "idea": "A tool for roommates to split a shared grocery receipt including a tip for delivery",
+  "success": true,
+  "attempts": 1,
+  "first_attempt_passed": true,
+  "input_tokens": 444,
+  "output_tokens": 1797,
+  "tokens": 2241,
+  "cost_usd": 0.0046257,
+  "cost_tag": "COMPUTED",
+  "cost_by_stage": {
+    "plan": 0.0002638,
+    "build": 0.0043619
+  },
+  "latency_s": 8.906,
+  "rails_fired": [],
+  "error": null,
+  "autopsy_error": null,
+  "neatlogs_trace_url": null,
+  "spans": [
+    {
+      "name": "plan",
+      "type": "CHAIN",
+      "duration_ms": 1327,
+      "tokens": 190,
+      "cost_usd": 0.0002638,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "build_attempt_1",
+      "type": "CHAIN",
+      "duration_ms": 4109,
+      "tokens": 2051,
+      "cost_usd": 0.0043619,
+      "status": "ok",
+      "error": null
+    },
+    {
+      "name": "acceptance_check",
+      "type": "TOOL",
+      "duration_ms": 3468,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.2,
+  "pricing_date": "2026-10-11",
+  "pricing_source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
+  "pricing_known_for_model": true,
+  "mock": false,
+  "approved": false,
+  "status": "awaiting_approval"
+}

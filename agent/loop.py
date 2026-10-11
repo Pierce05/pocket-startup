@@ -35,7 +35,9 @@ def builder_system(mode: str, patch: str | None) -> str:
         return prompts.BUILDER_SYSTEM_V1
     if mode == "improved":
         return prompts.build_v2(patch)
-    raise ValueError(f"mode must be 'baseline' or 'improved', got {mode!r}")
+    if mode in ("candidate_a", "candidate_b") or mode.startswith("candidate_"):
+        return f"{prompts.BUILDER_SYSTEM_V1}\n\n{patch}" if patch else prompts.BUILDER_SYSTEM_V1
+    raise ValueError(f"mode must be 'baseline', 'improved', or 'candidate_*', got {mode!r}")
 
 
 def load_winner_patch() -> str | None:

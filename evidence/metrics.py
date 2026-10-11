@@ -54,8 +54,9 @@ def is_pre_stage_1e(run_id: str, cutoff: str = STAGE_1E_CUTOFF_UTC) -> bool:
 
 
 def load_runs(runs_dir=None, include_mock: bool = False,
-              cutoff: str | None = STAGE_1E_CUTOFF_UTC) -> tuple[list[dict], dict]:
-    """Load runs from disk, filtering out mocks, unpriced runs, and pre-1e runs.
+              cutoff: str | None = STAGE_1E_CUTOFF_UTC,
+              include_candidates: bool = False) -> tuple[list[dict], dict]:
+    """Load runs from disk, filtering out mocks, unpriced runs, pre-1e runs, and candidate lab runs.
 
     Returns:
         (valid_records, exclusions_summary)
@@ -68,6 +69,7 @@ def load_runs(runs_dir=None, include_mock: bool = False,
             "pre_stage_1e": 0,
             "mock": 0,
             "unpriced": 0,
+            "candidate": 0,
             "corrupt": 0,
         },
         "excluded_runs": [],
@@ -93,7 +95,14 @@ def load_runs(runs_dir=None, include_mock: bool = False,
             exclusions["excluded_runs"].append({"run_id": run_id, "reason": "pre_stage_1e"})
             continue
 
-        # 2. Check mock runs
+        # 2. Check candidate runs (excluded from final A/B statistics)
+        if not include_candidates and str(r.get("mode", "")).startswith("candidate_"):
+            exclusions["total_excluded"] += 1
+            exclusions["by_reason"]["candidate"] += 1
+            exclusions["excluded_runs"].append({"run_id": run_id, "reason": "candidate"})
+            continue
+
+        # 3. Check mock runs
         is_mock = bool(r.get("mock") or r.get("cost_tag") == "MOCK" or r.get("model") == "mock-model")
         if is_mock and not include_mock:
             exclusions["total_excluded"] += 1
@@ -101,7 +110,7 @@ def load_runs(runs_dir=None, include_mock: bool = False,
             exclusions["excluded_runs"].append({"run_id": run_id, "reason": "mock"})
             continue
 
-        # 3. Check unpriced runs
+        # 4. Check unpriced runs
         is_unpriced = (
             r.get("cost_tag") == "UNPRICED"
             or r.get("cost_usd") == "UNPRICED"

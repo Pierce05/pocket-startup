@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TabMate - Bar Tab & Tip Splitter</title>
+    <style>
+        :root {
+            --primary: #f59e0b;
+            --primary-hover: #d97706;
+            --bg: #111827;
+            --card-bg: #1f2937;
+            --text: #f3f4f6;
+            --text-muted: #9ca3af;
+            --error: #ef4444;
+            --border: #374151;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .header p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            background-color: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>TabMate</h1>
+            <p>Split bar tabs and coworker tips effortlessly</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Bill ($)</label>
+            <input type="number" id="bill" step="0.01" placeholder="0.00">
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Tip Percentage (%)</label>
+            <input type="number" id="tip" step="1" placeholder="20">
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of People</label>
+            <input type="number" id="people" step="1" placeholder="1">
+        </div>
+
+        <button id="calc">Calculate Split</button>
+
+        <div id="error"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const tipInput = document.getElementById('tip');
+        const peopleInput = document.getElementById('people');
+        const calcButton = document.getElementById('calc');
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+
+        calcButton.addEventListener('click', () => {
+            const billVal = billInput.value.trim();
+            const tipVal = tipInput.value.trim();
+            const peopleVal = peopleInput.value.trim();
+
+            // Clear previous states
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            resultDiv.style.display = 'none';
+            resultDiv.textContent = '';
+
+            // Parse numbers
+            const bill = parseFloat(billVal);
+            const tip = parseFloat(tipVal);
+            const people = Number(peopleVal);
+
+            // Validation checks
+            let errorMessage = '';
+
+            if (billVal === '' || isNaN(bill) || bill < 0) {
+                errorMessage = 'Please enter a valid bill amount (0 or greater).';
+            } else if (tipVal === '' || isNaN(tip) || tip < 0) {
+                errorMessage = 'Please enter a valid tip percentage (0 or greater).';
+            } else if (peopleVal === '' || isNaN(people) || !Number.isInteger(people) || people <= 0) {
+                errorMessage = 'Please enter a whole number of people greater than zero.';
+            }
+
+            if (errorMessage) {
+                errorDiv.textContent = errorMessage;
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // Calculation
+            const totalWithTip = bill * (1 + tip / 100);
+            const perPerson = totalWithTip / people;
+
+            // Display result
+            resultDiv.textContent = `Per Person: $${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

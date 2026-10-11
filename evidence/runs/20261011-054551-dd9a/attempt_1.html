@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groceries Splitter</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-hover: #1b5e20;
+            --bg: #f4f6f4;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --error: #c62828;
+            --error-bg: #ffebee;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 400px;
+            padding: 24px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .pitch {
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            background-color: var(--error-bg);
+            color: var(--error);
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-top: 16px;
+            display: none;
+            text-align: center;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #e8f5e9;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary-hover);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Groceries Splitter</h1>
+        <div class="pitch">Easily split shared grocery receipts and delivery tips among roommates.</div>
+
+        <div class="form-group">
+            <label for="bill">Total Grocery Bill ($)</label>
+            <input type="number" id="bill" step="0.01" min="0" placeholder="0.00">
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Tip Percentage (%)</label>
+            <input type="number" id="tip" step="any" min="0" placeholder="15">
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of People</label>
+            <input type="number" id="people" step="1" min="1" placeholder="2">
+        </div>
+
+        <button id="calc">Calculate Split</button>
+
+        <div id="error"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('calc').addEventListener('click', function() {
+            const billInput = document.getElementById('bill').value.trim();
+            const tipInput = document.getElementById('tip').value.trim();
+            const peopleInput = document.getElementById('people').value.trim();
+            
+            const errorEl = document.getElementById('error');
+            const resultEl = document.getElementById('result');
+
+            // Reset views
+            errorEl.style.display = 'none';
+            errorEl.textContent = '';
+            resultEl.style.display = 'none';
+            resultEl.textContent = '';
+
+            // Parse numbers
+            const bill = Number(billInput);
+            const tip = Number(tipInput);
+            const people = Number(peopleInput);
+
+            // Validation checks
+            if (billInput === '' || isNaN(bill) || bill < 0) {
+                showError('Please enter a valid bill amount (0 or greater).');
+                return;
+            }
+
+            if (tipInput === '' || isNaN(tip) || tip < 0) {
+                showError('Please enter a valid tip percentage (0 or greater).');
+                return;
+            }
+
+            if (peopleInput === '' || isNaN(people) || !Number.isInteger(people) || people <= 0) {
+                showError('Please enter a whole number of people greater than zero.');
+                return;
+            }
+
+            // Calculation
+            const tipAmount = bill * (tip / 100);
+            const total = bill + tipAmount;
+            const perPerson = total / people;
+
+            // Display Result
+            resultEl.textContent = `Each person pays: $${perPerson.toFixed(2)}`;
+            resultEl.style.display = 'block';
+        });
+
+        function showError(message) {
+            const errorEl = document.getElementById('error');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

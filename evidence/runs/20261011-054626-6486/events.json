@@ -1,0 +1,101 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-054626-6486",
+      "idea": "A wedding dinner table bill splitter with service charge",
+      "mode": "candidate_b",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.187,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "WeddingTab",
+      "one_line_pitch": "Split wedding dinner bills and service charges effortlessly among guests.",
+      "target_user": "Wedding guests organizing group dinner expenses and managing shared table costs.",
+      "adaptation_note": "Rebranded the tip and bill calculation logic to specifically handle wedding table dynamics, including custom service charges and multi-guest party tabs.",
+      "_cost": 0.0002745,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 189
+    }
+  },
+  {
+    "t": 1.187,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002745,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 189
+    }
+  },
+  {
+    "t": 6.203,
+    "type": "code_written",
+    "data": {
+      "bytes": 6758,
+      "attempt": 1,
+      "_cost": 0.0052479,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2489
+    }
+  },
+  {
+    "t": 6.203,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0052479,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2489
+    }
+  },
+  {
+    "t": 9.375,
+    "type": "check_passed",
+    "data": {
+      "attempt": 1,
+      "console_errors": [],
+      "_cost": 0.0052479,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2489
+    }
+  },
+  {
+    "t": 9.375,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-054626-6486",
+      "_cost": 0.0052479,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2489
+    }
+  },
+  {
+    "t": 9.375,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-054626-6486",
+      "success": true,
+      "attempts": 1,
+      "first_attempt_passed": true,
+      "cost_usd": 0.0052479,
+      "cost_tag": "COMPUTED",
+      "tokens": 2489,
+      "latency_s": 9.375,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

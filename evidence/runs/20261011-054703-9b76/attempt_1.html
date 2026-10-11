@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TabMate - Bar Tab & Tip Splitter</title>
+    <style>
+        :root {
+            --bg-color: #12141c;
+            --card-bg: #1a1e29;
+            --accent-color: #f59e0b;
+            --accent-hover: #d97706;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #2d3748;
+            --error-color: #ef4444;
+            --success-bg: #064e3b;
+            --success-text: #34d399;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .pitch {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix {
+            position: absolute;
+            left: 1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            background-color: #111319;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem 0.75rem 2.25rem;
+            color: var(--text-main);
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input.no-prefix {
+            padding-left: 1rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--accent-color);
+            color: #111319;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.875rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button:active {
+            transform: scale(0.99);
+        }
+
+        #error {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error-color);
+            border-radius: 0.5rem;
+            color: var(--error-color);
+            font-size: 0.875rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            margin-top: 1.5rem;
+            padding: 1.25rem;
+            background-color: #111319;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            text-align: center;
+            display: none;
+        }
+
+        .result-label {
+            font-size: 0.813rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+        }
+
+        .result-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--success-text);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">TabMate</div>
+            <div class="pitch">Easily split bar tabs and calculate tips among coworkers after a night out.</div>
+        </div>
+
+        <div class="form-group">
+            <label for="bill">Total Bar Tab</label>
+            <div class="input-wrapper">
+                <span class="prefix">$</span>
+                <input type="number" id="bill" placeholder="0.00" step="0.01" min="0">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Tip Percentage</label>
+            <div class="input-wrapper">
+                <input type="number" id="tip" class="no-prefix" placeholder="20" step="any" min="0" value="20">
+                <span class="prefix" style="left: auto; right: 1rem;">%</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of Coworkers</label>
+            <div class="input-wrapper">
+                <input type="number" id="people" class="no-prefix" placeholder="1" step="1" min="1" value="1">
+            </div>
+        </div>
+
+        <button id="calc">Split the Tab</button>
+
+        <div id="error"></div>
+
+        <div id="result">
+            <div class="result-label">Amount Per Person</div>
+            <div id="result-amount" class="result-amount">$0.00</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        TabMate &bull; Designed for after-work rounds
+    </div>
+
+    <script>
+        document.getElementById('calc').addEventListener('click', function() {
+            const billInput = document.getElementById('bill').value.trim();
+            const tipInput = document.getElementById('tip').value.trim();
+            const peopleInput = document.getElementById('people').value.trim();
+
+            const errorEl = document.getElementById('error');
+            const resultEl = document.getElementById('result');
+            const resultAmountEl = document.getElementById('result-amount');
+
+            // Reset UI state
+            errorEl.style.display = 'none';
+            resultEl.style.display = 'none';
+            errorEl.textContent = '';
+
+            // Validation checks
+            if (billInput === '' || tipInput === '' || peopleInput === '') {
+                errorEl.textContent = 'Please fill out all fields before calculating.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            const bill = Number(billInput);
+            const tipPct = Number(tipInput);
+            const people = Number(peopleInput);
+
+            // Check numeric ranges and types
+            if (isNaN(bill) || bill < 0) {
+                errorEl.textContent = 'Please enter a valid bill amount (0 or greater).';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            if (isNaN(tipPct) || tipPct < 0) {
+                errorEl.textContent = 'Please enter a valid tip percentage (0 or greater).';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            if (isNaN(people) || !Number.isInteger(people) || people <= 0) {
+                errorEl.textContent = 'Number of coworkers must be a whole number greater than zero.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            // Calculation
+            const tipAmount = bill * (tipPct / 100);
+            const totalWithTip = bill + tipAmount;
+            const perPerson = totalWithTip / people;
+
+            // Render result
+            resultAmountEl.textContent = '$' + perPerson.toFixed(2);
+            resultEl.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

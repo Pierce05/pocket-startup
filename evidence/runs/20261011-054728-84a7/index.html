@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeddingTab - Wedding Dinner Bill Splitter</title>
+    <style>
+        :root {
+            --primary: #8e44ad;
+            --primary-hover: #732d91;
+            --bg-color: #fdfbf7;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --error-color: #c0392b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 450px;
+            padding: 30px;
+            box-sizing: border-box;
+            border: 1px solid #f0e6d2;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin: 0 0 8px 0;
+            font-size: 1.8rem;
+        }
+
+        p.pitch {
+            margin: 0;
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            color: var(--error-color);
+            background-color: #fde8e8;
+            border: 1px solid #fbd5d5;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f8f4fc;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e8d7f1;
+            display: none;
+        }
+
+        #result h3 {
+            margin: 0 0 5px 0;
+            color: #7f8c8d;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        #result .amount {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>WeddingTab</h1>
+            <p class="pitch">Split wedding dinner bills and service charges effortlessly among table guests.</p>
+        </header>
+
+        <div class="input-group">
+            <label for="bill">Total Dinner Bill ($)</label>
+            <input type="number" id="bill" step="0.01" min="0" placeholder="0.00">
+        </div>
+
+        <div class="input-group">
+            <label for="tip">Tip / Service Charge (%)</label>
+            <input type="number" id="tip" step="0.1" min="0" placeholder="18">
+        </div>
+
+        <div class="input-group">
+            <label for="people">Number of Guests</label>
+            <input type="number" id="people" step="1" min="1" placeholder="2">
+        </div>
+
+        <button id="calc">Calculate Share</button>
+
+        <div id="error"></div>
+        <div id="result">
+            <h3>Per Person Share</h3>
+            <div id="per-person-amount" class="amount">$0.00</div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calc').addEventListener('click', function() {
+            const billInput = document.getElementById('bill').value.trim();
+            const tipInput = document.getElementById('tip').value.trim();
+            const peopleInput = document.getElementById('people').value.trim();
+            
+            const errorDiv = document.getElementById('error');
+            const resultDiv = document.getElementById('result');
+            const amountDiv = document.getElementById('per-person-amount');
+
+            // Reset UI states
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            resultDiv.style.display = 'none';
+
+            // Parse numbers
+            const bill = Number(billInput);
+            const tip = Number(tipInput);
+            const people = Number(peopleInput);
+
+            // Validation checks
+            if (billInput === '' || isNaN(bill) || bill < 0) {
+                showError('Please enter a valid bill amount greater than or equal to 0.');
+                return;
+            }
+
+            if (tipInput === '' || isNaN(tip) || tip < 0) {
+                showError('Please enter a valid tip percentage greater than or equal to 0.');
+                return;
+            }
+
+            if (peopleInput === '' || isNaN(people) || !Number.isInteger(people) || people <= 0) {
+                showError('Please enter a valid whole number of guests greater than 0.');
+                return;
+            }
+
+            // Calculation
+            const totalWithTip = bill * (1 + tip / 100);
+            const perPerson = totalWithTip / people;
+
+            // Display results
+            amountDiv.textContent = '$' + perPerson.toFixed(2);
+            resultDiv.style.display = 'block';
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

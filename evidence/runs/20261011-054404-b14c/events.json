@@ -1,0 +1,101 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-054404-b14c",
+      "idea": "A taxi fare and tip splitter for a group airport ride",
+      "mode": "candidate_a",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.469,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "CabSplit",
+      "one_line_pitch": "Easily split taxi fares and tips among friends after a shared group airport ride.",
+      "target_user": "Frequent travelers sharing cabs and rideshares to the airport.",
+      "adaptation_note": "Rebranded bill items and tips to represent airport taxi fares and driver gratuity for groups.",
+      "_cost": 0.0002651,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 187
+    }
+  },
+  {
+    "t": 1.469,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002651,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 187
+    }
+  },
+  {
+    "t": 6.688,
+    "type": "code_written",
+    "data": {
+      "bytes": 6486,
+      "attempt": 1,
+      "_cost": 0.0051301,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2441
+    }
+  },
+  {
+    "t": 6.688,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0051301,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2441
+    }
+  },
+  {
+    "t": 10.063,
+    "type": "check_passed",
+    "data": {
+      "attempt": 1,
+      "console_errors": [],
+      "_cost": 0.0051301,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2441
+    }
+  },
+  {
+    "t": 10.063,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-054404-b14c",
+      "_cost": 0.0051301,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2441
+    }
+  },
+  {
+    "t": 10.063,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-054404-b14c",
+      "success": true,
+      "attempts": 1,
+      "first_attempt_passed": true,
+      "cost_usd": 0.0051301,
+      "cost_tag": "COMPUTED",
+      "tokens": 2441,
+      "latency_s": 10.063,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

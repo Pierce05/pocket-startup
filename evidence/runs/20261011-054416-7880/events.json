@@ -1,0 +1,101 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-054416-7880",
+      "idea": "A wedding dinner table bill splitter with service charge",
+      "mode": "candidate_a",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.344,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "WeddingTab",
+      "one_line_pitch": "Easily split wedding dinner bills and custom service charges among guests.",
+      "target_user": "Wedding guests and organizers managing shared dining expenses.",
+      "adaptation_note": "Adapted the tip and tax calculation logic to handle wedding-specific service charges and group dinner table configurations.",
+      "_cost": 0.000257,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 182
+    }
+  },
+  {
+    "t": 1.344,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.000257,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 182
+    }
+  },
+  {
+    "t": 6.797,
+    "type": "code_written",
+    "data": {
+      "bytes": 7024,
+      "attempt": 1,
+      "_cost": 0.0055011,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2585
+    }
+  },
+  {
+    "t": 6.797,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.0055011,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2585
+    }
+  },
+  {
+    "t": 10.297,
+    "type": "check_passed",
+    "data": {
+      "attempt": 1,
+      "console_errors": [],
+      "_cost": 0.0055011,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2585
+    }
+  },
+  {
+    "t": 10.297,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-054416-7880",
+      "_cost": 0.0055011,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2585
+    }
+  },
+  {
+    "t": 10.297,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-054416-7880",
+      "success": true,
+      "attempts": 1,
+      "first_attempt_passed": true,
+      "cost_usd": 0.0055011,
+      "cost_tag": "COMPUTED",
+      "tokens": 2585,
+      "latency_s": 10.297,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]

@@ -1,0 +1,101 @@
+[
+  {
+    "t": 0.0,
+    "type": "run_started",
+    "data": {
+      "run_id": "20261011-054651-f717",
+      "idea": "A tool for roommates to split a shared grocery receipt including a tip for delivery",
+      "mode": "candidate_b",
+      "mock": false,
+      "budget_usd": 0.5,
+      "max_attempts": 4,
+      "_cost": 0.0,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 0
+    }
+  },
+  {
+    "t": 1.75,
+    "type": "plan",
+    "data": {
+      "template": "tip_splitter",
+      "product_name": "GrocySplit",
+      "one_line_pitch": "Easily split shared grocery receipts and delivery tips among roommates.",
+      "target_user": "Roommates who order groceries together and need to divide costs and delivery tips fairly.",
+      "adaptation_note": "Utilize the tip_splitter template to calculate individual totals based on specific items purchased, plus a proportional share of the delivery tip.",
+      "_cost": 0.0002913,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 201
+    }
+  },
+  {
+    "t": 1.75,
+    "type": "attempt_started",
+    "data": {
+      "n": 1,
+      "of": 4,
+      "_cost": 0.0002913,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 201
+    }
+  },
+  {
+    "t": 6.406,
+    "type": "code_written",
+    "data": {
+      "bytes": 6629,
+      "attempt": 1,
+      "_cost": 0.005309,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2524
+    }
+  },
+  {
+    "t": 6.406,
+    "type": "check_started",
+    "data": {
+      "attempt": 1,
+      "_cost": 0.005309,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2524
+    }
+  },
+  {
+    "t": 9.953,
+    "type": "check_passed",
+    "data": {
+      "attempt": 1,
+      "console_errors": [],
+      "_cost": 0.005309,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2524
+    }
+  },
+  {
+    "t": 9.953,
+    "type": "awaiting_approval",
+    "data": {
+      "run_id": "20261011-054651-f717",
+      "_cost": 0.005309,
+      "_cost_tag": "COMPUTED",
+      "_tokens": 2524
+    }
+  },
+  {
+    "t": 9.953,
+    "type": "run_finished",
+    "data": {
+      "run_id": "20261011-054651-f717",
+      "success": true,
+      "attempts": 1,
+      "first_attempt_passed": true,
+      "cost_usd": 0.005309,
+      "cost_tag": "COMPUTED",
+      "tokens": 2524,
+      "latency_s": 9.953,
+      "rails_fired": [],
+      "error": null,
+      "mock": false
+    }
+  }
+]
