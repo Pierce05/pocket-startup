@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrocySplit</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-hover: #1b5e20;
+            --bg: #f4f6f4;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --error: #c62828;
+            --border: #cccccc;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .pitch {
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #error {
+            color: var(--error);
+            font-size: 0.85rem;
+            margin-top: 12px;
+            text-align: center;
+            min-height: 20px;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #e8f5e9;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>GrocySplit</h1>
+        <div class="pitch">Easily split shared grocery bills and delivery tips among roommates.</div>
+
+        <div class="form-group">
+            <label for="bill">Total Grocery Bill & Fees ($)</label>
+            <input type="number" id="bill" step="0.01" min="0" placeholder="0.00">
+        </div>
+
+        <div class="form-group">
+            <label for="people">Number of Roommates</label>
+            <input type="number" id="people" step="1" min="1" placeholder="1">
+        </div>
+
+        <div class="form-group">
+            <label for="tip">Delivery Tip Percentage (%)</label>
+            <input type="number" id="tip" step="1" min="0" placeholder="15">
+        </div>
+
+        <button id="calc">Calculate Share</button>
+
+        <div id="error"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const billInput = document.getElementById('bill');
+        const peopleInput = document.getElementById('people');
+        const tipInput = document.getElementById('tip');
+        const calcButton = document.getElementById('calc');
+        const resultDiv = document.getElementById('result');
+        const errorDiv = document.getElementById('error');
+
+        calcButton.addEventListener('click', () => {
+            errorDiv.textContent = '';
+            resultDiv.style.display = 'none';
+            resultDiv.textContent = '';
+
+            const billVal = parseFloat(billInput.value);
+            const peopleVal = parseInt(peopleInput.value, 10);
+            const tipVal = parseFloat(tipInput.value);
+
+            // Validation checks
+            if (isNaN(billVal) || billVal < 0) {
+                errorDiv.textContent = 'Please enter a valid total bill amount.';
+                return;
+            }
+
+            if (isNaN(peopleVal) || peopleVal <= 0 || !Number.isInteger(peopleVal)) {
+                errorDiv.textContent = 'Please enter a valid whole number of roommates (at least 1).';
+                return;
+            }
+
+            if (isNaN(tipVal) || tipVal < 0) {
+                errorDiv.textContent = 'Please enter a valid tip percentage (0 or more).';
+                return;
+            }
+
+            // Calculation
+            const tipAmount = billVal * (tipVal / 100);
+            const totalWithTip = billVal + tipAmount;
+            const perPerson = totalWithTip / peopleVal;
+
+            // Output result
+            resultDiv.textContent = `Each person owes: $${perPerson.toFixed(2)}`;
+            resultDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
