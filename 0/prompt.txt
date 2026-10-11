@@ -1,0 +1,116 @@
+approved: STAGE 1a only. (1) Replace requirements.txt with a UTF-8 file based on reference/pocket-startup/requirements.txt, using neatlogs[google-genai]>=1.4 and adding pytest-asyncio. If neatlogs>=1.4 is not installable in this environment, tell me instead of lowering the version. (2) Add pytest.ini with asyncio_mode=auto, pythonpath=., testpaths=tests. (3) Add config.py with explicit utf-8 file reads, reading GEMINI_API_KEY, GEMINI_MODEL and NEATLOGS_API_KEY from the environment via python-dotenv, never printing them. (4) Add agent/__init__.py, tests/__init__.py and tests/conftest.py. Do not install packages yourself; give me the pip commands. Do not run any git command. Stop after listing the files created, the verify commands, and a suggested commit message.
+
+---
+
+Finish STAGE 1a verification only.
+
+The current repository has `tests/conftest.py`, `tests/__init__.py`, and `agent/__init__.py`, but `python -m pytest --collect-only` reports 0 tests collected.
+
+1. Inspect `config.py`, `tests/conftest.py`, `pytest.ini`, and `assumptions.yaml`.
+2. Add focused unit tests for configuration loading, required environment-variable validation, and the `tmp_evidence` fixture, based on the actual existing behavior.
+3. Do not read or print `.env` or any secrets.
+4. Do not implement the Gemini agent, Neatlogs tracing, or later stages yet.
+5. Run `python -m pytest -q` and report the exact results.
+6. Do not run Git commands or commit anything.
+
+Stop after reporting changed files and test results.
+
+---
+
+Proceed with STAGE 1b only for Pocket Startup.
+
+Read `AGENTS.md`, `GEMINI.md`, `docs/PRD.md`, `docs/GUIDE.md`, `assumptions.yaml`, and the existing Stage 1a implementation first.
+
+Use the existing `reference/` directory as reference material. Inspect relevant files individually and adapt useful code; do not bulk-copy the ZIP or overwrite working Stage 1a files.
+
+Implement the smallest working core:
+1. A Gemini API wrapper using `google-genai` and `GEMINI_MODEL` from configuration.
+2. A bounded generation loop with a strict attempt limit, timeout, budget guard, and kill switch.
+3. Clear separation between generated app output, execution, and validation.
+4. Automated checks that determine success independently of the model's claims.
+5. Unit tests for success, model failure, retry limits, timeout/budget rails, and kill-switch behavior.
+6. Keep failed attempts and evidence; label mock runs clearly and exclude them from real-run metrics.
+
+Constraints:
+- Do not read, print, log, or hard-code `.env` secrets.
+- Do not invent Gemini or Neatlogs APIs.
+- Do not claim tracing works until a real trace is visible in the Neatlogs dashboard.
+- Do not change model pricing or invent cost estimates. If pricing is not verified, mark it ASSUMED and keep it separate from measured usage.
+- Do not implement the pixel-office UI, A/B experiments, verdict engine, or cfo.ai bridge in this stage.
+- Do not run Git commands or commit anything.
+
+Before editing, briefly list the files you plan to create or change. Then implement Stage 1b, run the relevant tests, and report every changed file, exact test results, and remaining blockers. Stop for approval before Stage 1c.
+
+---
+
+Review the completed Stage 1b implementation before proceeding to Stage 1c.
+
+Do not edit files, run Git commands, commit, or start Stage 1c.
+
+Inspect the actual implementation and report evidence for these checks:
+
+1. **Stage 1a preservation:** confirm the original configuration and six config tests remain intact.
+2. **Rails:** verify that the attempt limit, budget cap, wall-clock timeout, and kill switch are enforced at every relevant point, including before model calls and retries.
+3. **Sandbox:** inspect whether generated HTML can escape the intended restrictions. In particular, verify network blocking, file access, browser persistence restrictions, and the 15-second timeout. Clearly distinguish implemented protections from limitations.
+4. **Independent validation:** confirm that Playwright—not the LLM—decides pass/fail, and that the good fixture passes while the bad fixture fails for the intended reason.
+5. **Evidence preservation:** verify that `result.json` is written on every exit path and that failed attempts are retained without contaminating real-run metrics with mock runs.
+6. **Gemini wrapper:** inspect the actual retry/backoff logic, token accounting, error handling, and concurrency limit. Check that estimated costs are explicitly marked unverified rather than presented as measured costs.
+7. **Neatlogs:** verify that the integration matches the installed version 1.4.26 and identify what still needs a live smoke test.
+8. **Reference implementation:** identify any missing requirements from `docs/PRD.md`, `docs/GUIDE.md`, and the project instructions that Stage 1b was supposed to implement.
+
+Run the relevant tests only if needed to substantiate findings. Do not weaken tests to make them pass.
+
+Return a concise report with file paths and specific evidence, any critical/high-risk findings, and a clear recommendation: approve Stage 1c or fix Stage 1b first. Do not modify anything.
+
+---
+
+Proceed with STAGE 1c for Pocket Startup.
+
+First read `AGENTS.md`, `GEMINI.md`, `docs/PRD.md`, `docs/GUIDE.md`, `assumptions.yaml`, and the existing Stage 1b implementation. Follow the project instructions and the runbook.
+
+### Goal
+Create `experiments/smoke.py` to exercise the real end-to-end build pipeline using the existing Gemini and Neatlogs integrations.
+
+### Requirements
+1. Support `--mode baseline` and `--n N`; default to baseline and one run.
+2. Use the existing configuration, LLM wrapper, Trust Rails, tracing manager, templates, checks, and `run_build`. Do not duplicate or bypass their logic.
+3. Use the real Gemini client by default. Require explicit `--mock` to run the mock pipeline, and label mock results clearly.
+4. Ensure Neatlogs is initialized before creating the Gemini client, using the existing tracing integration. Do not invent APIs or claim that remote tracing works without dashboard verification.
+5. Save evidence under the existing run directory structure. Each run must retain `result.json`, `events.json`, the generated `index.html`, and attempt artifacts where available.
+6. Report measured token usage separately from cost estimates. Keep unverified pricing marked `ASSUMED` / `UNVERIFIED`.
+7. Handle missing credentials and runtime errors clearly without printing, logging, or exposing secret values.
+8. Keep the run bounded by the existing rails and browser-check timeout.
+9. Do not weaken acceptance tests or change the existing Stage 1a/1b behavior just to make the smoke run pass.
+
+### Scope restrictions
+- Do not implement Stage 2 or later features.
+- Do not modify existing files unless required for correct integration; explain every such change before making it.
+- Do not run Git commands, stage files, commit, or push.
+- Do not launch a live Gemini request yet.
+
+### Process
+Before editing, report the exact files you plan to create or modify and why. Then implement the smoke runner and add focused tests for argument parsing, missing credentials, mock mode, and run orchestration. Run `python -m pytest -q` and report the exact output, changed files, and any blockers. Stop for my review before executing a real API call.
+
+---
+
+Fix pricing in agent/llm.py. PRICES must have an entry keyed by the exact model name gemini-3.5-flash-lite with input_per_m 0.30 and output_per_m 2.50, pricing_date 2026-10-11, source Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing). If GEMINI_MODEL is not in PRICES, do not fall back to another model's rates: mark cost as UNPRICED and make that visible in result.json and in logs. Check whether thinking tokens are billed as output for this model and make the cost computation match, and show me where token counts come from. Add tests for both the priced and the unpriced case. Do not change any acceptance test. Do not run git. Stop and show verify commands.
+
+---
+
+Remove the gemini-2.5-flash entry from PRICES (unverified rates). Keep mock-model but tag its costs as MOCK in result.json so they can never be confused with real costs. Run pytest. Do not run git. Stop and show verify commands.
+
+---
+
+commit
+
+---
+
+STAGE 1d, step 1 (inspect only; do not edit; do not run git). Evidence from run evidence/runs/20261011-035932-b372: attempt_1.html has all required ids and, for bill 100 / people 0 / tip 20, visibly shows a correct error message, but the check failed zero_people because #result still contained text. Attempts 2, 3 and 4 then drifted: attempt_2 lacks #calc, attempt_3 is a generic calculator (ids display, history), attempt_4 is a point-of-sale app. Investigate and report in short bullets: (a) in agent/checks.py, how #result emptiness is measured (inner_text, text_content or is_visible) and whether text inside a hidden #result counts as non-empty, with the relevant lines; (b) in agent/loop.py and agent/prompts.py, exactly what is sent to the model on a retry: does it include the product spec, required ids, template notes AND the previous full HTML, or only the failure text, with the relevant lines; (c) your proposed minimal fixes. Do not edit anything. Wait for my 'go'.
+
+---
+
+go: STAGE 1d, step 2. Apply equally to baseline and improved. Overrides to your proposal: do NOT add any hint about clearing #result to RETRY_USER, and do NOT change the template notes in templates.py. Changes: (1) agent/checks.py: all invalid-input tests pass when #error is visible with a message and #result is not visible OR visible with empty text; they fail when #result is visible with content. Judge by what a user sees (is_visible plus visible text), not by hidden DOM text. Add a fixture with #result hidden but containing text (expect PASS) and a fixture with #result visible showing $0.00 (expect FAIL). (2) Retry: RETRY_USER and loop.py send the product spec, required ids, template notes, the previous attempt's full index.html, and the structured failure, with the instruction to keep every required id and change only what is needed. No test-specific hints. (3) Add a pre-flight required_ids check that fails with a named test and lists the missing ids. (4) Short per-action timeouts (about 3 s) inside the existing 15 s limit; Playwright errors during a scripted step become named test failures with expected and actual filled in. (5) Write evidence/CHECK_CHANGELOG.md recording each change with the reason and the date, stating that runs before it (the Gate G1 runs) are kept as evidence but excluded from A/B statistics. (6) Write your Step 1 findings to evidence/analysis/stage1d_findings.md. Do not weaken any other assertion. Do not touch the builder system prompts. Run pytest. Do not run git. Stop and show verify commands.
+
+---
+
+approved: STAGE 1e (spec-derived hardening, shared by both arms). Goal: broaden the T1 acceptance suite to what a careful reviewer would expect, without making the spec secretly harder. Rule: every new test must trace to a sentence in the template notes. (1) In templates.py extend the T1 notes with general sentences only: 'Invalid input (anything for which a per-person amount cannot be meaningfully computed) must show a message in #error and leave #result empty or hidden. Valid input must show the per-person amount in #result with two decimals and hide #error.' Do not list specific invalid cases. (2) Add Playwright tests. Invalid: empty bill, negative bill, negative tip, zero people, negative people, fractional people (2.5). Valid: 100 / 4 / 20 gives 30.00; 100 / 3 / 0 gives 33.33; an invalid calculation followed by a valid one hides #error and shows the correct #result; two valid calculations in a row update #result. (3) Add one bad fixture per new invalid case and make sure good_tip.html passes everything. (4) Do not touch the builder system prompts V1 or V2 or RETRY_USER. (5) Append to evidence/CHECK_CHANGELOG.md with the date, time and reason, stating that runs before this change are kept but excluded from A/B statistics. Run pytest. Do not run git. Stop and show verify commands.
