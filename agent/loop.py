@@ -131,13 +131,16 @@ async def run_build(idea: str, mode: str, emit=None, *, template: str | None = N
             if autopsy and not diagnosed and path is not None:
                 diagnosed = True
                 try:
-                    report = await tracer.span("autopsy", "CHAIN", autopsy_mod.run, llm, stats, tracer.summary(), result, path)
+                    report = await tracer.span("autopsy", "CHAIN", autopsy_mod.run, llm, stats, tracer.summary(), result, path, template=tpl)
                     sandbox.write_json(run_id, "autopsy.json", report, runs_dir)
                     _emit("autopsy", report)
+                    if report.get("autopsy_error"):
+                        state["autopsy_error"] = report["autopsy_error"]
                     rails.check_budget(stats)
                 except RailFired:
                     raise
                 except Exception as e:  # noqa: BLE001
+                    state["autopsy_error"] = f"{type(e).__name__}: {e}"
                     _emit("autopsy", {"error": f"{type(e).__name__}: {e}"})
             if attempt < rails.max_attempts:
                 retry_ctx = result.as_dict()
@@ -176,7 +179,8 @@ def _finish(run_id, mode, idea, state, stats, rails, tracer, llm, t0, events, ru
         "success": state["success"], "attempts": state["attempts"], "first_attempt_passed": state["first"],
         "input_tokens": stats.input_tokens, "output_tokens": stats.output_tokens, "tokens": stats.tokens,
         "cost_usd": cost_val, "cost_tag": cost_tag, "cost_by_stage": stats.cost_by_stage(),
-        "latency_s": round(time.monotonic() - t0, 3), "rails_fired": rails.fired, "error": state["error"],
+        "latency_s": round(time.monotonic() - t0, 3), "rails_fired": rails.fired,
+        "error": state["error"], "autopsy_error": state.get("autopsy_error"),
         "neatlogs_trace_url": None, "spans": tracer.summary(),
         "model": llm.model, "temperature": llm.temperature, "pricing_date": PRICES["pricing_date"],
         "pricing_source": "MOCK" if is_mock else PRICES.get("source"),
