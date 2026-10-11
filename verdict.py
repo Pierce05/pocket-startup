@@ -89,6 +89,28 @@ def validate_founder(profile: dict) -> None:
         raise ValueError(f"Invalid demand_evidence '{evidence}'. Must be one of {sorted(VALID_DEMAND_EVIDENCE)}")
 
 
+def resolve_founder_path(founder_arg: str | Path | None = None) -> Path:
+    """Resolve founder profile path from string or Path ('a', 'b', 'base', filename, etc.)."""
+    if founder_arg is None:
+        return config.ROOT / "founder_a.yaml"
+    if isinstance(founder_arg, Path):
+        return founder_arg
+    f_str = str(founder_arg).strip()
+    if f_str.lower() in ("a", "founder_a"):
+        return config.ROOT / "founder_a.yaml"
+    if f_str.lower() in ("b", "founder_b"):
+        return config.ROOT / "founder_b.yaml"
+    if f_str.lower() in ("base", "founder", "founder_base", "base_founder"):
+        return config.FOUNDER_PATH
+    if Path(f_str).exists():
+        return Path(f_str)
+    if (config.ROOT / f_str).exists():
+        return config.ROOT / f_str
+    if (config.ROOT / f"founder_{f_str}.yaml").exists():
+        return config.ROOT / f"founder_{f_str}.yaml"
+    return config.FOUNDER_PATH
+
+
 def load_founder_profile(path: Path | str | None = None) -> dict:
     """Load and validate founder profile YAML."""
     p = Path(path) if path else config.FOUNDER_PATH
@@ -588,20 +610,7 @@ def main(argv: list[str] | None = None) -> None:
 
     args = parser.parse_args(argv)
 
-    # Resolve founder profile path
-    founder_arg = str(args.founder).strip()
-    if founder_arg.lower() in ("a", "founder_a"):
-        fp = config.ROOT / "founder_a.yaml"
-    elif founder_arg.lower() in ("b", "founder_b"):
-        fp = config.ROOT / "founder_b.yaml"
-    elif Path(founder_arg).exists():
-        fp = Path(founder_arg)
-    elif (config.ROOT / founder_arg).exists():
-        fp = config.ROOT / founder_arg
-    elif (config.ROOT / f"founder_{founder_arg}.yaml").exists():
-        fp = config.ROOT / f"founder_{founder_arg}.yaml"
-    else:
-        fp = config.FOUNDER_PATH
+    fp = resolve_founder_path(args.founder)
 
     founder_profile = load_founder_profile(fp)
     assumptions = config.load_assumptions(args.assumptions)

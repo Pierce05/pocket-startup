@@ -1,0 +1,17 @@
+{
+  "source": "hand-copied from app.cfo.ai plan page, Oct 11 2026",
+  "input_file": "evidence/cfo/cfo_input.md",
+  "profile": "founder_a.yaml",
+  "arm_cohort": "improved, held_out",
+  "decision": "Validate willingness to pay before scaling outreach",
+  "pilot_price_inr": {"value": 50, "tag": "USER-PROVIDED"},
+  "standard_price_inr": {"value": 75, "tag": "CFO.AI-ASSUMED"},
+  "premium_price_inr": {"value": 100, "tag": "CFO.AI-ASSUMED"},
+  "variable_cost_per_success_inr": {"value": 2.5032, "tag": "COMPUTED"},
+  "gross_margin_at_pilot_price": {"value": 0.9499, "tag": "COMPUTED"},
+  "volume_retention_for_equal_contribution_at_75": {"value": 0.6552, "tag": "COMPUTED"},
+  "zero_revenue_runway_months_fixed_only": {"value": 17.5, "tag": "COMPUTED"},
+  "base_ending_cash_inr": {"value": 1306918.89, "tag": "COMPUTED, CFO.AI-ASSUMED demand"},
+  "low_use_stress_ending_cash_inr": {"value": 169845.94, "tag": "COMPUTED, CFO.AI-ASSUMED demand"},
+  "no_cash_out_within_12_months": true
+}

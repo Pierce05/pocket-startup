@@ -280,3 +280,117 @@ def test_verdict_cli_output(capsys):
     assert "Verdict: BUILD" in captured_comb
     assert "Cohort fed to technical layer: improved arm, combined cohort of evidence/metrics.json" in captured_comb
 
+
+# 10. Bridge and verdict consistency: budget, success rate, first-attempt rate, retry tax, runway
+@pytest.mark.parametrize("founder_name", ["a", "b", "base"])
+@pytest.mark.parametrize("cohort", ["held_out", "tuning", "combined"])
+def test_bridge_equals_verdict_compute(assumptions, founder_name, cohort):
+    with open(REAL_METRICS_PATH, encoding="utf-8") as f:
+        metrics = json.load(f)
+
+    fp = verdict.resolve_founder_path(founder_name)
+    founder = verdict.load_founder_profile(fp)
+    arm = metrics["experiment"][cohort]["improved"]
+
+    v = verdict.compute(arm, assumptions, founder)
+    v_inputs = v["inputs"]
+
+    rendered = bridge.render(metrics, assumptions, founder=founder, cohort=cohort, founder_source=fp.name)
+
+    # Extract budget, success rate, first-attempt rate, retry tax, and runway
+    m_budget = re.search(r"- starting budget:\s*([0-9.]+)\s*INR\s*\[USER-PROVIDED\]", rendered)
+    assert m_budget, "Starting budget must be present in bridge output"
+    assert float(m_budget.group(1)) == float(v_inputs["budget_inr"]["value"])
+
+    m_sr = re.search(r"- success rate:\s*([0-9.]+)\s*\[MEASURED\]", rendered)
+    assert m_sr, "Success rate must be present in bridge output"
+    assert float(m_sr.group(1)) == pytest.approx(v_inputs["success_rate"]["value"], abs=0.01)
+
+    m_fa = re.search(r"- first-attempt pass rate:\s*([0-9.]+)\s*\[MEASURED\]", rendered)
+    assert m_fa, "First-attempt pass rate must be present in bridge output"
+    assert float(m_fa.group(1)) == pytest.approx(v_inputs["first_attempt_pass_rate"]["value"], abs=0.01)
+
+    m_tax = re.search(r"- retry tax [^:]*:\s*([0-9.]+)\s*\[COMPUTED\]", rendered)
+    assert m_tax, "Retry tax must be present in bridge output"
+    assert float(m_tax.group(1)) == pytest.approx(v_inputs["retry_tax"]["value"], abs=0.01)
+
+    m_runway = re.search(r"- runway:\s*([0-9.]+)\s*months\s*\[COMPUTED\]", rendered)
+    assert m_runway, "Runway must be present in bridge output"
+    assert float(m_runway.group(1)) == pytest.approx(v_inputs["runway_months"]["value"], abs=0.01)
+
+
+# 11. Bridge CLI flags and stdout header
+def test_bridge_cli_flags_and_output(capsys, tmp_path):
+    test_out = tmp_path / "cfo_test.md"
+
+    # Default flags: founder a, cohort held_out
+    bridge.main(["--out", str(test_out)])
+    out_default = capsys.readouterr().out
+    assert "Founder file: founder_a.yaml, cohort: held_out" in out_default
+    file_default = test_out.read_text(encoding="utf-8")
+    assert file_default.startswith("Founder file: founder_a.yaml, cohort: held_out")
+
+    # Founder b, cohort tuning
+    bridge.main(["--founder", "b", "--cohort", "tuning", "--out", str(test_out)])
+    out_b = capsys.readouterr().out
+    assert "Founder file: founder_b.yaml, cohort: tuning" in out_b
+    file_b = test_out.read_text(encoding="utf-8")
+    assert file_b.startswith("Founder file: founder_b.yaml, cohort: tuning")
+
+    # Founder base, cohort combined
+    bridge.main(["--founder", "base", "--cohort", "combined", "--out", str(test_out)])
+    out_base = capsys.readouterr().out
+    assert "Founder file: founder.yaml, cohort: combined" in out_base
+    file_base = test_out.read_text(encoding="utf-8")
+    assert file_base.startswith("Founder file: founder.yaml, cohort: combined")
+
+
+# 12. Structure verification: unit of sale, baseline comparison, thresholds removed, limitation tag, request ending
+def test_bridge_cfo_input_structure_rules(assumptions, founder_a):
+    with open(REAL_METRICS_PATH, encoding="utf-8") as f:
+        metrics = json.load(f)
+    text = bridge.render(metrics, assumptions, founder_a, cohort="held_out")
+
+    # (1) Printed at top
+    assert text.startswith("Founder file: founder_a.yaml, cohort: held_out")
+
+    # (2) Name arm and cohort in header, baseline values next to improved, estimates in separate section
+    assert "## Measured and computed metrics (improved arm, held_out cohort)" in text
+    assert "- success rate: 0.95 [MEASURED] (baseline: 0.75 [MEASURED])" in text
+    assert "- first-attempt pass rate: 0.80 [MEASURED] (baseline: 0.05 [MEASURED])" in text
+    assert "- cost per successful build: $0.008397 [COMPUTED] (baseline: $0.023148 [COMPUTED])" in text
+    assert "- retry tax (share of cost spent after first attempt): 0.31 [COMPUTED] (baseline: 0.63 [COMPUTED])" in text
+
+    assert "## Pocket Startup's own estimates, for comparison only" in text
+    assert "- gross margin: 0.95 [COMPUTED]" in text
+    assert "- runway: 17.09 months [COMPUTED]" in text
+    # Gross margin and runway must NOT be listed under Measured and computed metrics
+    metrics_section = text.split("## Measured and computed metrics")[1].split("## Failures by test")[0]
+    assert "gross margin" not in metrics_section
+    assert "runway" not in metrics_section
+
+    # (3) Unit of sale defined in one sentence using founder profile's target user
+    expected_unit = (
+        "The unit of sale is one run: one tested single-file app build delivered to a customer; "
+        "the customer is Office teams who run shared coffee and lunch orders; price is per run in INR."
+    )
+    assert expected_unit in text
+
+    # (4) Verdict thresholds removed from business assumptions
+    assumptions_section = text.split("## Business assumptions")[1].split("## Pocket Startup's own estimates")[0]
+    assert "kill threshold" not in assumptions_section
+    assert "build threshold" not in assumptions_section
+
+    # Pool-idea limitation: expected 30.00 tagged CONFIG, explanation tagged OBSERVATION
+    limitation_line = [line for line in text.splitlines() if "SalonPool Tips" in line][0]
+    assert "expected $30.00 [CONFIG]" in limitation_line
+    assert "[OBSERVATION]" in limitation_line
+
+    # (5) Request ends with exact required sentence
+    expected_ending = (
+        "If you introduce any number that is not in this file, label it [CFO.AI-ASSUMED] "
+        "and list those numbers separately."
+    )
+    assert text.strip().endswith(expected_ending)
+
+

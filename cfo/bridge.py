@@ -1,13 +1,19 @@
-"""Render evidence/cfo/cfo_input.md from metrics.json, assumptions.yaml, and founder.yaml.
+"""Render evidence/cfo/cfo_input.md from metrics.json, assumptions.yaml, and founder profile.
 
-Every number carries an explicit tag: MEASURED, COMPUTED, USER-PROVIDED, or ASSUMED.
+Every number carries an explicit tag: MEASURED, COMPUTED, USER-PROVIDED, ASSUMED, or CONFIG.
 Includes the failures-by-test table and the README pool-style limitation note.
 Does not invent any cfo.ai API; renders markdown for human copy-paste into cfo.ai.
 """
+import argparse
 import json
-import re
 from pathlib import Path
+import re
+import sys
 from typing import Any
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 import config
 import verdict
@@ -30,64 +36,102 @@ def _fmt(v: Any, kind: str = "num") -> str:
     return f"{v:.2f}"
 
 
-def pick_arm(metrics: dict) -> tuple[str, dict]:
-    """Pick the primary headline arm to evaluate."""
+def _format_with_baseline(val: Any, base_val: Any, kind: str, tag: str) -> str:
+    """Format a metric value with its baseline comparison and tag."""
+    val_str = f"{_fmt(val, kind)} [{tag}]"
+    if base_val is not None:
+        return f"{val_str} (baseline: {_fmt(base_val, kind)} [{tag}])"
+    return val_str
+
+
+def _detect_founder_source(founder: dict) -> str:
+    """Infer founder filename from profile content when not explicitly passed."""
+    budget = founder.get("budget_inr")
+    demand = str(founder.get("demand_evidence", "")).strip().lower()
+    if budget == 350000:
+        return "founder_b.yaml" if demand == "none" else "founder_a.yaml"
+    if budget == 250000:
+        return "founder.yaml"
+    return "founder_a.yaml"
+
+
+def pick_arm(metrics: dict, cohort: str = "held_out") -> tuple[str, dict, dict]:
+    """Pick the primary headline arm and baseline arm for the given cohort."""
     exp = metrics.get("experiment", {})
-    for label, path in [
-        ("improved arm, combined sets", ("combined", "improved")),
-        ("improved arm, held-out set", ("held_out", "improved")),
-        ("improved arm, tuning set", ("tuning", "improved")),
-    ]:
-        arm = exp.get(path[0], {}).get(path[1])
-        if arm and arm.get("n_runs"):
-            return label, arm
-    return "all real runs (live)", metrics.get("live", {})
+    cohort_data = exp.get(cohort, {})
+    arm = cohort_data.get("improved")
+    baseline_arm = cohort_data.get("baseline", {})
+    if arm and arm.get("n_runs"):
+        return f"improved arm, {cohort} cohort", arm, baseline_arm
+
+    for c in ["held_out", "tuning", "combined"]:
+        candidate = exp.get(c, {}).get("improved")
+        if candidate and candidate.get("n_runs"):
+            return f"improved arm, {c} cohort", candidate, exp.get(c, {}).get("baseline", {})
+
+    return "all real runs (live)", metrics.get("live", metrics), {}
 
 
 def render(
     metrics: dict,
     assumptions: dict,
     founder: dict | None = None,
+    cohort: str = "held_out",
+    founder_source: str | None = None,
 ) -> str:
     """Render the full cfo_input.md content with all numbers labeled."""
     if founder is None:
-        founder = config.load_founder()
+        fp = verdict.resolve_founder_path("a")
+        founder = verdict.load_founder_profile(fp)
+        founder_source = fp.name
+    elif founder_source is None:
+        founder_source = _detect_founder_source(founder)
 
-    label, arm = pick_arm(metrics)
-    th = assumptions.get("thresholds", {})
+    label, arm, baseline_arm = pick_arm(metrics, cohort=cohort)
 
     # Evaluate verdict layers to get computed gross margin & runway
     verdict_res = verdict.compute(arm, assumptions, founder)
     inputs = verdict_res["inputs"]
 
+    target_user = founder.get("target_user", "target user")
+
     lines = [
+        f"Founder file: {founder_source}, cohort: {cohort}",
+        "",
         "I am planning pricing, costs, revenue and runway for an AI agent product called Pocket Startup. It turns a startup idea into a tested single-file web app plus a viability verdict.",
+        f"The unit of sale is one run: one tested single-file app build delivered to a customer; the customer is {target_user}; price is per run in INR.",
         "Every figure below carries a tag: MEASURED (from traced runs), COMPUTED (from list price, formulas or conversions), USER-PROVIDED (from founder input) or ASSUMED (business assumptions).",
         "",
         f"## Measured and computed metrics ({label})",
         f"- runs analysed: {_fmt(arm.get('n_runs'), 'int')} [MEASURED]",
-        f"- success rate: {_fmt(arm.get('success_rate'), 'pct')} [MEASURED]",
-        f"- first-attempt pass rate: {_fmt(arm.get('first_attempt_pass_rate'), 'pct')} [MEASURED]",
+        f"- success rate: {_format_with_baseline(arm.get('success_rate'), baseline_arm.get('success_rate'), 'pct', 'MEASURED')}",
+        f"- first-attempt pass rate: {_format_with_baseline(arm.get('first_attempt_pass_rate'), baseline_arm.get('first_attempt_pass_rate'), 'pct', 'MEASURED')}",
         f"- average tokens per run: {_fmt(arm.get('avg_tokens'), 'int')} [MEASURED]",
         f"- median latency per run in seconds: {_fmt(arm.get('median_latency_s'))} [MEASURED]",
-        f"- cost per successful build: {_fmt(arm.get('cost_per_success'), 'usd')} [COMPUTED]",
-        f"- retry tax (share of cost spent after first attempt): {_fmt(arm.get('retry_tax'), 'pct')} [COMPUTED]",
-        f"- gross margin: {_fmt(inputs['gross_margin']['value'], 'pct')} [COMPUTED]",
-        f"- runway: {_fmt(inputs['runway_months']['value'])} months [COMPUTED]",
+        f"- cost per successful build: {_format_with_baseline(arm.get('cost_per_success'), baseline_arm.get('cost_per_success'), 'usd', 'COMPUTED')}",
+        f"- retry tax (share of cost spent after first attempt): {_format_with_baseline(arm.get('retry_tax'), baseline_arm.get('retry_tax'), 'pct', 'COMPUTED')}",
         "",
         "## Failures by test",
     ]
 
-    # Add failures-by-test breakdown from metrics
+    # Add failures-by-test breakdown for the selected cohort
     exp = metrics.get("experiment", {})
-    baseline_combined = exp.get("combined", {}).get("baseline", {}).get("failures_by_test", {})
-    improved_combined = exp.get("combined", {}).get("improved", {}).get("failures_by_test", {})
+    cohort_data = exp.get(cohort, {})
+    baseline_cohort = cohort_data.get("baseline", {}).get("failures_by_test", {})
+    improved_cohort = cohort_data.get("improved", {}).get("failures_by_test", {})
 
-    if baseline_combined:
-        for tname, count in sorted(baseline_combined.items()):
+    if not baseline_cohort and not improved_cohort and exp.get("combined"):
+        baseline_cohort = exp.get("combined", {}).get("baseline", {}).get("failures_by_test", {})
+        improved_cohort = exp.get("combined", {}).get("improved", {}).get("failures_by_test", {})
+
+    if baseline_cohort:
+        for tname, count in sorted(baseline_cohort.items()):
             lines.append(f"- baseline {tname} failures: {count} [MEASURED]")
-    if improved_combined:
-        for tname, count in sorted(improved_combined.items()):
+    else:
+        lines.append("- baseline test failures: 0 [MEASURED]")
+
+    if improved_cohort:
+        for tname, count in sorted(improved_cohort.items()):
             lines.append(f"- improved {tname} failures: {count} [MEASURED]")
     else:
         lines.append("- improved test failures: 0 [MEASURED]")
@@ -97,8 +141,8 @@ def render(
         "## Known limitation on pool-style ideas",
         (
             "- known limitation note: pool-style ideas (e.g. SalonPool Tips) failed split_basic with actual "
-            "$5.00 [MEASURED] vs expected $30.00 [ASSUMED] (manual founder observation was $20.00 [USER-PROVIDED]), "
-            "because template notes specify a per-person total bill amount while pool ideas distribute the tip pool only [ASSUMED]"
+            "$5.00 [MEASURED] vs expected $30.00 [CONFIG] (manual founder observation was $20.00 [USER-PROVIDED]), "
+            "because template notes specify a per-person total bill amount while pool ideas distribute the tip pool only [OBSERVATION]"
         ),
         "",
         "## Founder profile",
@@ -119,16 +163,19 @@ def render(
         f"- runs per customer per month: {assumptions.get('runs_per_customer_per_month', 20)} [ASSUMED]",
         f"- customers in month one: {assumptions.get('customers_month_1', 10)} [ASSUMED]",
         f"- customers in month twelve: {assumptions.get('customers_month_12', 200)} [ASSUMED]",
-        f"- kill threshold for success rate: {_fmt(th.get('kill_success_rate', 0.5), 'pct')} [ASSUMED]",
-        f"- build threshold for success rate: {_fmt(th.get('build_success_rate', 0.8), 'pct')} [ASSUMED]",
-        f"- kill threshold for gross margin: {_fmt(th.get('kill_margin', 0.2), 'pct')} [ASSUMED]",
-        f"- build threshold for gross margin: {_fmt(th.get('build_margin', 0.6), 'pct')} [ASSUMED]",
-        f"- kill threshold for runway: {_fmt(th.get('kill_runway_months', 6.0))} months [ASSUMED]",
-        f"- build threshold for runway: {_fmt(th.get('build_runway_months', 12.0))} months [ASSUMED]",
-        f"- build threshold for retry tax: {_fmt(th.get('build_retry_tax', 0.35), 'pct')} [ASSUMED]",
+        "",
+        "## Pocket Startup's own estimates, for comparison only",
+        f"- gross margin: {_fmt(inputs['gross_margin']['value'], 'pct')} [COMPUTED]",
+        f"- runway: {_fmt(inputs['runway_months']['value'])} months [COMPUTED]",
         "",
         REQUEST_MARKER,
-        "Produce: three pricing options with a recommendation, unit economics, gross margin, twelve-month projections in base and growth scenarios, runway, and the assumptions that change the outcome most. Keep the MEASURED, COMPUTED, USER-PROVIDED and ASSUMED tags on every number you report.",
+        (
+            "Produce: three pricing options with a recommendation, unit economics, gross margin, "
+            "twelve-month projections in base and growth scenarios, runway, and the assumptions that "
+            "change the outcome most. Keep the MEASURED, COMPUTED, USER-PROVIDED and ASSUMED tags on "
+            "every number you report. If you introduce any number that is not in this file, label it "
+            "[CFO.AI-ASSUMED] and list those numbers separately."
+        ),
         "",
     ]
 
@@ -140,21 +187,77 @@ def write(
     assumptions_path: Path | str | None = None,
     founder_path: Path | str | None = None,
     out_path: Path | str | None = None,
+    cohort: str = "held_out",
+    founder: str | Path | dict | None = None,
 ) -> Path:
     """Render and write evidence/cfo/cfo_input.md."""
     mp = Path(metrics_path or config.METRICS_PATH)
+    if not mp.exists() and (config.ROOT / "evidence" / "metrics.json").exists():
+        mp = config.ROOT / "evidence" / "metrics.json"
     metrics = json.loads(mp.read_text(encoding="utf-8")) if mp.exists() else {}
 
     assumptions = config.load_assumptions(assumptions_path)
-    founder = config.load_founder(founder_path)
 
-    text = render(metrics, assumptions, founder)
+    founder_arg = founder if founder is not None else founder_path
+    if isinstance(founder_arg, dict):
+        founder_profile = founder_arg
+        founder_source = _detect_founder_source(founder_profile)
+    else:
+        fp = verdict.resolve_founder_path(founder_arg)
+        founder_profile = verdict.load_founder_profile(fp)
+        founder_source = fp.name
+
+    text = render(metrics, assumptions, founder=founder_profile, cohort=cohort, founder_source=founder_source)
     out = Path(out_path or config.CFO_DIR / "cfo_input.md")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(text, encoding="utf-8")
     return out
 
 
-if __name__ == "__main__":
-    written_path = write()
+def main(argv: list[str] | None = None) -> None:
+    """CLI entrypoint to render cfo_input.md with the same arguments as verdict.py."""
+    parser = argparse.ArgumentParser(description="Render cfo_input.md from metrics, assumptions, and founder profile.")
+    parser.add_argument(
+        "--founder",
+        default="a",
+        help="Founder profile to load: 'a', 'b', 'base', or path to founder YAML (default: a)",
+    )
+    parser.add_argument(
+        "--cohort",
+        choices=["held_out", "tuning", "combined"],
+        default="held_out",
+        help="Evaluation cohort from metrics.json (default: held_out)",
+    )
+    parser.add_argument(
+        "--metrics",
+        default=None,
+        help="Path to metrics.json (default: evidence/metrics.json)",
+    )
+    parser.add_argument(
+        "--assumptions",
+        default=None,
+        help="Path to assumptions.yaml (default: assumptions.yaml)",
+    )
+    parser.add_argument(
+        "--out",
+        default=None,
+        help="Path to output cfo_input.md (default: evidence/cfo/cfo_input.md)",
+    )
+
+    args = parser.parse_args(argv)
+
+    fp = verdict.resolve_founder_path(args.founder)
+    print(f"Founder file: {fp.name}, cohort: {args.cohort}")
+
+    written_path = write(
+        metrics_path=args.metrics,
+        assumptions_path=args.assumptions,
+        founder_path=fp,
+        out_path=args.out,
+        cohort=args.cohort,
+    )
     print(f"wrote {written_path}")
+
+
+if __name__ == "__main__":
+    main()
