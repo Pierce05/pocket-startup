@@ -1,0 +1,38 @@
+Proceed with STAGE 1c for Pocket Startup.
+
+First read `AGENTS.md`, `GEMINI.md`, `docs/PRD.md`, `docs/GUIDE.md`, `assumptions.yaml`, and the existing Stage 1b implementation. Follow the project instructions and the runbook.
+
+### Goal
+Create `experiments/smoke.py` to exercise the real end-to-end build pipeline using the existing Gemini and Neatlogs integrations.
+
+### Requirements
+1. Support `--mode baseline` and `--n N`; default to baseline and one run.
+2. Use the existing configuration, LLM wrapper, Trust Rails, tracing manager, templates, checks, and `run_build`. Do not duplicate or bypass their logic.
+3. Use the real Gemini client by default. Require explicit `--mock` to run the mock pipeline, and label mock results clearly.
+4. Ensure Neatlogs is initialized before creating the Gemini client, using the existing tracing integration. Do not invent APIs or claim that remote tracing works without dashboard verification.
+5. Save evidence under the existing run directory structure. Each run must retain `result.json`, `events.json`, the generated `index.html`, and attempt artifacts where available.
+6. Report measured token usage separately from cost estimates. Keep unverified pricing marked `ASSUMED` / `UNVERIFIED`.
+7. Handle missing credentials and runtime errors clearly without printing, logging, or exposing secret values.
+8. Keep the run bounded by the existing rails and browser-check timeout.
+9. Do not weaken acceptance tests or change the existing Stage 1a/1b behavior just to make the smoke run pass.
+
+### Scope restrictions
+- Do not implement Stage 2 or later features.
+- Do not modify existing files unless required for correct integration; explain every such change before making it.
+- Do not run Git commands, stage files, commit, or push.
+- Do not launch a live Gemini request yet.
+
+### Process
+Before editing, report the exact files you plan to create or modify and why. Then implement the smoke runner and add focused tests for argument parsing, missing credentials, mock mode, and run orchestration. Run `python -m pytest -q` and report the exact output, changed files, and any blockers. Stop for my review before executing a real API call.
+
+---
+
+Fix pricing in agent/llm.py. PRICES must have an entry keyed by the exact model name gemini-3.5-flash-lite with input_per_m 0.30 and output_per_m 2.50, pricing_date 2026-10-11, source Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing). If GEMINI_MODEL is not in PRICES, do not fall back to another model's rates: mark cost as UNPRICED and make that visible in result.json and in logs. Check whether thinking tokens are billed as output for this model and make the cost computation match, and show me where token counts come from. Add tests for both the priced and the unpriced case. Do not change any acceptance test. Do not run git. Stop and show verify commands.
+
+---
+
+Remove the gemini-2.5-flash entry from PRICES (unverified rates). Keep mock-model but tag its costs as MOCK in result.json so they can never be confused with real costs. Run pytest. Do not run git. Stop and show verify commands.
+
+---
+
+commit
