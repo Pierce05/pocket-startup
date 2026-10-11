@@ -76,6 +76,28 @@ def setup_tmp_environment(tmp_path, monkeypatch):
             if f.is_file():
                 shutil.copyfile(f, ui_dir / f.name)
 
+    real_ab_dir = config.ROOT / "evidence" / "ab"
+    if real_ab_dir.exists():
+        ab_dir = evidence_dir / "ab"
+        ab_dir.mkdir(parents=True, exist_ok=True)
+        for f in real_ab_dir.glob("*"):
+            if f.is_file():
+                shutil.copyfile(f, ab_dir / f.name)
+
+    real_ledger = config.ROOT / "evidence" / "ledger.json"
+    if real_ledger.exists():
+        shutil.copyfile(real_ledger, evidence_dir / "ledger.json")
+
+    # Real demo runs for replay tests
+    for r_id in ["20261011-043610-3f24", "20261011-073159-a490"]:
+        src_r = config.ROOT / "evidence" / "runs" / r_id
+        if src_r.exists():
+            dst_r = runs_dir / r_id
+            dst_r.mkdir(parents=True, exist_ok=True)
+            for rf in src_r.glob("*"):
+                if rf.is_file():
+                    shutil.copyfile(rf, dst_r / rf.name)
+
     # Monkeypatch config paths to tmp_path
     monkeypatch.setattr(config, "ROOT", tmp_path)
     monkeypatch.setattr(config, "EVIDENCE", evidence_dir)
@@ -91,6 +113,7 @@ def setup_tmp_environment(tmp_path, monkeypatch):
     yield
 
     hub.clear()
+
 
 
 @pytest.fixture
@@ -401,37 +424,65 @@ def test_evidence_endpoint(client):
     assert res.status_code == 200
     data = res.json()
 
-    # (a) Claims with FOUND or MISSING status
+    # (a) Exactly 7 claims with FOUND or MISSING status
     assert "claims" in data
+    claim_names = [c["claim"] for c in data["claims"]]
+    assert len(data["claims"]) == 7
+    expected_claims = [
+        "First-attempt lift",
+        "Held-out result",
+        "Cost per success",
+        "Entire checkpoints",
+        "neatlogs trace links",
+        "cfo.ai plan files",
+        "Verdict ledger",
+    ]
+    for exp_c in expected_claims:
+        assert exp_c in claim_names, f"Expected claim {exp_c} missing from claims list"
+
+
     for claim in data["claims"]:
-        assert "claim" in claim
         assert claim["status"] in ("FOUND", "MISSING")
         assert "proof" in claim
         for p in claim["proof"]:
             assert p["status"] in ("FOUND", "MISSING")
 
-    # (b) SHA-256 hashes
+    # (b) Provenance & SHA-256 hashes
+    assert data.get("metrics_sha_match") == "MATCH"
     assert "hashes" in data
     hashes = data["hashes"]
     assert "evidence/metrics.json" in hashes
-    assert "winner.txt" in hashes
-    assert "agent/prompts.py" in hashes
+    assert "evidence/ab/metrics.sha256" in hashes
+    assert hashes["winner.txt"] is not None
+    assert hashes["agent/prompts.py"] is not None
+    assert hashes["BUILDER_SYSTEM_V1"] is not None
+    assert hashes["RETRY_USER"] is not None
 
-    # (c) Run counts per cell
+    # (c) Run counts per cell (20 runs each)
     assert "run_counts_per_cell" in data
     cell_counts = data["run_counts_per_cell"]
-    assert "tuning/baseline" in cell_counts
-    assert "tuning/improved" in cell_counts
-    assert "held_out/baseline" in cell_counts
-    assert "held_out/improved" in cell_counts
+    assert cell_counts["tuning/baseline"] == 20
+    assert cell_counts["tuning/improved"] == 20
+    assert cell_counts["held_out/baseline"] == 20
+    assert cell_counts["held_out/improved"] == 20
 
-    # (d) Reproduce commands
+    # (d) Reproduce commands from README
     assert "reproduce_commands" in data
     assert any("experiments.ab" in cmd for cmd in data["reproduce_commands"])
 
-    # (e) Git log trailers
+    # (e) Limitations box (4 items)
+    assert "limitations" in data
+    assert len(data["limitations"]) == 4
+    lim_text = " ".join(data["limitations"]).lower()
+    assert "tip-pool" in lim_text
+    assert "whole-number-people" in lim_text
+    assert "same template" in lim_text
+    assert "n is small" in lim_text
+
+    # (f) Git log trailers
     assert "git_log_trailers" in data
     assert isinstance(data["git_log_trailers"], list)
+
 
 
 # 14. GET /api/plan (Ready vs Pending)
@@ -544,3 +595,147 @@ def test_ui_index_and_static_serving(client):
     r_app = client.get("/ui/app.js")
     assert r_app.status_code == 200
     assert "handleServerEvent" in r_app.text
+
+
+# 18. STAGE 4c: Failed run status & Approve disabled
+def test_failed_run_outcome_and_status(client):
+    run_id = "test-failed-rail-run"
+    d = config.RUNS / run_id
+    d.mkdir(parents=True, exist_ok=True)
+    rec = {
+        "run_id": run_id,
+        "idea": "Split cafe checks",
+        "mode": "baseline",
+        "success": False,
+        "attempts": 4,
+        "first_attempt_passed": False,
+        "cost_usd": 0.05,
+        "mock": True,
+        "approved": False,
+        "rails_fired": [{"rail": "attempt_cap", "message": "max attempts reached"}],
+    }
+    (d / "result.json").write_text(json.dumps(rec), encoding="utf-8")
+
+    # Fetch detail
+    res = client.get(f"/api/runs/{run_id}")
+    assert res.status_code == 200
+    detail = res.json()
+    assert detail["success"] is False
+    assert detail["approved"] is False
+    assert len(detail["rails_fired"]) == 1
+    assert detail["rails_fired"][0]["rail"] == "attempt_cap"
+
+    # Approval must be rejected (409 Conflict)
+    r_approve = client.post(f"/api/runs/{run_id}/approve")
+    assert r_approve.status_code == 409
+    assert "only a run that passed all checks can be approved" in r_approve.json()["detail"].lower()
+
+
+    # Trust report tracks the rail
+    r_trust = client.get(f"/api/trust/{run_id}")
+    assert r_trust.status_code == 200
+    assert r_trust.json()["approved"] is False
+    attempt_rail = next(r for r in r_trust.json()["rails"] if r["rail"] == "Attempt cap")
+    assert attempt_rail["fired"] is True
+
+
+# 19. STAGE 4c: SSE Unbuffered Arrival (first event arrives before run finishes)
+@pytest.mark.asyncio
+async def test_sse_early_event_arrival_unbuffered():
+    import asyncio
+    from server.app import RunRequest, start_run
+
+    req = RunRequest(idea="Split bills", mode="baseline", mock=True, mock_delay=0.1)
+    res = await start_run(req)
+    run_id = res["run_id"]
+    stream = hub.get(run_id)
+    assert stream is not None
+
+    scope = {
+        "type": "http",
+        "method": "GET",
+        "path": f"/api/runs/{run_id}/events",
+        "raw_path": f"/api/runs/{run_id}/events".encode(),
+        "query_string": b"",
+        "headers": [(b"accept", b"text/event-stream")],
+    }
+
+    first_chunk_arrived_while_running = None
+    first_event_t = None
+    disconnect_event = asyncio.Event()
+
+    async def receive():
+        await disconnect_event.wait()
+        return {"type": "http.disconnect"}
+
+    async def send(message):
+        nonlocal first_chunk_arrived_while_running, first_event_t
+        if message["type"] == "http.response.body":
+            body = message.get("body", b"")
+            if b"run_started" in body and first_chunk_arrived_while_running is None:
+                first_chunk_arrived_while_running = not stream.done
+                try:
+                    for line in body.decode("utf-8", errors="ignore").splitlines():
+                        if line.startswith("data:"):
+                            parsed = json.loads(line[5:].strip())
+                            if parsed.get("type") == "run_started":
+                                first_event_t = parsed.get("t")
+                except Exception:
+                    pass
+                disconnect_event.set()
+
+    try:
+        await asyncio.wait_for(app(scope, receive, send), timeout=5.0)
+    except (asyncio.TimeoutError, asyncio.CancelledError):
+        pass
+
+    assert first_chunk_arrived_while_running is True, "First SSE event must arrive before run finishes!"
+    assert first_event_t is not None
+    assert isinstance(first_event_t, (int, float))
+    assert first_event_t >= 0.0
+
+
+# 20. STAGE 4c: Demo Run Preset and Compare Replay
+def test_demo_run_and_compare_replay(client):
+    # Verify Demo run 20261011-043610-3f24 on disk contains the autopsy event
+    demo_dir = config.RUNS / "20261011-043610-3f24"
+    assert demo_dir.exists(), "Demo run folder 20261011-043610-3f24 must exist in runs dir"
+    demo_events_file = demo_dir / "events.json"
+    assert demo_events_file.exists(), "Demo events.json must exist"
+    events = json.loads(demo_events_file.read_text(encoding="utf-8"))
+    autopsy_events = [e for e in events if e.get("type") == "autopsy"]
+    assert len(autopsy_events) >= 1, "Demo run events.json must contain autopsy event"
+
+    # Replay Demo run synchronously
+    r_demo = client.post("/api/replay/20261011-043610-3f24?speed=4&sync=true")
+    assert r_demo.status_code == 200
+    data_demo = r_demo.json()
+    assert "replay_id" in data_demo
+    replay_id = data_demo["replay_id"]
+
+    # Read replayed events via SSE stream
+    with client.stream("GET", f"/api/runs/{replay_id}/events") as response:
+        assert response.status_code == 200
+        text = "\n".join(response.iter_lines())
+        assert "run_started" in text
+        assert "check_failed" in text
+        assert "autopsy" in text
+        assert "retry" in text
+        assert "check_passed" in text
+        assert "run_finished" in text
+        assert '"replay": true' in text
+
+    # Verify Improved run 20261011-073159-a490 (passed attempt 1)
+    improved_dir = config.RUNS / "20261011-073159-a490"
+    assert improved_dir.exists(), "Improved run folder 20261011-073159-a490 must exist"
+    r_imp = client.post("/api/replay/20261011-073159-a490?speed=4&sync=true")
+    assert r_imp.status_code == 200
+    imp_replay_id = r_imp.json()["replay_id"]
+
+    with client.stream("GET", f"/api/runs/{imp_replay_id}/events") as response:
+        assert response.status_code == 200
+        text_imp = "\n".join(response.iter_lines())
+        assert "check_passed" in text_imp
+        assert "run_finished" in text_imp
+        assert '"attempts": 1' in text_imp
+

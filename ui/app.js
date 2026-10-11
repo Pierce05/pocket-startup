@@ -64,6 +64,7 @@
     else if (name === 'verdict') renderVerdict();
     else if (name === 'founder') loadFounderDefaults();
     else if (name === 'plan') renderPlan();
+    else if (name === 'evidence') renderEvidence();
   }
 
   tabs.forEach((t) => {
@@ -116,13 +117,15 @@
     $('open-app-link').hidden = true;
     $('built-app-card').hidden = true;
     $('status-text').textContent = 'ready';
+    S.lastRailFired = null;
+    S.lastRec = null;
   }
 
   function appendLog(t, text, type = 'info') {
     const logBox = $('p-log');
     const entry = document.createElement('div');
     entry.className = `log-entry ${type}`;
-    const timeStr = typeof t === 'number' ? `${t.toFixed(1)}s` : '0.0s';
+    const timeStr = (typeof t === 'number' && !isNaN(t)) ? `${t.toFixed(1)}s` : '0.0s';
     entry.innerHTML = `<span class="time">${timeStr}</span> <span>${esc(text)}</span>`;
     logBox.appendChild(entry);
     logBox.scrollTop = logBox.scrollHeight;
@@ -192,6 +195,7 @@
         break;
 
       case 'rail_fired':
+        S.lastRailFired = d.rail;
         appendLog(t, `TRUST RAIL FIRED: ${d.rail}. ${d.detail}`, 'bad');
         $('k-rails').textContent = `fired: ${d.rail}`;
         $('k-rails').className = 'fail';
@@ -227,22 +231,34 @@
 
   function onRunFinished(d) {
     S.running = false;
+    S.lastRec = d;
     $('run-btn').disabled = false;
     $('kill-btn').disabled = true;
-    $('status-text').textContent = d.success ? 'finished (passed)' : 'finished (failed)';
 
-    if (d.success && d.run_id) {
-      const appUrl = `/api/runs/${encodeURIComponent(d.run_id)}/app`;
-      $('built-app-iframe').src = appUrl;
-      $('built-app-card').hidden = false;
-      $('open-app-link').hidden = false;
-      $('open-app-link').href = appUrl;
+    if (d.success) {
+      $('status-text').textContent = 'finished (passed)';
+      if (d.run_id) {
+        const appUrl = `/api/runs/${encodeURIComponent(d.run_id)}/app`;
+        $('built-app-iframe').src = appUrl;
+        $('built-app-card').hidden = false;
+        $('open-app-link').hidden = false;
+        $('open-app-link').href = appUrl;
+      }
+    } else {
+      let rail = S.lastRailFired;
+      if (!rail && d.rails_fired && d.rails_fired.length) {
+        const rf = d.rails_fired[0];
+        rail = typeof rf === 'object' ? (rf.rail || rf.message) : rf;
+      }
+      if (!rail) rail = 'attempt_cap';
+      $('status-text').textContent = `FAILED (${rail})`;
+      $('approve-btn').disabled = true;
     }
 
     refreshReplayList();
   }
 
-  function startSseListener(runId, isReplay) {
+  function startSseListener(runId, isReplay, customLabel = null, onEnd = null) {
     if (S.es) S.es.close();
 
     S.runId = runId;
@@ -253,7 +269,7 @@
 
     $('run-btn').disabled = true;
     $('kill-btn').disabled = isReplay;
-    $('status-text').textContent = isReplay ? 'replaying' : 'running';
+    $('status-text').textContent = customLabel ? `replaying: ${customLabel}` : (isReplay ? 'replaying' : 'running');
 
     const es = new EventSource(`/api/runs/${encodeURIComponent(runId)}/events`);
     S.es = es;
@@ -272,7 +288,24 @@
       S.running = false;
       $('kill-btn').disabled = true;
       $('run-btn').disabled = false;
-      $('status-text').textContent = 'completed';
+
+      // Keep FAILED status and disabled Approve button if run did not pass
+      if (S.lastRec && !S.lastRec.success) {
+        let rail = S.lastRailFired;
+        if (!rail && S.lastRec.rails_fired && S.lastRec.rails_fired.length) {
+          const rf = S.lastRec.rails_fired[0];
+          rail = typeof rf === 'object' ? (rf.rail || rf.message) : rf;
+        }
+        if (!rail) rail = 'attempt_cap';
+        $('status-text').textContent = `FAILED (${rail})`;
+        $('approve-btn').disabled = true;
+      } else if (S.lastRec && S.lastRec.success) {
+        $('status-text').textContent = S.lastRec.approved ? 'approved' : 'awaiting approval';
+      }
+
+      if (typeof onEnd === 'function') {
+        onEnd();
+      }
     });
 
     es.onerror = () => {
@@ -343,6 +376,33 @@
       startSseListener(res.replay_id, true);
     } catch (err) {
       alert(`Replay failed: ${err.message}`);
+    }
+  });
+
+  $('demo-btn').addEventListener('click', async () => {
+    const speed = $('replay-speed').value || '1';
+    try {
+      const res = await api(`/api/replay/20261011-043610-3f24?speed=${speed}`, { method: 'POST' });
+      openTab('log');
+      startSseListener(res.replay_id, true, 'Demo Baseline: 20261011-043610-3f24');
+    } catch (err) {
+      alert(`Demo replay failed: ${err.message}`);
+    }
+  });
+
+  $('compare-btn').addEventListener('click', async () => {
+    const speed = $('replay-speed').value || '2';
+    try {
+      openTab('log');
+      appendLog(0, '=== COMPARE STEP 1/2: Baseline Run 20261011-043610-3f24 (attempt 1 fail, autopsy, retry, passed attempt 2) ===', 'warn');
+      const res1 = await api(`/api/replay/20261011-043610-3f24?speed=${speed}`, { method: 'POST' });
+      startSseListener(res1.replay_id, true, '[BASELINE] 20261011-043610-3f24', async () => {
+        appendLog(0, '=== COMPARE STEP 2/2: Improved Run 20261011-073159-a490 (passed on attempt 1) ===', 'good');
+        const res2 = await api(`/api/replay/20261011-073159-a490?speed=${speed}`, { method: 'POST' });
+        startSseListener(res2.replay_id, true, '[IMPROVED] 20261011-073159-a490');
+      });
+    } catch (err) {
+      alert(`Compare replay failed: ${err.message}`);
     }
   });
 
@@ -660,6 +720,146 @@
       container.innerHTML = html;
     } catch (err) {
       container.innerHTML = `<p style="color: var(--red);">Failed to load plan: ${esc(err.message)}</p>`;
+    }
+  }
+
+  /* ================= Evidence Tab ================= */
+  async function renderEvidence() {
+    const container = $('p-evidence');
+    try {
+      const data = await api('/api/evidence');
+      let html = `<h3>Evidence Locker: Claims &amp; Proofs</h3>`;
+
+      // 1. Claims Table (Computed dynamically from disk, never hard-coded)
+      html += `
+        <div class="metric-card" style="margin-bottom: 16px;">
+          <h4>Audited Claims &amp; Artifacts</h4>
+          <table class="metric-table">
+            <thead>
+              <tr>
+                <th style="width: 25%;">Claim</th>
+                <th style="width: 15%;">Status</th>
+                <th>Artifact Reference &amp; Values</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      (data.claims || []).forEach((c) => {
+        const proofs = (c.proof || []).map((p) =>
+          `<div><strong>${esc(p.label)}</strong> <span style="font-size: 11px; color: var(--ink2);">(${esc(p.ref)})</span></div>`
+        ).join('');
+        const statusBadge = `<span class="chip ${c.status === 'FOUND' ? 'found' : 'comp'}">${esc(c.status)}</span>`;
+
+        html += `
+          <tr>
+            <td><strong>${esc(c.claim)}</strong></td>
+            <td>${statusBadge}</td>
+            <td>${proofs}</td>
+          </tr>
+        `;
+      });
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      // 2. SHA-256 Provenance & Verification
+      const shaMatch = data.metrics_sha_match || (data.hashes?.['evidence/metrics.json']?.toUpperCase() === data.hashes?.['evidence/ab/metrics.sha256']?.toUpperCase() ? 'MATCH' : 'MISMATCH');
+      const shaBadge = `<span class="chip ${shaMatch === 'MATCH' ? 'found' : 'bad'}">${esc(shaMatch)}</span>`;
+
+      html += `
+        <div class="metric-card" style="margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h4>SHA-256 Provenance Verification</h4>
+            ${shaBadge}
+          </div>
+          <table class="metric-table">
+            <tbody>
+              <tr>
+                <td style="width: 32%;"><code>evidence/metrics.json</code></td>
+                <td style="font-size: 11px; word-break: break-all;"><code>${esc(data.hashes?.['evidence/metrics.json'] || 'none')}</code></td>
+              </tr>
+              <tr>
+                <td><code>evidence/ab/metrics.sha256</code></td>
+                <td style="font-size: 11px; word-break: break-all;"><code>${esc(data.hashes?.['evidence/ab/metrics.sha256'] || 'none')}</code></td>
+              </tr>
+              <tr>
+                <td><code>winner.txt</code></td>
+                <td style="font-size: 11px; word-break: break-all;"><code>${esc(data.hashes?.['winner.txt'] || data.hashes?.['evidence/patches/winner.txt'] || 'none')}</code></td>
+              </tr>
+              <tr>
+                <td><code>agent/prompts.py</code></td>
+                <td style="font-size: 11px; word-break: break-all;"><code>${esc(data.hashes?.['agent/prompts.py'] || 'none')}</code></td>
+              </tr>
+              <tr>
+                <td><code>BUILDER_SYSTEM_V1</code></td>
+                <td style="font-size: 11px; word-break: break-all;"><code>${esc(data.hashes?.['BUILDER_SYSTEM_V1'] || 'none')}</code></td>
+              </tr>
+              <tr>
+                <td><code>RETRY_USER</code></td>
+                <td style="font-size: 11px; word-break: break-all;"><code>${esc(data.hashes?.['RETRY_USER'] || 'none')}</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      // 3. Run Counts Per Cell
+      html += `
+        <div class="metric-card" style="margin-bottom: 16px;">
+          <h4>Run Counts Per Cell</h4>
+          <table class="metric-table">
+            <thead>
+              <tr>
+                <th>Cohort / Arm</th>
+                <th class="num">Runs (N)</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      const cellCounts = data.cell_counts || data.run_counts_per_cell || {};
+      for (const [cell, cnt] of Object.entries(cellCounts)) {
+        html += `
+          <tr>
+            <td><strong>${esc(cell)}</strong></td>
+            <td class="num">${cnt} ${chip('MEASURED')}</td>
+          </tr>
+        `;
+      }
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      // 4. Reproduce Commands
+      html += `
+        <div class="metric-card" style="margin-bottom: 16px;">
+          <h4>Reproduce Commands (from evidence/ab/README.md)</h4>
+          <div style="background-color: var(--paper3); border: 1px solid var(--ink); border-radius: var(--r); padding: 10px; font-family: var(--font-m); font-size: 12px;">
+      `;
+      (data.reproduce || data.reproduce_commands || []).forEach((cmd) => {
+        html += `<div style="margin-bottom: 4px;"><code>${esc(cmd)}</code></div>`;
+      });
+      html += `</div></div>`;
+
+      // 5. Limitations Box
+      html += `
+        <div class="note-box">
+          <h4 style="margin-bottom: 8px;">Experimental Limitations</h4>
+          <ul style="padding-left: 18px; margin: 0; font-size: 13px; line-height: 1.45;">
+      `;
+      (data.limitations || []).forEach((lim) => {
+        html += `<li style="margin-bottom: 4px;">${esc(lim)}</li>`;
+      });
+      html += `</ul></div>`;
+
+      container.innerHTML = html;
+    } catch (err) {
+      container.innerHTML = `<p style="color: var(--red);">Failed to load Evidence Locker: ${esc(err.message)}</p>`;
     }
   }
 

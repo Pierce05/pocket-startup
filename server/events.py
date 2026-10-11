@@ -1,6 +1,7 @@
 """In-memory event hub: per-run event list and condition variable for SSE streaming and replay."""
 import asyncio
 import json
+import time
 from typing import Any
 
 
@@ -12,8 +13,11 @@ class Stream:
         self.replay = replay
         self.rails = None
         self.task = None
+        self.t0: float = time.monotonic()
 
     async def publish(self, etype: str, data: dict[str, Any], t: float | None = None):
+        if t is None:
+            t = round(time.monotonic() - self.t0, 3)
         async with self.cond:
             self.events.append({"type": etype, "data": data, "t": t, "replay": self.replay})
             self.cond.notify_all()

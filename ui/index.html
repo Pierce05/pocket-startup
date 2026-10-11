@@ -46,6 +46,8 @@
         <option value="4">4x</option>
       </select>
       <button id="replay-btn" class="btn btn-sm">Replay</button>
+      <button id="demo-btn" class="btn btn-sm" title="Replay baseline run 20261011-043610-3f24 with autopsy">Demo</button>
+      <button id="compare-btn" class="btn btn-sm" title="Compare baseline vs improved runs back-to-back">Compare</button>
     </div>
   </header>
 
@@ -97,6 +99,7 @@
         <button id="t-verdict" class="tab-btn" role="tab" aria-selected="false" aria-controls="p-verdict">Verdict</button>
         <button id="t-founder" class="tab-btn" role="tab" aria-selected="false" aria-controls="p-founder">Founder</button>
         <button id="t-plan" class="tab-btn" role="tab" aria-selected="false" aria-controls="p-plan">Plan</button>
+        <button id="t-evidence" class="tab-btn" role="tab" aria-selected="false" aria-controls="p-evidence">Evidence</button>
       </nav>
 
       <!-- Panel: Log -->
@@ -180,6 +183,11 @@
       <!-- Panel: Plan -->
       <div id="p-plan" class="tab-panel" role="tabpanel" aria-labelledby="t-plan" hidden>
         <p>Loading Plan...</p>
+      </div>
+
+      <!-- Panel: Evidence -->
+      <div id="p-evidence" class="tab-panel" role="tabpanel" aria-labelledby="t-evidence" hidden>
+        <p>Loading Evidence...</p>
       </div>
     </aside>
   </main>

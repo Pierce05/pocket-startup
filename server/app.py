@@ -12,6 +12,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import time
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query
@@ -21,7 +22,7 @@ from sse_starlette.sse import EventSourceResponse
 
 import config
 import verdict
-from agent import loop, sandbox, tracing
+from agent import loop, prompts, sandbox, tracing
 from agent.llm import LLM, PRICES
 from agent.rails import Rails
 from evidence import metrics as metrics_mod
@@ -48,6 +49,7 @@ class RunRequest(BaseModel):
     budget_usd: float | None = None
     template: str | None = None
     mock: bool = False
+    mock_delay: float = 0.0
     sync: bool = False
 
 
@@ -154,19 +156,35 @@ async def start_run(req: RunRequest):
 
     if is_mock:
         from agent.mock_llm import MockLLM
-        llm = MockLLM()
+        if req.mock_delay > 0:
+            class DelayedMockLLM(MockLLM):
+                def __init__(self, delay_s: float = 0.0, **kw):
+                    super().__init__(**kw)
+                    self.delay_s = delay_s
+
+                async def _raw(self, system, user, json_mode):
+                    if self.delay_s > 0:
+                        await asyncio.sleep(self.delay_s)
+                    return await super()._raw(system, user, json_mode)
+
+            llm = DelayedMockLLM(delay_s=req.mock_delay)
+        else:
+            llm = MockLLM()
     else:
         llm = LLM()
 
     run_id = sandbox.new_run_id()
     stream = hub.create(run_id)
+    t0 = time.monotonic()
+    stream.t0 = t0
     budget = req.budget_usd if req.budget_usd is not None else config.DEFAULT_BUDGET_USD
     rails = Rails(budget, config.DEFAULT_MAX_ATTEMPTS, config.DEFAULT_TIMEOUT_S)
     stream.rails = rails
     loop_ref = asyncio.get_running_loop()
 
     def emit(etype, data):
-        loop_ref.create_task(stream.publish(etype, data))
+        elapsed = round(time.monotonic() - t0, 3)
+        loop_ref.create_task(stream.publish(etype, data, t=elapsed))
 
     async def runner():
         try:
@@ -182,7 +200,8 @@ async def start_run(req: RunRequest):
             await asyncio.sleep(0)
             try:
                 cur = json.loads(Path(config.METRICS_PATH).read_text(encoding="utf-8")) if Path(config.METRICS_PATH).exists() else {}
-                await stream.publish("metrics_ready", cur.get("live", {}))
+                elapsed = round(time.monotonic() - t0, 3)
+                await stream.publish("metrics_ready", cur.get("live", {}), t=elapsed)
             except Exception:
                 pass
             try:
@@ -193,7 +212,8 @@ async def start_run(req: RunRequest):
                        or cur.get("experiment", {}).get("combined", {}).get("improved")
                        or cur.get("live") or {})
                 v = verdict.compute(arm, assumptions, f_prof)
-                await stream.publish("verdict_ready", v)
+                elapsed = round(time.monotonic() - t0, 3)
+                await stream.publish("verdict_ready", v, t=elapsed)
             except Exception:
                 pass
             return rec
@@ -236,12 +256,19 @@ def list_runs():
 
 @app.get("/api/runs/{run_id}/events")
 async def run_events(run_id: str):
-    """SSE stream of the loop's events."""
+    """SSE stream of the loop's events with anti-buffering headers."""
     valid_id = validate_run_id(run_id)
     s = hub.get(valid_id)
     if s is None:
         raise HTTPException(404, "no live stream for this run id (start a replay instead)")
-    return EventSourceResponse(s.iterate())
+    return EventSourceResponse(
+        s.iterate(),
+        headers={
+            "Cache-Control": "no-cache, no-transform",
+            "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",
+        },
+    )
 
 
 @app.get("/api/runs/{run_id}")
@@ -469,101 +496,111 @@ def get_evidence():
     cfo_input_exists = (cfo_dir / "cfo_input.md").exists()
     links = m.get("neatlogs_trace_links", {})
 
+    # Compute claims strictly from disk
+    t_arm_b = exp.get("tuning", {}).get("baseline", {})
+    t_arm_i = exp.get("tuning", {}).get("improved", {})
+    h_arm_b = exp.get("held_out", {}).get("baseline", {})
+    h_arm_i = exp.get("held_out", {}).get("improved", {})
+
+    # 1. First-attempt lift
+    t_lift_b = t_arm_b.get("first_attempt_pass_count")
+    t_lift_i = t_arm_i.get("first_attempt_pass_count")
+    h_lift_b = h_arm_b.get("first_attempt_pass_count")
+    h_lift_i = h_arm_i.get("first_attempt_pass_count")
+    has_lift = (t_lift_b is not None and t_lift_i is not None and h_lift_b is not None and h_lift_i is not None)
+    lift_label = (f"Tuning {t_lift_b}/{t_arm_b.get('n_runs', 20)} vs {t_lift_i}/{t_arm_i.get('n_runs', 20)}; "
+                  f"Held-out {h_lift_b}/{h_arm_b.get('n_runs', 20)} vs {h_lift_i}/{h_arm_i.get('n_runs', 20)}") if has_lift else "metrics.json missing first-attempt counts"
+
+    # 2. Held-out result
+    has_heldout = bool("held_out" in exp and h_arm_b and h_arm_i)
+    heldout_label = (f"Held-out eventual: {h_arm_b.get('success_count', 0)}/{h_arm_b.get('n_runs', 20)} vs "
+                     f"{h_arm_i.get('success_count', 0)}/{h_arm_i.get('n_runs', 20)}") if has_heldout else "metrics.json missing held_out"
+
+    # 3. Cost per success
+    cps_b = h_arm_b.get("cost_per_success")
+    cps_i = h_arm_i.get("cost_per_success")
+    has_cps = (cps_b is not None and cps_i is not None)
+    cps_label = f"Baseline ${cps_b:.6f} vs Improved ${cps_i:.6f}" if has_cps else "metrics.json missing cost per success"
+
+    # 4. Entire checkpoints (trailers from read-only git log)
+    trailers = get_git_log_trailers(50)
+    entire_count = sum(1 for t in trailers if "Entire-Checkpoint" in t.get("trailers", {}))
+    has_entire = entire_count > 0
+    entire_label = f"{entire_count} checkpoints found in git log commit trailers" if has_entire else "no git trailers found"
+
+    # 5. neatlogs trace links
+    traces_file = Path(config.EVIDENCE) / "traces" / "index.md"
+    has_traces = traces_file.exists()
+    traces_label = "evidence/traces/index.md" if has_traces else "evidence/traces/index.md (absent)"
+
+    # 6. cfo.ai plan files
+    cfo_dir = Path(config.CFO_DIR)
+    plan_numbers_p = cfo_dir / "plan_numbers.json"
+    plan_summary_p = cfo_dir / "plan_summary.md"
+    cfo_files_found = [p.name for p in [plan_numbers_p, plan_summary_p] if p.exists()]
+    has_cfo = (plan_numbers_p.exists() and plan_summary_p.exists())
+    cfo_label = f"Found: {', '.join(cfo_files_found)}" if cfo_files_found else "evidence/cfo/ files missing"
+
+    # 7. verdict ledger
+    ledger_p = Path(config.LEDGER_PATH)
+    has_ledger = ledger_p.exists()
+    ledger_label = "evidence/ledger.json" if has_ledger else "evidence/ledger.json (absent)"
+
     claims = [
         {
-            "claim": "The agent completes tasks end to end",
-            "status": "FOUND" if len(real_runs) > 0 else "MISSING",
-            "proof": [
-                {
-                    "label": f"{len(real_runs)} real run folders",
-                    "ref": "evidence/runs/",
-                    "status": "FOUND" if len(real_runs) > 0 else "MISSING",
-                }
-            ],
+            "claim": "First-attempt lift",
+            "status": "FOUND" if has_lift else "MISSING",
+            "proof": [{"label": lift_label, "ref": "evidence/metrics.json", "status": "FOUND" if has_lift else "MISSING"}],
         },
         {
-            "claim": "A failure was diagnosed from the trace",
-            "status": "FOUND" if (autopsy_files or links.get("baseline_failure")) else "MISSING",
-            "proof": [
-                {
-                    "label": "autopsy.json files",
-                    "ref": ", ".join(autopsy_files[:4]) or "none yet",
-                    "status": "FOUND" if autopsy_files else "MISSING",
-                },
-                {
-                    "label": "neatlogs trace (baseline failure)",
-                    "ref": links.get("baseline_failure") or "",
-                    "status": "FOUND" if links.get("baseline_failure") else "MISSING",
-                },
-            ],
+            "claim": "Held-out result",
+            "status": "FOUND" if has_heldout else "MISSING",
+            "proof": [{"label": heldout_label, "ref": "evidence/metrics.json", "status": "FOUND" if has_heldout else "MISSING"}],
         },
         {
-            "claim": "The fix improved results (tuning set)",
-            "status": "FOUND" if "tuning" in exp else "MISSING",
-            "proof": [
-                {
-                    "label": "metrics.json experiment.tuning",
-                    "ref": "evidence/metrics.json",
-                    "status": "FOUND" if "tuning" in exp else "MISSING",
-                }
-            ],
+            "claim": "Cost per success",
+            "status": "FOUND" if has_cps else "MISSING",
+            "proof": [{"label": cps_label, "ref": "evidence/metrics.json", "status": "FOUND" if has_cps else "MISSING"}],
         },
         {
-            "claim": "The fix holds on unseen ideas (held-out set)",
-            "status": "FOUND" if "held_out" in exp else "MISSING",
-            "proof": [
-                {
-                    "label": "metrics.json experiment.held_out",
-                    "ref": "evidence/metrics.json",
-                    "status": "FOUND" if "held_out" in exp else "MISSING",
-                }
-            ],
+            "claim": "Entire checkpoints",
+            "status": "FOUND" if has_entire else "MISSING",
+            "proof": [{"label": entire_label, "ref": "git log", "status": "FOUND" if has_entire else "MISSING"}],
         },
         {
-            "claim": "Trust Rails work",
-            "status": "FOUND" if len(rails_runs) > 0 else "MISSING",
-            "proof": [
-                {
-                    "label": "runs where a rail fired",
-                    "ref": ", ".join(rails_runs[:4]) or "none yet",
-                    "status": "FOUND" if len(rails_runs) > 0 else "MISSING",
-                }
-            ],
+            "claim": "neatlogs trace links",
+            "status": "FOUND" if has_traces else "MISSING",
+            "proof": [{"label": traces_label, "ref": "evidence/traces/index.md", "status": "FOUND" if has_traces else "MISSING"}],
         },
         {
-            "claim": "Entire checkpoints were used",
-            "status": "FOUND" if len(entire_files) > 0 else "MISSING",
-            "proof": [
-                {
-                    "label": "checkpoint screenshots",
-                    "ref": ", ".join(entire_files[:4]) or "evidence/entire/",
-                    "status": "FOUND" if len(entire_files) > 0 else "MISSING",
-                }
-            ],
+            "claim": "cfo.ai plan files",
+            "status": "FOUND" if has_cfo else "MISSING",
+            "proof": [{"label": cfo_label, "ref": "evidence/cfo/", "status": "FOUND" if has_cfo else "MISSING"}],
         },
         {
-            "claim": "cfo.ai plan came from measured data",
-            "status": "FOUND" if (cfo_input_exists or len(cfo_exports) > 0) else "MISSING",
-            "proof": [
-                {
-                    "label": "cfo_input.md",
-                    "ref": "evidence/cfo/cfo_input.md",
-                    "status": "FOUND" if cfo_input_exists else "MISSING",
-                },
-                {
-                    "label": "exported plan",
-                    "ref": ", ".join(cfo_exports[:4]) or "evidence/cfo/",
-                    "status": "FOUND" if len(cfo_exports) > 0 else "MISSING",
-                },
-            ],
+            "claim": "Verdict ledger",
+            "status": "FOUND" if has_ledger else "MISSING",
+            "proof": [{"label": ledger_label, "ref": "evidence/ledger.json", "status": "FOUND" if has_ledger else "MISSING"}],
         },
     ]
 
+    metrics_sha = _sha(config.METRICS_PATH)
+    expected_sha_p = Path(config.EVIDENCE) / "ab" / "metrics.sha256"
+    expected_sha = expected_sha_p.read_text(encoding="utf-8").strip() if expected_sha_p.exists() else None
+    sha_match = "MATCH" if (metrics_sha and expected_sha and metrics_sha.lower() == expected_sha.lower()) else "MISMATCH"
+
+    builder_sha = hashlib.sha256(prompts.BUILDER_SYSTEM_V1.encode("utf-8")).hexdigest() if hasattr(prompts, "BUILDER_SYSTEM_V1") else None
+    retry_sha = hashlib.sha256(prompts.RETRY_USER.encode("utf-8")).hexdigest() if hasattr(prompts, "RETRY_USER") else None
+
     hashes = {
-        "evidence/metrics.json": _sha(config.METRICS_PATH),
+        "evidence/metrics.json": metrics_sha,
+        "evidence/ab/metrics.sha256": expected_sha,
+        "metrics_sha256_match": sha_match,
         "evidence/patches/winner.txt": _sha(config.PATCH_DIR / "winner.txt"),
         "winner.txt": _sha(config.PATCH_DIR / "winner.txt"),
         "agent/prompts.py": _sha(config.ROOT / "agent" / "prompts.py"),
+        "BUILDER_SYSTEM_V1": builder_sha,
+        "RETRY_USER": retry_sha,
         "assumptions.yaml": _sha(config.ASSUMPTIONS_PATH),
         "verdict.py": _sha(config.ROOT / "verdict.py"),
     }
@@ -576,24 +613,41 @@ def get_evidence():
         "held_out/improved": len(cell_run_ids.get("held_out/improved", [])) or exp.get("held_out", {}).get("improved", {}).get("n_runs", 0),
     }
 
-    reproduce = [
+    reproduce_readme_p = Path(config.EVIDENCE) / "ab" / "README.md"
+    reproduce = []
+    if reproduce_readme_p.exists():
+        r_text = reproduce_readme_p.read_text(encoding="utf-8")
+        m_cmd = re.search(r"```bash\s*\n(.*?)\n```", r_text, re.DOTALL)
+        if m_cmd:
+            reproduce.append(m_cmd.group(1).strip())
+
+    for cmd in [
+        "python -m experiments.ab --repeats 4 --seed 42 --sleep 1.0",
         "python -m experiments.smoke --mode baseline --n 5",
         "python -m experiments.patch_lab",
-        "python -m experiments.ab --repeats 4 --seed 42 --sleep 1.0",
         "python -m cfo.bridge",
         "python verdict.py --founder a",
         "pytest -q",
-    ]
+    ]:
+        if cmd not in reproduce:
+            reproduce.append(cmd)
 
-    trailers = get_git_log_trailers(10)
+    limitations = [
+        "Tip-pool idea/template mismatch: The remaining held-out failures come from two pool-style ideas (tip pools) where the idea's framing conflicts with the per-person contract.",
+        "The winning patch adds a whole-number-people rule: Validates integer people count and prevents divide-by-zero errors.",
+        "Held-out is the same template: Both tuning and held-out ideas instantiate the tip_splitter single-file contract.",
+        "N is small: 20 runs per cell (4 repeats across 5 ideas per arm). P-values and confidence intervals are indicative.",
+    ]
 
     return {
         "claims": claims,
         "hashes": hashes,
+        "metrics_sha_match": sha_match,
         "run_counts_per_cell": run_counts_per_cell,
         "cell_counts": run_counts_per_cell,
         "reproduce_commands": reproduce,
         "reproduce": reproduce,
+        "limitations": limitations,
         "git_log_trailers": trailers,
         "trailers": trailers,
         "pricing_date": PRICES.get("pricing_date", "2026-10-11"),
