@@ -55,12 +55,15 @@ async def run_smoke(mode: str = "baseline", n: int = 1, mock: bool = False,
 
         mock_label = " [MOCK - excluded from metrics]" if rec["mock"] else ""
         rails_fired = [r["rail"] for r in rec["rails_fired"]]
+        cost_tag = rec.get("cost_tag", "MOCK" if rec["mock"] else "COMPUTED")
+        cost_num = f"${rec['cost_usd']:.6f}" if isinstance(rec['cost_usd'], (int, float)) else str(rec['cost_usd'])
+        cost_str = f"{cost_num} ({cost_tag})"
         print(
             f"Run ID: {rec['run_id']}{mock_label}\n"
             f"  Outcome: {'SUCCESS' if rec['success'] else 'FAILED'}\n"
             f"  Attempts: {rec['attempts']} (First attempt passed: {rec['first_attempt_passed']})\n"
             f"  Tokens: {rec['tokens']} (in: {rec['input_tokens']}, out: {rec['output_tokens']}) [MEASURED]\n"
-            f"  Cost: ${rec['cost_usd']:.6f} [COMPUTED: {rec['pricing_date']}]\n"
+            f"  Cost: {cost_str} [COMPUTED: {rec['pricing_date']}]\n"
             f"  Latency: {rec['latency_s']}s [MEASURED]\n"
             f"  Rails fired: {rails_fired or 'none'}"
         )

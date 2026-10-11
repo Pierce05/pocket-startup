@@ -37,6 +37,9 @@ async def test_full_run_mock_fails_then_succeeds_and_writes_evidence():
     assert (d / "index.html").exists() and (d / "events.json").exists() and (d / "result.json").exists()
     assert (d / "autopsy.json").exists()
     assert set(rec["cost_by_stage"]) >= {"plan", "build", "retry", "autopsy"}
+    assert rec["cost_tag"] == "MOCK"
+    res = json.loads((d / "result.json").read_text(encoding="utf-8"))
+    assert res["cost_tag"] == "MOCK"
 
 
 @needs_browser
@@ -101,3 +104,30 @@ async def test_local_spans_recorded_for_autopsy():
     rec = await loop.run_build("x", "baseline", llm=MockLLM(), template="tip_splitter", budget_usd=1e-12)
     names = [s["name"] for s in rec["spans"]]
     assert "plan" in names
+
+
+@needs_browser
+async def test_unpriced_model_writes_unpriced_to_result_json_and_events():
+    events = []
+
+    class UnpricedMock(MockLLM):
+        def __init__(self):
+            super().__init__()
+            self.model = "unknown-unpriced-model"
+
+    rec = await loop.run_build("split a bill", "improved", lambda t, d: events.append((t, d)),
+                               llm=UnpricedMock(), template="tip_splitter", autopsy=False)
+    assert rec["cost_usd"] == "UNPRICED"
+    assert rec["cost_by_stage"] == {"plan": "UNPRICED", "build": "UNPRICED"}
+    assert rec["pricing_known_for_model"] is False
+
+    d = config.RUNS / rec["run_id"]
+    res = json.loads((d / "result.json").read_text(encoding="utf-8"))
+    assert res["cost_usd"] == "UNPRICED"
+    assert res["pricing_known_for_model"] is False
+    assert res["cost_by_stage"] == {"plan": "UNPRICED", "build": "UNPRICED"}
+
+    ev_costs = [d["_cost"] for t, d in events if "_cost" in d]
+    assert len(ev_costs) > 0
+    assert all(c == "UNPRICED" for c in ev_costs)
+

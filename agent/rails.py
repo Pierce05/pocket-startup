@@ -31,8 +31,9 @@ class Rails:
             raise RailFired("kill_switch", "stopped by operator")
 
     def check_budget(self, stats):
-        if stats.cost_usd >= self.budget_usd:
-            raise RailFired("budget", f"spent ${stats.cost_usd:.6f} of ${self.budget_usd:.6f} cap")
+        if stats.cost_usd is not None and isinstance(stats.cost_usd, (int, float)):
+            if stats.cost_usd >= self.budget_usd:
+                raise RailFired("budget", f"spent ${stats.cost_usd:.6f} of ${self.budget_usd:.6f} cap")
 
     def check_time(self):
         if time.monotonic() - self._t0 >= self.timeout_s:

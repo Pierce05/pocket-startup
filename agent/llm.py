@@ -11,12 +11,12 @@ from dataclasses import dataclass, field
 import config
 
 PRICES = {
-    "pricing_date": "UNVERIFIED",
-    "pricing_source": "ASSUMED",
+    "pricing_date": "2026-10-11",
+    "source": "Google's Gemini API pricing page (ai.google.dev/gemini-api/docs/pricing)",
     "models": {
-        "gemini-2.5-flash": {"input_per_m": 0.30, "output_per_m": 2.50},
+        "gemini-3.5-flash-lite": {"input_per_m": 0.30, "output_per_m": 2.50},
+        "mock-model": {"input_per_m": 0.30, "output_per_m": 2.50},
     },
-    "fallback": {"input_per_m": 0.30, "output_per_m": 2.50},
 }
 
 RETRYABLE_CODES = {429, 503}
@@ -27,15 +27,17 @@ class LLMError(Exception):
     pass
 
 
-def price_for(model: str) -> tuple[float, float, bool]:
-    m = PRICES["models"].get(model)
-    known = m is not None
-    m = m or PRICES["fallback"]
-    return m["input_per_m"], m["output_per_m"], known
+def price_for(model: str) -> tuple[float | None, float | None, bool]:
+    m = PRICES.get("models", {}).get(model)
+    if m is not None:
+        return m["input_per_m"], m["output_per_m"], True
+    return None, None, False
 
 
-def compute_cost(model: str, input_tokens: int, output_tokens: int) -> float:
-    pin, pout, _ = price_for(model)
+def compute_cost(model: str, input_tokens: int, output_tokens: int) -> float | None:
+    pin, pout, known = price_for(model)
+    if not known or pin is None or pout is None:
+        return None
     return (input_tokens * pin + output_tokens * pout) / 1_000_000
 
 
@@ -45,19 +47,29 @@ class RunStats:
     model: str = ""
     input_tokens: int = 0
     output_tokens: int = 0
-    cost_usd: float = 0.0
+    cost_usd: float | None = 0.0
     by_stage: dict = field(default_factory=dict)
     calls: int = 0
 
-    def add(self, stage: str, input_tokens: int, output_tokens: int, cost: float):
+    def __post_init__(self):
+        if self.model and not price_for(self.model)[2]:
+            self.cost_usd = None
+
+    def add(self, stage: str, input_tokens: int, output_tokens: int, cost: float | None):
         self.input_tokens += input_tokens
         self.output_tokens += output_tokens
-        self.cost_usd += cost
+        if cost is None:
+            self.cost_usd = None
+        elif self.cost_usd is not None:
+            self.cost_usd += cost
         self.calls += 1
         s = self.by_stage.setdefault(stage, {"input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0, "calls": 0})
         s["input_tokens"] += input_tokens
         s["output_tokens"] += output_tokens
-        s["cost_usd"] += cost
+        if cost is None:
+            s["cost_usd"] = None
+        elif s["cost_usd"] is not None:
+            s["cost_usd"] += cost
         s["calls"] += 1
 
     @property
@@ -65,7 +77,16 @@ class RunStats:
         return self.input_tokens + self.output_tokens
 
     def cost_by_stage(self) -> dict:
-        return {k: round(v["cost_usd"], 8) for k, v in self.by_stage.items()}
+        return {
+            k: (round(v["cost_usd"], 8) if v["cost_usd"] is not None else "UNPRICED")
+            for k, v in self.by_stage.items()
+        }
+
+    @property
+    def cost_display(self) -> str | float:
+        if self.cost_usd is not None:
+            return round(self.cost_usd, 8)
+        return "UNPRICED"
 
 
 def parse_json(text: str):

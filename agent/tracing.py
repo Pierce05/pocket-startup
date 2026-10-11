@@ -65,7 +65,10 @@ class Tracer:
             rec["duration_ms"] = int((time.monotonic() - t0) * 1000)
             if self.stats:
                 rec["tokens"] = self.stats.tokens - tok0
-                rec["cost_usd"] = round(self.stats.cost_usd - cost0, 8)
+                if self.stats.cost_usd is not None and cost0 is not None and isinstance(self.stats.cost_usd, (int, float)) and isinstance(cost0, (int, float)):
+                    rec["cost_usd"] = round(self.stats.cost_usd - cost0, 8)
+                else:
+                    rec["cost_usd"] = "UNPRICED"
 
     def summary(self) -> list[dict]:
         return list(self.spans)

@@ -61,8 +61,12 @@ async def run_build(idea: str, mode: str, emit=None, *, template: str | None = N
     sandbox.run_dir(run_id, runs_dir)
 
     def _emit(etype: str, data: dict | None = None):
+        known = price_for(llm.model)[2]
+        is_mock = bool(llm.mock or llm.model == "mock-model")
+        cost_val = round(stats.cost_usd, 8) if (known and stats.cost_usd is not None) else "UNPRICED"
+        cost_tag = "MOCK" if is_mock else ("COMPUTED" if known else "UNPRICED")
         ev = {"t": round(time.monotonic() - t0, 3), "type": etype,
-              "data": {**(data or {}), "_cost": round(stats.cost_usd, 8), "_tokens": stats.tokens}}
+              "data": {**(data or {}), "_cost": cost_val, "_cost_tag": cost_tag, "_tokens": stats.tokens}}
         events.append(ev)
         if emit:
             try:
@@ -156,15 +160,20 @@ async def run_build(idea: str, mode: str, emit=None, *, template: str | None = N
 
 
 def _finish(run_id, mode, idea, state, stats, rails, tracer, llm, t0, events, runs_dir) -> dict:
+    known = price_for(llm.model)[2]
+    is_mock = bool(llm.mock or llm.model == "mock-model")
+    cost_val = round(stats.cost_usd, 8) if (known and stats.cost_usd is not None) else "UNPRICED"
+    cost_tag = "MOCK" if is_mock else ("COMPUTED" if known else "UNPRICED")
     record = {
         "run_id": run_id, "mode": mode, "template": state["template"], "idea": idea,
         "success": state["success"], "attempts": state["attempts"], "first_attempt_passed": state["first"],
         "input_tokens": stats.input_tokens, "output_tokens": stats.output_tokens, "tokens": stats.tokens,
-        "cost_usd": round(stats.cost_usd, 8), "cost_by_stage": stats.cost_by_stage(),
+        "cost_usd": cost_val, "cost_tag": cost_tag, "cost_by_stage": stats.cost_by_stage(),
         "latency_s": round(time.monotonic() - t0, 3), "rails_fired": rails.fired, "error": state["error"],
         "neatlogs_trace_url": None, "spans": tracer.summary(),
         "model": llm.model, "temperature": llm.temperature, "pricing_date": PRICES["pricing_date"],
-        "pricing_known_for_model": price_for(llm.model)[2], "mock": llm.mock,
+        "pricing_source": "MOCK" if is_mock else PRICES.get("source"),
+        "pricing_known_for_model": known, "mock": is_mock,
         "approved": False, "status": "awaiting_approval" if state["success"] else "failed",
     }
     sandbox.write_json(run_id, "result.json", record, runs_dir)
@@ -173,7 +182,7 @@ def _finish(run_id, mode, idea, state, stats, rails, tracer, llm, t0, events, ru
 
 def _emit_final(record, events, emit, run_id, runs_dir):
     ev = {"t": record["latency_s"], "type": "run_finished", "data": {k: record[k] for k in (
-        "run_id", "success", "attempts", "first_attempt_passed", "cost_usd", "tokens", "latency_s",
+        "run_id", "success", "attempts", "first_attempt_passed", "cost_usd", "cost_tag", "tokens", "latency_s",
         "rails_fired", "error", "mock")}}
     events.append(ev)
     if emit:
