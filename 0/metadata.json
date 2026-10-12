@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4R2K6WYE7DQ8CAYAA53EWYX",
+  "session_id": "11da739e-fb9d-46ad-bf39-c89e92d05bca",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-12T12:49:58.4943846Z",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "save_step_count": 1,
+  "files_touched": [
+    "requirements.txt"
+  ],
+  "agent": "Antigravity",
+  "model": "",
+  "turn_id": "b588720fe364",
+  "session_metrics": {
+    "turn_count": 9
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-12T12:49:58.3134476Z",
+    "agent_lines": 11,
+    "agent_removed": 11,
+    "human_added": 55,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 66,
+    "total_lines_changed": 85,
+    "agent_percentage": 25.882352941176475,
+    "metric_version": 2
+  }
+}
