@@ -1,0 +1,31 @@
+We need to deploy Pocket Startup today. Work directly in the existing repository at `D:\codes\pocket-startup`.
+
+Repository: https://github.com/Pierce05/pocket-startup
+
+GOAL: Deploy the landing page AND the actual FastAPI product together on Render, using one public URL. The landing-page CTA MUST link to the actual product.
+
+First inspect the repository, current Git status, `server/app.py`, `ui/`, `docs/design/landing_reference.html`, `README.md`, `requirements.txt`, and `.env.example`.
+
+Implement only the minimum necessary changes:
+
+1. Serve the landing page at `/`.
+2. Serve the existing product dashboard at `/app`, preserving existing API, SSE, replay, evidence, verdict, trust and CFO functionality.
+3. Wire the landing-page "Run an idea" CTA to `/app`. Preserve the simulated-preview labels and the "Run it locally" README link.
+4. Remove hard-coded localhost URLs from browser-facing API requests where necessary; use same-origin URLs.
+5. Make the app compatible with Render's assigned `PORT` and host `0.0.0.0`.
+6. Inspect Playwright/Chromium deployment requirements and determine the correct Render build and start commands.
+7. Keep Gemini API credentials server-side. Never print, expose, or commit secrets. Preserve attempt limits, approval gates and existing security controls.
+8. Do not modify frozen metrics, experiment results, or failed-run evidence. Do not touch the untracked `evidence/runs/` directories.
+9. Do not run tests. We are prioritising deployment.
+10. Do not commit, push, stage, reset, stash, clean, or delete files.
+11. Do not redesign the landing page or create duplicate implementations.
+
+After editing, inspect your diff. Report exactly which files changed, the Render configuration to use, any deployment blockers, and how the landing-page CTA reaches the product. Do not claim the app is deployed or working until verified.
+
+---
+
+commit
+
+---
+
+Do not commit yet. The secret scan matched an existing test assertion in tests/test_server.py, which is not listed among the staged files. Verify the staged file list with `git diff --cached --name-only`, then scan only the staged files for actual credential-shaped strings. Do not print secret values. Preserve all current staged and unstaged changes. If the staged files contain no secrets, report that conclusion and wait for my confirmation before committing. Do not push.

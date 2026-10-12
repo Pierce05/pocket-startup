@@ -3,9 +3,13 @@
   "checkpoint_id": "01M4R2K6WYE7DQ8CAYAA53EWYX",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 2,
+  "checkpoints_count": 5,
   "files_touched": [
-    "requirements.txt"
+    "docs/design/landing_reference.html",
+    "docs/index.html",
+    "requirements.txt",
+    "server/app.py",
+    "ui/app.js"
   ],
   "sessions": [
     {
@@ -13,6 +17,19 @@
       "transcript": "/0/full.jsonl",
       "content_hash": "/0/content_hash.txt",
       "prompt": "/0/prompt.txt"
+    },
+    {
+      "metadata": "/1/metadata.json",
+      "transcript": "/1/full.jsonl",
+      "content_hash": "/1/content_hash.txt",
+      "prompt": "/1/prompt.txt"
     }
-  ]
+  ],
+  "token_usage": {
+    "input_tokens": 161000,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 21383502,
+    "output_tokens": 43930,
+    "api_call_count": 195
+  }
 }
