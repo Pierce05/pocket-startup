@@ -1,6 +1,7 @@
 """FastAPI app for Pocket Startup: REST APIs + SSE event streaming.
 
-Bound strictly to 127.0.0.1.
+Serves the landing page at / and product dashboard at /app.
+Supports 0.0.0.0 binding and Render PORT environment variable.
 Protects against path traversal and secret leakage.
 The server never writes to committed evidence or evidence/metrics.json.
 """
@@ -859,11 +860,33 @@ def founder_report(run_id: str, founder: str = Query("a")):
 # Secure File Serving (evidence/ and ui/ with Path-Traversal Protection)
 # -------------------------------------------------------------------------
 @app.get("/")
+@app.get("/index.html")
 def index():
+    landing_index = Path(config.ROOT) / "docs" / "index.html"
+    if not landing_index.exists():
+        landing_index = Path(config.ROOT) / "docs" / "design" / "landing_reference.html"
+    if not landing_index.exists():
+        landing_index = ROOT_DIR / "docs" / "index.html"
+    if not landing_index.exists():
+        landing_index = ROOT_DIR / "docs" / "design" / "landing_reference.html"
+    if landing_index.exists():
+        return FileResponse(landing_index)
     ui_index = Path(config.ROOT) / "ui" / "index.html"
     if ui_index.exists():
         return FileResponse(ui_index)
     return {"message": "Pocket Startup API"}
+
+
+@app.get("/app")
+@app.get("/app/")
+@app.get("/app/index.html")
+def app_ui():
+    ui_index = Path(config.ROOT) / "ui" / "index.html"
+    if not ui_index.exists():
+        ui_index = ROOT_DIR / "ui" / "index.html"
+    if ui_index.exists():
+        return FileResponse(ui_index)
+    raise HTTPException(404, "Product dashboard not found")
 
 
 @app.get("/ui/{file_path:path}")
@@ -893,9 +916,14 @@ def serve_evidence(file_path: str):
 
 
 def run_server():
-    """Start uvicorn server binding to 127.0.0.1:8000."""
+    """Start uvicorn server compatible with Render's assigned PORT and host 0.0.0.0."""
+    import os
     import uvicorn
-    uvicorn.run("server.app:app", host="127.0.0.1", port=8000, reload=True)
+
+    host = os.environ.get("HOST", "0.0.0.0")
+    port = int(os.environ.get("PORT", 8000))
+    reload = os.environ.get("RELOAD", "false").lower() in ("true", "1")
+    uvicorn.run("server.app:app", host=host, port=port, reload=reload)
 
 
 if __name__ == "__main__":

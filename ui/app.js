@@ -1105,6 +1105,14 @@
       S.cfg = {};
     }
 
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const passedIdea = urlParams.get('idea');
+      if (passedIdea && $('idea-input')) {
+        $('idea-input').value = passedIdea;
+      }
+    } catch (_) {}
+
     updateBanner();
     refreshReplayList();
     loadFounderDefaults();

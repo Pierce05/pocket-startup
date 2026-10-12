@@ -409,7 +409,7 @@ input[type=range]{width:100%;accent-color:var(--amber);height:28px}
       <p class="eyebrow"><span class="dash"></span>AI AGENT FOR FOUNDERS · NEATHACK 2026</p>
       <h1 id="h1">Should you<br><em>build it?</em></h1>
       <p class="sub">Pocket Startup builds your idea as a tiny app, breaks it on purpose, fixes it from its own trace, and tells you if it is worth building. Every claim links to proof.</p>
-      <form id="ideaForm" class="ideaform" autocomplete="off">
+      <form id="ideaForm" class="ideaform" autocomplete="off" action="/app" method="GET">
         <label class="sr" for="idea">Your startup idea</label>
         <input id="idea" name="idea" type="text" maxlength="80" placeholder="Type a startup idea">
         <button class="btn btn-red" type="submit" id="runBtn">Run an idea &rarr;</button>
@@ -657,7 +657,7 @@ input[type=range]{width:100%;accent-color:var(--amber);height:28px}
     <h2 class="big" id="ctaH">Run an <em>idea.</em></h2>
     <p class="lead" style="color:#D6D9EA">Read the code. Then decide what you would trust it to do while you are not watching.</p>
     <div class="btnrow">
-      <button class="btn btn-red" type="button" id="ctaRun">Run an idea &rarr;</button>
+      <a class="btn btn-red" id="ctaRun" href="/app">Run an idea &rarr;</a>
       <a class="btn" id="ctaRepo" href="https://github.com/Pierce05/pocket-startup" target="_blank" rel="noopener">Read the code</a>
     </div>
     <div class="foot">
@@ -938,10 +938,21 @@ const Office=(()=>{
 })();
 
 /* ============ hero wiring ============ */
-$('#ideaForm').addEventListener('submit',e=>{e.preventDefault();Office.run($('#idea').value.trim())});
-$$('.ichip').forEach(b=>b.addEventListener('click',()=>Office.run(b.dataset.idea)));
+$('#ideaForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const val=$('#idea').value.trim();
+  window.location.href='/app'+(val?'?idea='+encodeURIComponent(val):'');
+});
+$$('.ichip').forEach(b=>b.addEventListener('click',()=>{
+  if($('#idea'))$('#idea').value=b.dataset.idea;
+  Office.run(b.dataset.idea);
+}));
 $('#replayBtn').addEventListener('click',()=>{$('#office').scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});Office.restart()});
-$('#ctaRun').addEventListener('click',()=>{$('#top').scrollIntoView({behavior:reduce?'auto':'smooth'});setTimeout(()=>$('#idea').focus({preventScroll:true}),400)});
+$('#ctaRun').addEventListener('click',e=>{
+  e.preventDefault();
+  const val=$('#idea')?$('#idea').value.trim():'';
+  window.location.href='/app'+(val?'?idea='+encodeURIComponent(val):'');
+});
 ['navRepo','heroRepo','ctaRepo'].forEach(id=>{$('#'+id).href=PROOF.repo.url});
 
 /* wordmark + taglines */
